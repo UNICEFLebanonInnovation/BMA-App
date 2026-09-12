@@ -19,6 +19,10 @@ class AppColors {
 class AppTheme {
   AppTheme._();
 
+  /// Extra font families tried when a glyph is missing from the default
+  /// font (used by the screenshot harness to render Arabic on the host).
+  static List<String> fontFamilyFallback = const [];
+
   static ThemeData light() {
     final scheme = ColorScheme.fromSeed(
       seedColor: AppColors.primary,
@@ -28,9 +32,10 @@ class AppTheme {
       error: AppColors.danger,
     );
 
-    return ThemeData(
+    final base = ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      fontFamilyFallback: fontFamilyFallback.isEmpty ? null : fontFamilyFallback,
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primary,
@@ -61,14 +66,20 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(minimumSize: const Size(48, 44)),
       ),
-      chipTheme: const ChipThemeData(
-        labelStyle: TextStyle(fontSize: 12),
-        padding: EdgeInsets.symmetric(horizontal: 6),
-      ),
       navigationBarTheme: const NavigationBarThemeData(
         indicatorColor: AppColors.secondary,
       ),
       dividerTheme: const DividerThemeData(space: 1),
+    );
+
+    // The chip label style replaces (rather than merges with) the Material
+    // default, so derive it from the text theme to keep the font family and
+    // fallback fonts.
+    return base.copyWith(
+      chipTheme: ChipThemeData(
+        labelStyle: base.textTheme.labelLarge?.copyWith(fontSize: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+      ),
     );
   }
 }

@@ -115,6 +115,16 @@ flutter build ipa --release          # iOS (macOS + Xcode)
 
 The default server URL and app version live in `lib/core/config/app_config.dart`.
 
+#### APK from GitHub Actions
+
+Every push runs `.github/workflows/build.yml`, which analyses and tests the
+code and then builds a release APK. Open the run under **Actions → Build** and
+download the `bma-app-apk` artifact (kept for 90 days). The workflow can also
+be started by hand (**Run workflow**) with `build_type` = `release` or `debug`.
+The release APK is signed with the debug key so it installs on any device for
+field testing; configure a proper upload key in `android/app/build.gradle.kts`
+before publishing to a store.
+
 ## Testing
 
 ```bash
@@ -123,6 +133,35 @@ flutter test
 
 Tests use `sqflite_common_ffi` (no device needed) and an in-memory fake of the
 server API to exercise the whole offline → push → resolve → push cycle.
+
+## Screenshots
+
+The images in `screenshots/` are rendered by a widget test from fixtures that
+were captured from a real BMA-NFE server running the mobile API
+(`test/screenshots/fixtures/`, produced by
+`python -m student_registration.mobile_api.tests.make_fixtures` in BMA-NFE).
+Regenerate them with:
+
+```bash
+BMA_SCREENSHOTS=1 flutter test test/screenshots/screenshot_generator_test.dart
+```
+
+| | | |
+|---|---|---|
+| ![Login](screenshots/01_login.png) | ![Home](screenshots/02_home.png) | ![Beneficiaries](screenshots/03_beneficiaries.png) |
+| ![Child profile](screenshots/04_child_profile.png) | ![Services](screenshots/05_child_services.png) | ![Registration wizard](screenshots/06_registration_wizard_identity.png) |
+| ![Caregivers step](screenshots/07_registration_wizard_caregivers.png) | ![PSS service form](screenshots/08_service_form_pss.png) | ![Teachers](screenshots/09_teachers.png) |
+| ![Dashboard](screenshots/10_dashboard.png) | ![Sync centre](screenshots/11_sync_center.png) | ![Push report](screenshots/12_push_report.png) |
+| ![Duplicate resolution](screenshots/13_duplicate_resolution.png) | ![Sync history](screenshots/14_sync_history.png) | ![Settings](screenshots/15_settings.png) |
+| ![Home (Arabic)](screenshots/18_home_arabic.png) | ![Beneficiaries (Arabic)](screenshots/19_beneficiaries_arabic.png) | ![Registration wizard (Arabic)](screenshots/20_registration_wizard_arabic.png) |
+
+Tablet layout (attendance sheet and beneficiaries list):
+
+| | |
+|---|---|
+| ![Attendance on tablet](screenshots/16_attendance_tablet.png) | ![Beneficiaries on tablet](screenshots/17_beneficiaries_tablet.png) |
+
+`screenshots/contact_sheet.png` shows all phone screens on one page.
 
 ## Licence
 

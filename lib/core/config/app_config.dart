@@ -56,6 +56,7 @@ class Entities {
   static const msccReferral = 'mscc.referral';
   static const msccNewRoundKey = 'mscc.new_round';
   static const msccPss = 'mscc.pss';
+  static const msccFollowUp = 'mscc.follow_up';
 
   static const alpRegistration = 'alp.registration';
   static const alpTeacher = 'alp.teacher';
