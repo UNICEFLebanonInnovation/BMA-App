@@ -1,0 +1,263 @@
+{
+  "@@locale": "en",
+  "appTitle": "BMA Mobile",
+  "login": "Login",
+  "logout": "Logout",
+  "username": "Username",
+  "password": "Password",
+  "serverUrl": "Server URL",
+  "serverUrlHint": "https://bma.example.org",
+  "signIn": "Sign in",
+  "signingIn": "Signing in…",
+  "loginFailed": "Login failed: {reason}",
+  "@loginFailed": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "offlineLoginHint": "No connection. Use the last account that signed in on this device.",
+  "invalidCredentials": "Invalid username or password.",
+  "home": "Home",
+  "dashboard": "Dashboard",
+  "registrations": "Registrations",
+  "beneficiaries": "Beneficiaries",
+  "attendance": "Attendance",
+  "teachers": "Teachers",
+  "teacherAttendance": "Teacher attendance",
+  "sync": "Sync",
+  "syncCenter": "Sync centre",
+  "settings": "Settings",
+  "language": "Language",
+  "english": "English",
+  "arabic": "Arabic",
+  "mscc": "Makani (MSCC)",
+  "alp": "ALP schools",
+  "clm": "CLM Bridging",
+  "registerNew": "Register new",
+  "search": "Search",
+  "searchHint": "Name, ID number or record number",
+  "noResults": "No records found.",
+  "pending": "Pending",
+  "synced": "Synced",
+  "pushing": "Pushing",
+  "duplicate": "Duplicate",
+  "conflict": "Conflict",
+  "error": "Error",
+  "discarded": "Discarded",
+  "pendingChanges": "{count, plural, =0{No pending changes} =1{1 pending change} other{{count} pending changes}}",
+  "@pendingChanges": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pushNow": "Push changes",
+  "pullNow": "Download updates",
+  "fullRefresh": "Full refresh (reference data + records)",
+  "lastPull": "Last download: {time}",
+  "@lastPull": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "never": "never",
+  "online": "Online",
+  "offline": "Offline",
+  "offlineBanner": "You are offline. Work is saved on this device and pushed later.",
+  "pushReport": "Push report",
+  "syncHistory": "Sync history",
+  "summaryCreated": "Created",
+  "summaryUpdated": "Updated",
+  "summaryMerged": "Merged",
+  "summaryLinked": "Linked",
+  "summaryDuplicates": "Duplicates",
+  "summaryConflicts": "Conflicts",
+  "summaryErrors": "Errors",
+  "summarySkipped": "Skipped",
+  "summaryDiscarded": "Discarded",
+  "resolveDuplicate": "Resolve duplicate",
+  "duplicateExplanation": "The server found existing records matching this child. Choose what to do.",
+  "mergeIntoExisting": "Merge into existing record",
+  "mergeExplanation": "Copy the values collected offline onto the selected existing registration.",
+  "linkExistingChild": "Same child, new enrolment",
+  "linkExplanation": "Create the new registration for the existing child without creating a new child.",
+  "createAnyway": "Create anyway (different person)",
+  "discardLocal": "Discard my offline record",
+  "overwriteServer": "Overwrite server version",
+  "keepServer": "Keep server version",
+  "resolveConflict": "Resolve conflict",
+  "conflictExplanation": "This record was changed on the server after you edited it offline.",
+  "localVersion": "Your version",
+  "serverVersion": "Server version",
+  "apply": "Apply",
+  "cancel": "Cancel",
+  "save": "Save",
+  "saveDraft": "Save locally",
+  "next": "Next",
+  "back": "Back",
+  "submit": "Submit",
+  "confirm": "Confirm",
+  "delete": "Delete",
+  "edit": "Edit",
+  "close": "Close",
+  "retry": "Retry",
+  "requiredField": "This field is required.",
+  "invalidNumber": "Enter a valid number.",
+  "invalidDate": "Enter a valid date (YYYY-MM-DD).",
+  "futureDate": "Date cannot be in the future.",
+  "onlyLetters": "Only letters are allowed.",
+  "confirmMismatch": "Values do not match.",
+  "stepIdentity": "Identity",
+  "stepCaregivers": "Caregivers & household",
+  "stepReview": "Review & confirm",
+  "possibleDuplicates": "Possible duplicates on this device",
+  "possibleDuplicatesHint": "A record with the same name, birth date and gender already exists locally. Continue only if this is a different child.",
+  "reviewHint": "Check the values below, then submit. The record is stored on this device and verified by the server on the next push.",
+  "profile": "Profile",
+  "info": "Information",
+  "services": "Services",
+  "educationHistory": "Education history",
+  "addService": "Add service",
+  "newRound": "New round",
+  "noServices": "No services recorded yet.",
+  "markDeleted": "Mark as deleted",
+  "selectCenter": "Centre",
+  "selectSchool": "School",
+  "selectRound": "Round",
+  "selectProgram": "Programme",
+  "selectSection": "Section",
+  "selectDate": "Date",
+  "dayOff": "Day off",
+  "closeReason": "Close reason",
+  "present": "Present",
+  "absent": "Absent",
+  "absenceReason": "Absence reason",
+  "absenceReasonOther": "Other reason",
+  "markAllPresent": "Mark all present",
+  "loadChildren": "Load children",
+  "noChildrenForSelection": "No enrolled children for this selection.",
+  "attendanceSaved": "Attendance saved on this device.",
+  "childMonth": "Monthly attendance",
+  "attended": "Attended",
+  "totalRegistrations": "Registrations",
+  "byGender": "By gender",
+  "byNationality": "By nationality",
+  "byAgeGroup": "By age group",
+  "attendanceRate": "Attendance rate (30 days)",
+  "servicesDelivered": "Services delivered",
+  "kpiPendingPush": "Waiting to push",
+  "kpiDuplicates": "Need resolution",
+  "kpiTodayAttendance": "Attendance days today",
+  "moduleDisabled": "Your account does not have access to this module.",
+  "serverError": "Server error: {message}",
+  "@serverError": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "networkError": "Cannot reach the server. Check the connection and the server URL.",
+  "sessionExpired": "Your session expired. Please sign in again.",
+  "loadingReference": "Downloading reference data…",
+  "bootstrapRequired": "Reference data has not been downloaded yet. Connect to the internet and run a full refresh.",
+  "aboutSync": "Every record you create offline is verified by the BMA-NFE server when pushed. Duplicates are never created silently: you decide whether to merge, link or create.",
+  "items": "{count, plural, =1{1 item} other{{count} items}}",
+  "@items": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "openRecord": "Open record",
+  "reportFor": "Batch {id}",
+  "@reportFor": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "noHistory": "No sync batches yet.",
+  "fixAndRetry": "Fix and retry",
+  "viewServerErrors": "Server validation messages",
+  "sectionOther": "Other",
+  "yes": "Yes",
+  "no": "No",
+  "unknown": "Unknown",
+  "childAge": "Age",
+  "childNumber": "Record number",
+  "unicefId": "UNICEF ID",
+  "registeredAt": "Registered at",
+  "matchReason": "Match: {reason}",
+  "@matchReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "welcome": "Welcome, {name}",
+  "@welcome": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deviceInfo": "Device",
+  "version": "Version",
+  "clearLocalData": "Clear local data",
+  "clearLocalDataWarning": "This removes all downloaded records and unsent work from this device. Pending changes will be lost.",
+  "gradings": "Assessments & grading",
+  "referral": "Referral",
+  "followUp": "Follow-up",
+  "schoolProfile": "School profile",
+  "teacherForm": "Teacher",
+  "deleteConfirm": "Delete this record?",
+  "confirmRegistration": "Confirm registration",
+  "resolvedLocally": "Resolution saved. Push again to apply it.",
+  "noTeachers": "No teachers recorded yet.",
+  "viewReport": "View report",
+  "serverRecordId": "Server record #{id}",
+  "@serverRecordId": {
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "total": "Total",
+  "chooseCandidate": "Choose the matching existing record",
+  "attendanceDays": "Attendance days",
+  "needsResolution": "Records needing your decision",
+  "noPendingWork": "Everything on this device is synchronised.",
+  "fieldDifferences": "Fields that differ",
+  "localOnlyHint": "Created on this device, not yet on the server.",
+  "selectionIncomplete": "Select all filters first.",
+  "teachersPresent": "{count} present",
+  "@teachersPresent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "monthSummary": "{present} present · {absent} absent",
+  "@monthSummary": {
+    "placeholders": {
+      "present": {
+        "type": "int"
+      },
+      "absent": {
+        "type": "int"
+      }
+    }
+  }
+}
