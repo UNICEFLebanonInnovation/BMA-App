@@ -683,4 +683,36 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get tipSyncCenter =>
       'يتطلب «إرسال التغييرات» و«تنزيل التحديثات» اتصالاً بالإنترنت؛ ولا يستبدل التنزيل عملك غير المرسل أبداً. السجلات التي تحتاج إلى قرارك مدرجة أدناه؛ اضغط على أحدها لمعالجته.';
+
+  @override
+  String get setupTitle => 'إعداد الخادم';
+
+  @override
+  String get setupIntro =>
+      'حدّد لهذا الجهاز خادم BMA-NFE الذي سيتصل به. راجع منسّق البرنامج إذا لم تكن متأكداً.';
+
+  @override
+  String get setupTestConnection => 'اختبار الاتصال';
+
+  @override
+  String get setupConnectionOk =>
+      'تم الاتصال. يعمل على هذا الخادم واجهة BMA-NFE للتطبيق.';
+
+  @override
+  String get setupConnectionNotBma =>
+      'استجاب العنوان، لكن واجهة BMA-NFE للتطبيق غير مثبّتة عليه. تحقق من العنوان.';
+
+  @override
+  String get setupConnectionFailed =>
+      'تعذّر الوصول إلى هذا العنوان. تحقق من كتابته ومن اتصالك بالإنترنت.';
+
+  @override
+  String get setupInvalidUrl =>
+      'أدخل عنوان موقع، مثل https://bma-nfe.example.org';
+
+  @override
+  String get setupContinue => 'متابعة';
+
+  @override
+  String get setupChangeLater => 'يمكنك تغيير الخادم لاحقاً من «الإعدادات».';
 }

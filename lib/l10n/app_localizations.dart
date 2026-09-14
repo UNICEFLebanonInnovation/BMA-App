@@ -1327,6 +1327,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it.'**
   String get tipSyncCenter;
+
+  /// No description provided for @setupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up the server'**
+  String get setupTitle;
+
+  /// No description provided for @setupIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell this device which BMA-NFE server it should talk to. Ask your programme focal point if you are not sure.'**
+  String get setupIntro;
+
+  /// No description provided for @setupTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get setupTestConnection;
+
+  /// No description provided for @setupConnectionOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected. This server runs the BMA-NFE mobile API.'**
+  String get setupConnectionOk;
+
+  /// No description provided for @setupConnectionNotBma.
+  ///
+  /// In en, this message translates to:
+  /// **'The address answered, but the BMA-NFE mobile API is not installed there. Check the address.'**
+  String get setupConnectionNotBma;
+
+  /// No description provided for @setupConnectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach this address. Check the spelling and your internet connection.'**
+  String get setupConnectionFailed;
+
+  /// No description provided for @setupInvalidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a web address, for example https://bma-nfe.example.org'**
+  String get setupInvalidUrl;
+
+  /// No description provided for @setupContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get setupContinue;
+
+  /// No description provided for @setupChangeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change the server later in Settings.'**
+  String get setupChangeLater;
 }
 
 class _AppLocalizationsDelegate

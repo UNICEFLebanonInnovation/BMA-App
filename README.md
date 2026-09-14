@@ -66,7 +66,9 @@ lib/
     forms/      Schema-driven form engine: controller, validation, field widgets, reference pickers
     widgets/    Shared widgets (sync state chip, offline banner, stat tiles …)
   features/
-    auth/ home/ settings/ registrations/ services/ attendance/ teachers/ dashboard/ sync/ tips/
+    auth/ home/ settings/ registrations/ services/ attendance/ teachers/ dashboard/ sync/
+    setup/ tips/
+                                       setup/ = first-run server address page
                                         tips/ = getting-started wizard + dismissible screen tips
 test/                                    unit tests (form engine, DAO, sync engine, name normalisation, tips), tips_wizard_test / tips_redirect_test
 ```
@@ -94,11 +96,16 @@ flutter test
 flutter run                # pick a device / emulator
 ```
 
-On first launch enter the server URL (e.g. `https://bma-nfe.example.org`),
-username and password of a BMA-NFE account that belongs to one of the MSCC,
-ALP or CLM groups. The app downloads reference data and the records visible to
-that account, then works offline. Use **Sync centre** to push, pull or run a
-full refresh, and to resolve records flagged by the server.
+A device that has never been set up opens a **Set up the server** page first:
+enter the address of the BMA-NFE deployment (e.g. `https://bma-nfe.example.org`),
+optionally tap **Test connection** to confirm the deployment runs the mobile
+API, and choose the interface language. The address is saved on the device and
+can be changed later in **Settings**; the page is not shown again.
+
+Then sign in with the username and password of a BMA-NFE account that belongs
+to one of the MSCC, ALP or CLM groups. The app downloads reference data and the
+records visible to that account, then works offline. Use **Sync centre** to
+push, pull or run a full refresh, and to resolve records flagged by the server.
 
 The first time an account signs in on a device the app opens a short
 **Getting started** tour (offline work, registration, attendance, push and
@@ -156,14 +163,16 @@ BMA_SCREENSHOTS=1 flutter test test/screenshots/screenshot_generator_test.dart
 
 | | | |
 |---|---|---|
-| ![Login](screenshots/01_login.png) | ![Home](screenshots/02_home.png) | ![Beneficiaries](screenshots/03_beneficiaries.png) |
-| ![Child profile](screenshots/04_child_profile.png) | ![Services](screenshots/05_child_services.png) | ![Registration wizard](screenshots/06_registration_wizard_identity.png) |
-| ![Caregivers step](screenshots/07_registration_wizard_caregivers.png) | ![PSS service form](screenshots/08_service_form_pss.png) | ![Teachers](screenshots/09_teachers.png) |
-| ![Dashboard](screenshots/10_dashboard.png) | ![Sync centre](screenshots/11_sync_center.png) | ![Push report](screenshots/12_push_report.png) |
-| ![Duplicate resolution](screenshots/13_duplicate_resolution.png) | ![Sync history](screenshots/14_sync_history.png) | ![Settings](screenshots/15_settings.png) |
+| ![Server setup](screenshots/28_server_setup.png) | ![Login](screenshots/01_login.png) | ![Home](screenshots/02_home.png) |
+| ![Beneficiaries](screenshots/03_beneficiaries.png) | ![Child profile](screenshots/04_child_profile.png) | ![Services](screenshots/05_child_services.png) |
+| ![Registration wizard](screenshots/06_registration_wizard_identity.png) | ![Caregivers step](screenshots/07_registration_wizard_caregivers.png) | ![PSS service form](screenshots/08_service_form_pss.png) |
+| ![Teachers](screenshots/09_teachers.png) | ![Dashboard](screenshots/10_dashboard.png) | ![Sync centre](screenshots/11_sync_center.png) |
+| ![Push report](screenshots/12_push_report.png) | ![Duplicate resolution](screenshots/13_duplicate_resolution.png) | ![Sync history](screenshots/14_sync_history.png) |
+| ![Settings](screenshots/15_settings.png) | | |
 | ![Getting started](screenshots/22_tips_welcome.png) | ![Tips: registering](screenshots/23_tips_register.png) | ![Tips: push](screenshots/24_tips_push.png) |
-| ![Home (Arabic)](screenshots/18_home_arabic.png) | ![Beneficiaries (Arabic)](screenshots/19_beneficiaries_arabic.png) | ![Registration wizard (Arabic)](screenshots/20_registration_wizard_arabic.png) |
-| ![Getting started (Arabic)](screenshots/25_tips_welcome_arabic.png) | ![Tips: push (Arabic)](screenshots/26_tips_push_arabic.png) | ![Sync centre (Arabic)](screenshots/21_sync_center_arabic.png) |
+| ![Server setup (Arabic)](screenshots/29_server_setup_arabic.png) | ![Home (Arabic)](screenshots/18_home_arabic.png) | ![Beneficiaries (Arabic)](screenshots/19_beneficiaries_arabic.png) |
+| ![Registration wizard (Arabic)](screenshots/20_registration_wizard_arabic.png) | ![Getting started (Arabic)](screenshots/25_tips_welcome_arabic.png) | ![Tips: push (Arabic)](screenshots/26_tips_push_arabic.png) |
+| ![Sync centre (Arabic)](screenshots/21_sync_center_arabic.png) | | |
 
 Tablet layout (attendance sheet, beneficiaries list and the Getting started
 tour):

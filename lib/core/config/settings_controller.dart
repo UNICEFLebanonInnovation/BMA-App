@@ -9,14 +9,21 @@ class AppSettings {
   const AppSettings({
     required this.serverUrl,
     required this.locale,
+    this.serverConfigured = true,
   });
 
   final String serverUrl;
   final Locale locale;
 
-  AppSettings copyWith({String? serverUrl, Locale? locale}) => AppSettings(
+  /// False until someone confirms the server address on this device, which is
+  /// what sends a fresh install to the first-run setup screen. Installs that
+  /// already stored a URL keep going straight to the sign-in screen.
+  final bool serverConfigured;
+
+  AppSettings copyWith({String? serverUrl, Locale? locale, bool? serverConfigured}) => AppSettings(
         serverUrl: serverUrl ?? this.serverUrl,
         locale: locale ?? this.locale,
+        serverConfigured: serverConfigured ?? this.serverConfigured,
       );
 }
 
@@ -31,10 +38,14 @@ class SettingsController extends Notifier<AppSettings> {
 
   static Future<SettingsController> load() async {
     final prefs = await SharedPreferences.getInstance();
-    final server = prefs.getString(_keyServer) ?? AppConfig.defaultServerUrl;
+    final stored = prefs.getString(_keyServer);
     final locale = Locale(prefs.getString(_keyLocale) ?? 'en');
     return SettingsController(
-      AppSettings(serverUrl: server, locale: locale),
+      AppSettings(
+        serverUrl: stored ?? AppConfig.defaultServerUrl,
+        locale: locale,
+        serverConfigured: stored != null,
+      ),
       prefs,
     );
   }
@@ -42,9 +53,11 @@ class SettingsController extends Notifier<AppSettings> {
   @override
   AppSettings build() => _initial;
 
+  /// Saves the address and marks the device as set up. State is assigned
+  /// before persisting so the next router redirect already sees it.
   Future<void> setServerUrl(String url) async {
     final cleaned = normaliseServerUrl(url);
-    state = state.copyWith(serverUrl: cleaned);
+    state = state.copyWith(serverUrl: cleaned, serverConfigured: true);
     await _prefs?.setString(_keyServer, cleaned);
   }
 

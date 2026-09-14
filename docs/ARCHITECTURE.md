@@ -32,13 +32,14 @@ UI (features/*)  ──▶  SchemaForm engine (core/forms)  ──▶  EntityDao
   (`children_attendance` rows referencing `registration_id` or, for children
   registered offline, `registration_uuid`).
 * `features/*` holds one folder per screen group: `auth`, `home`, `settings`,
-  `registrations`, `services`, `attendance`, `teachers`, `dashboard`, `sync`
-  and `tips` (getting-started wizard and the dismissible `TipCard`).
+  `registrations`, `services`, `attendance`, `teachers`, `dashboard`, `sync`,
+  `setup` (first-run server address page) and `tips` (getting-started wizard
+  and the dismissible `TipCard`).
 * UI preferences that must outlive the database live in `SharedPreferences`
   and are loaded in `main()` before the first frame: `SettingsController`
-  (server URL, language) and `TipsController` (which accounts have seen the
-  wizard and which screen tips they closed). Both survive logout and *Clear
-  local data*.
+  (server URL, whether it was ever confirmed, language) and `TipsController`
+  (which accounts have seen the wizard and which screen tips they closed).
+  Both survive logout and *Clear local data*.
 
 ## Sync engine
 
@@ -59,6 +60,35 @@ The login response carries `modules.{mscc,alp,clm}` with `enabled`,
 cannot do; the server re-checks every write and forces centre/school/partner
 from the account exactly as the web views do.
 
+## First-run server setup
+
+The app is not bound to one deployment: `AppConfig.defaultServerUrl` only
+prefills the field. Route `/setup` opens `ServerSetupScreen`
+(`lib/features/setup/`), the landing page of a device nobody has set up yet:
+the server address, an optional connection check, and the interface language
+so a field worker can switch to Arabic before signing in. **Continue** saves
+the address with `SettingsController.setServerUrl` (which normalises it and
+marks the device configured) and goes to `/login`.
+
+`AppSettings.serverConfigured` is `true` as soon as `server_url` exists in
+shared preferences, so devices upgraded from an earlier release keep going
+straight to the sign-in screen and the page is never shown twice. Settings
+still edits the address afterwards.
+
+`ServerProbe.check` (`lib/core/network/server_probe.dart`) backs the
+connection test with an unauthenticated GET on the login endpoint, which only
+accepts POST:
+
+| Answer | Result | Shown as |
+|---|---|---|
+| 405, 401, 403, 200 | `ok` | the deployment runs the mobile API |
+| 404 | `notBmaServer` | reachable, but the mobile API is not installed |
+| transport error, 5xx | `unreachable` | wrong address, no network or server down |
+
+A failed check never blocks **Continue**: devices are often set up before they
+have connectivity. `serverProbeProvider` is overridden in tests
+(`FakeServerProbe`) so nothing touches the network.
+
 ## First-run tips
 
 Route `/tips` opens `TipsWizardScreen` (`lib/features/tips/`), a `PageView`
@@ -77,13 +107,14 @@ a first run it is a no-op so the tour is never marked seen silently.
 
 The `redirect` in `lib/router.dart` runs in this order:
 
-1. Auth checks, unchanged: `unknown` → splash, `signedOut` → login. Session
+1. Auth checks, unchanged: `unknown` → splash, `signedOut` → `/setup` while
+   the device has no confirmed server address, otherwise `/login`. Session
    expiry therefore still wins over the wizard.
 2. `/tips` itself never redirects, seen or not, so the rule is loop-free and
    a user who has already seen the tour can `context.push(Routes.tips)`.
 3. `tipsPendingProvider` (signed in and no `tips_seen` entry for the current
    tips version) sends every other location to `/tips`, deep links included.
-4. Splash and login go to home; everything else stays where it is.
+4. Splash, login and setup go to home; everything else stays where it is.
 
 Only `ref.read` is used inside `redirect` (a `ref.watch` would rebuild the
 `GoRouter` and reset the navigator) and `_AuthListenable` is unchanged: login

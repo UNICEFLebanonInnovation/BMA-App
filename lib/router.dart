@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'core/auth/auth_controller.dart';
 import 'core/config/app_config.dart';
+import 'core/config/settings_controller.dart';
 import 'features/attendance/attendance_screen.dart';
 import 'features/attendance/child_attendance_screen.dart';
 import 'features/attendance/teacher_attendance_screen.dart';
@@ -16,6 +17,7 @@ import 'features/registrations/registration_list_screen.dart';
 import 'features/registrations/registration_wizard_screen.dart';
 import 'features/services/service_form_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/setup/server_setup_screen.dart';
 import 'features/sync/conflict_resolution_screen.dart';
 import 'features/sync/duplicate_resolution_screen.dart';
 import 'features/sync/push_report_screen.dart';
@@ -32,6 +34,7 @@ class Routes {
 
   static const splash = '/';
   static const login = '/login';
+  static const setup = '/setup';
   static const home = '/home';
   static const settings = '/settings';
   static const sync = '/sync';
@@ -77,18 +80,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return location == Routes.splash ? null : Routes.splash;
       }
       if (auth.status == AuthStatus.signedOut) {
+        // A device where nobody confirmed a server address yet lands on the
+        // first-run setup page instead of the sign-in form.
+        if (!ref.read(settingsControllerProvider).serverConfigured) {
+          return location == Routes.setup ? null : Routes.setup;
+        }
         return location == Routes.login ? null : Routes.login;
       }
       // Signed in from here on. The wizard route itself never redirects (seen or not): loop-free
       // and re-openable from Home/Settings. A first-run account is gated to /tips from anywhere.
       if (location == Routes.tips) return null;
       if (ref.read(tipsPendingProvider)) return Routes.tips;
-      if (location == Routes.splash || location == Routes.login) return Routes.home;
+      if (location == Routes.splash || location == Routes.login || location == Routes.setup) {
+        return Routes.home;
+      }
       return null;
     },
     routes: [
       GoRoute(path: Routes.splash, builder: (_, _) => const SplashScreen()),
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(path: Routes.setup, builder: (_, _) => const ServerSetupScreen()),
       GoRoute(path: Routes.home, builder: (_, _) => const HomeShell()),
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
       GoRoute(path: Routes.tips, builder: (_, _) => const TipsWizardScreen()),

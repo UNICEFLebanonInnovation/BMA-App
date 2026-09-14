@@ -685,4 +685,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tipSyncCenter =>
       'Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it.';
+
+  @override
+  String get setupTitle => 'Set up the server';
+
+  @override
+  String get setupIntro =>
+      'Tell this device which BMA-NFE server it should talk to. Ask your programme focal point if you are not sure.';
+
+  @override
+  String get setupTestConnection => 'Test connection';
+
+  @override
+  String get setupConnectionOk =>
+      'Connected. This server runs the BMA-NFE mobile API.';
+
+  @override
+  String get setupConnectionNotBma =>
+      'The address answered, but the BMA-NFE mobile API is not installed there. Check the address.';
+
+  @override
+  String get setupConnectionFailed =>
+      'Could not reach this address. Check the spelling and your internet connection.';
+
+  @override
+  String get setupInvalidUrl =>
+      'Enter a web address, for example https://bma-nfe.example.org';
+
+  @override
+  String get setupContinue => 'Continue';
+
+  @override
+  String get setupChangeLater => 'You can change the server later in Settings.';
 }

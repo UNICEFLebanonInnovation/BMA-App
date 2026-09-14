@@ -165,7 +165,12 @@ void _setSize(WidgetTester tester, ({double width, double height, double dpr}) d
   tester.view.devicePixelRatio = device.dpr;
 }
 
-Future<ProviderContainer> _container({required bool signedIn, String language = 'en', bool tipsSeen = true}) async {
+Future<ProviderContainer> _container({
+  required bool signedIn,
+  String language = 'en',
+  bool tipsSeen = true,
+  bool serverConfigured = true,
+}) async {
   final db = await AppDatabase.openInMemory();
   final profile = UserProfile.fromJson(Map<String, dynamic>.from(_json('bootstrap.json')['user'] as Map));
   final auth = signedIn
@@ -180,7 +185,12 @@ Future<ProviderContainer> _container({required bool signedIn, String language = 
     tipsControllerProvider.overrideWith(
         () => TipsController(TipsState(seen: tipsSeen ? {TipsState.seenKey(profile.id)} : const {}), null)),
     settingsControllerProvider.overrideWith(() => SettingsController(
-        AppSettings(serverUrl: 'https://bma-nfe.example.org', locale: Locale(language)), null)),
+        AppSettings(
+          serverUrl: 'https://bma-nfe.example.org',
+          locale: Locale(language),
+          serverConfigured: serverConfigured,
+        ),
+        null)),
     connectivityProvider.overrideWith((ref) => Stream.value(true)),
   ]);
 }
@@ -370,6 +380,24 @@ void main() {
     Directory(_outDir).createSync(recursive: true);
     await _loadFonts();
   });
+
+  testWidgets('first-run server setup', (tester) async {
+    // serverConfigured: false, so the signed-out redirect opens the setup page.
+    _setSize(tester, _phone);
+    addTearDown(tester.view.reset);
+    final english = await tester.runAsync(() => _container(signedIn: false, serverConfigured: false));
+    addTearDown(english!.dispose);
+    await tester.pumpWidget(_app(english));
+    await _settle(tester);
+    await _shoot(tester, '28_server_setup', _phone.dpr);
+
+    final arabic =
+        await tester.runAsync(() => _container(signedIn: false, language: 'ar', serverConfigured: false));
+    addTearDown(arabic!.dispose);
+    await tester.pumpWidget(_app(arabic));
+    await _settle(tester);
+    await _shoot(tester, '29_server_setup_arabic', _phone.dpr);
+  }, skip: !_enabled);
 
   testWidgets('login screen', (tester) async {
     _setSize(tester, _phone);

@@ -294,5 +294,14 @@
   "tipHomeSync": "Push changes whenever you have a connection. The number on the cloud icon counts work waiting to push or needing your decision; tap it to open Sync centre.",
   "tipRegistrationsSearch": "Search by name, ID number or record number before registering. The icon on each row shows its sync state: Pending, Synced, Duplicate, Conflict.",
   "tipAttendanceFlow": "Choose the centre or school, round, programme and date, then tap Load children. Mark all present, switch anyone absent to Absent with a reason, then Save. Use Day off to close a day.",
-  "tipSyncCenter": "Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it."
+  "tipSyncCenter": "Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it.",
+  "setupTitle": "Set up the server",
+  "setupIntro": "Tell this device which BMA-NFE server it should talk to. Ask your programme focal point if you are not sure.",
+  "setupTestConnection": "Test connection",
+  "setupConnectionOk": "Connected. This server runs the BMA-NFE mobile API.",
+  "setupConnectionNotBma": "The address answered, but the BMA-NFE mobile API is not installed there. Check the address.",
+  "setupConnectionFailed": "Could not reach this address. Check the spelling and your internet connection.",
+  "setupInvalidUrl": "Enter a web address, for example https://bma-nfe.example.org",
+  "setupContinue": "Continue",
+  "setupChangeLater": "You can change the server later in Settings."
 }
