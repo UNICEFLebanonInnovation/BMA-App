@@ -27,6 +27,7 @@ import 'package:bma_app/core/network/bma_api.dart';
 import 'package:bma_app/core/sync/connectivity_service.dart';
 import 'package:bma_app/core/sync/sync_engine.dart';
 import 'package:bma_app/core/theme/app_theme.dart';
+import 'package:bma_app/features/tips/tips_controller.dart';
 import 'package:bma_app/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -164,7 +165,7 @@ void _setSize(WidgetTester tester, ({double width, double height, double dpr}) d
   tester.view.devicePixelRatio = device.dpr;
 }
 
-Future<ProviderContainer> _container({required bool signedIn, String language = 'en'}) async {
+Future<ProviderContainer> _container({required bool signedIn, String language = 'en', bool tipsSeen = true}) async {
   final db = await AppDatabase.openInMemory();
   final profile = UserProfile.fromJson(Map<String, dynamic>.from(_json('bootstrap.json')['user'] as Map));
   final auth = signedIn
@@ -175,6 +176,9 @@ Future<ProviderContainer> _container({required bool signedIn, String language = 
     bmaApiProvider.overrideWithValue(FixtureApi()),
     sessionStoreProvider.overrideWithValue(FakeSessionStore()),
     authControllerProvider.overrideWith(() => FakeAuthController(auth)),
+    // Keeps the existing captures on their routes; the first-run wizard would otherwise replace 02_home.
+    tipsControllerProvider.overrideWith(
+        () => TipsController(TipsState(seen: tipsSeen ? {TipsState.seenKey(profile.id)} : const {}), null)),
     settingsControllerProvider.overrideWith(() => SettingsController(
         AppSettings(serverUrl: 'https://bma-nfe.example.org', locale: Locale(language)), null)),
     connectivityProvider.overrideWith((ref) => Stream.value(true)),

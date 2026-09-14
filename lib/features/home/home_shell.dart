@@ -12,6 +12,8 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../tips/tip_card.dart';
+import '../tips/tips_content.dart';
 
 /// Landing page: sync status, quick actions and one card per module.
 class HomeShell extends ConsumerWidget {
@@ -37,6 +39,12 @@ class HomeShell extends ConsumerWidget {
               label: Text('${sync.pendingCount + sync.attentionCount}'),
               child: Icon(online ? Icons.cloud_sync : Icons.cloud_off),
             ),
+          ),
+          IconButton(
+            key: const ValueKey('home-help'),
+            tooltip: l10n.tipsTitle,
+            onPressed: () => context.push(Routes.tips),
+            icon: const Icon(Icons.help_outline),
           ),
           IconButton(
             tooltip: l10n.settings,
@@ -68,6 +76,7 @@ class HomeShell extends ConsumerWidget {
               ),
             ),
           _SyncCard(sync: sync, online: online),
+          TipCard(id: TipIds.homeSync, text: l10n.tipHomeSync),
           if (profile != null)
             for (final module in profile.enabledModules)
               _ModuleCard(module: module, capabilities: profile.capabilities(module)),

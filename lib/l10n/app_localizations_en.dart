@@ -597,4 +597,92 @@ class AppLocalizationsEn extends AppLocalizations {
   String monthSummary(int present, int absent) {
     return '$present present · $absent absent';
   }
+
+  @override
+  String get tipsTitle => 'Getting started';
+
+  @override
+  String tipsStep(int current, int total) {
+    return 'Step $current of $total';
+  }
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get gotIt => 'Got it';
+
+  @override
+  String get tipsShowAgain => 'Show tips again';
+
+  @override
+  String get tipsDataReady => 'Reference data is on this device.';
+
+  @override
+  String get tipsWelcomeTitle => 'Works without internet';
+
+  @override
+  String get tipsWelcomeBody =>
+      'Everything is saved on this device first: register children, record services and take attendance with no connection. Each change stays Pending until you push it to the BMA-NFE server. A banner at the top shows when you are offline.';
+
+  @override
+  String get tipsDataTitle => 'Your data on this device';
+
+  @override
+  String get tipsDataBody =>
+      'At sign-in the app downloaded reference data (centres, rounds, programmes, forms) and the records your account may see. If Home shows a warning, connect and run Full refresh. The last account that signed in on this device can sign in offline.';
+
+  @override
+  String get tipsRegisterTitle => 'Registering a child';
+
+  @override
+  String get tipsRegisterBody =>
+      'Search the beneficiaries list first to avoid duplicates. Tap Register new and follow the steps: Identity, Caregivers & household, then Review & confirm. Names, gender, birth date and nationality are required; copy the ID number exactly as written on the document.';
+
+  @override
+  String get tipsDailyTitle => 'Services and attendance';
+
+  @override
+  String get tipsDailyBody =>
+      'Open a child\'s profile and tap Add service to record a service form. For attendance: choose centre or school, round, programme and date, tap Load children, then Mark all present, set absentees to Absent with a reason, and Save.';
+
+  @override
+  String get tipsPushTitle => 'Push and read the report';
+
+  @override
+  String get tipsPushBody =>
+      'When connected, open Sync centre and tap Push changes. The server checks every record and returns a result: Created, Updated, Merged, Linked, Duplicate, Conflict, Error or Skipped. Open the Push report to see why. Errors show the server\'s messages in the form: fix and retry.';
+
+  @override
+  String get tipsResolveTitle => 'Duplicates and conflicts';
+
+  @override
+  String get tipsResolveBody =>
+      'The server compares each registration with existing children: UNICEF ID, names with birth date and gender, ID numbers and near matches. You decide in Sync centre: merge into the existing record, same child new enrolment, create anyway or discard. For conflicts, overwrite or keep the server version.';
+
+  @override
+  String get tipsSafeTitle => 'Keep your data safe';
+
+  @override
+  String get tipsSafeBody =>
+      'Unsent work exists only on this device: push every day you have a connection, and never clear local data with pending changes. This app holds children\'s personal data: never share your account. Switch language in Settings. Reopen this guide from the ? icon on Home.';
+
+  @override
+  String get tipHomeSync =>
+      'Push changes whenever you have a connection. The number on the cloud icon counts work waiting to push or needing your decision; tap it to open Sync centre.';
+
+  @override
+  String get tipRegistrationsSearch =>
+      'Search by name, ID number or record number before registering. The icon on each row shows its sync state: Pending, Synced, Duplicate, Conflict.';
+
+  @override
+  String get tipAttendanceFlow =>
+      'Choose the centre or school, round, programme and date, then tap Load children. Mark all present, switch anyone absent to Absent with a reason, then Save. Use Day off to close a day.';
+
+  @override
+  String get tipSyncCenter =>
+      'Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it.';
 }

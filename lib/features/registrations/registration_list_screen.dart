@@ -11,6 +11,8 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../tips/tip_card.dart';
+import '../tips/tips_content.dart';
 import 'registration_helpers.dart';
 
 enum _Filter { all, pending, attention }
@@ -68,6 +70,7 @@ class _RegistrationListScreenState extends ConsumerState<RegistrationListScreen>
               onSelectionChanged: (s) => setState(() => _filter = s.first),
             ),
           ),
+          TipCard(id: TipIds.registrationsSearch, text: l10n.tipRegistrationsSearch),
           Expanded(
             child: FutureBuilder<List<EntityRecord>>(
               future: future,

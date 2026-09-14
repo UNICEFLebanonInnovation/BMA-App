@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'app.dart';
 import 'core/config/settings_controller.dart';
 import 'core/db/app_database.dart';
+import 'features/tips/tips_controller.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,12 +13,15 @@ Future<void> main() async {
   // before the first frame so the UI never sees a half-initialised state.
   final database = await AppDatabase.open();
   final settings = await SettingsController.load();
+  final tips = await TipsController.load();
 
   runApp(
     ProviderScope(
       overrides: [
         appDatabaseProvider.overrideWithValue(database),
         settingsControllerProvider.overrideWith(() => settings),
+        // Only main() and the screenshot harness override this; without it tips are in-memory only.
+        tipsControllerProvider.overrideWith(() => tips),
       ],
       child: const BmaApp(),
     ),

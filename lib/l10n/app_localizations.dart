@@ -1177,6 +1177,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{present} present · {absent} absent'**
   String monthSummary(int present, int absent);
+
+  /// No description provided for @tipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting started'**
+  String get tipsTitle;
+
+  /// No description provided for @tipsStep.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {current} of {total}'**
+  String tipsStep(int current, int total);
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @gotIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it'**
+  String get gotIt;
+
+  /// No description provided for @tipsShowAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Show tips again'**
+  String get tipsShowAgain;
+
+  /// No description provided for @tipsDataReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference data is on this device.'**
+  String get tipsDataReady;
+
+  /// No description provided for @tipsWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Works without internet'**
+  String get tipsWelcomeTitle;
+
+  /// No description provided for @tipsWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything is saved on this device first: register children, record services and take attendance with no connection. Each change stays Pending until you push it to the BMA-NFE server. A banner at the top shows when you are offline.'**
+  String get tipsWelcomeBody;
+
+  /// No description provided for @tipsDataTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data on this device'**
+  String get tipsDataTitle;
+
+  /// No description provided for @tipsDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'At sign-in the app downloaded reference data (centres, rounds, programmes, forms) and the records your account may see. If Home shows a warning, connect and run Full refresh. The last account that signed in on this device can sign in offline.'**
+  String get tipsDataBody;
+
+  /// No description provided for @tipsRegisterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Registering a child'**
+  String get tipsRegisterTitle;
+
+  /// No description provided for @tipsRegisterBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Search the beneficiaries list first to avoid duplicates. Tap Register new and follow the steps: Identity, Caregivers & household, then Review & confirm. Names, gender, birth date and nationality are required; copy the ID number exactly as written on the document.'**
+  String get tipsRegisterBody;
+
+  /// No description provided for @tipsDailyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Services and attendance'**
+  String get tipsDailyTitle;
+
+  /// No description provided for @tipsDailyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Open a child\'s profile and tap Add service to record a service form. For attendance: choose centre or school, round, programme and date, tap Load children, then Mark all present, set absentees to Absent with a reason, and Save.'**
+  String get tipsDailyBody;
+
+  /// No description provided for @tipsPushTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Push and read the report'**
+  String get tipsPushTitle;
+
+  /// No description provided for @tipsPushBody.
+  ///
+  /// In en, this message translates to:
+  /// **'When connected, open Sync centre and tap Push changes. The server checks every record and returns a result: Created, Updated, Merged, Linked, Duplicate, Conflict, Error or Skipped. Open the Push report to see why. Errors show the server\'s messages in the form: fix and retry.'**
+  String get tipsPushBody;
+
+  /// No description provided for @tipsResolveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Duplicates and conflicts'**
+  String get tipsResolveTitle;
+
+  /// No description provided for @tipsResolveBody.
+  ///
+  /// In en, this message translates to:
+  /// **'The server compares each registration with existing children: UNICEF ID, names with birth date and gender, ID numbers and near matches. You decide in Sync centre: merge into the existing record, same child new enrolment, create anyway or discard. For conflicts, overwrite or keep the server version.'**
+  String get tipsResolveBody;
+
+  /// No description provided for @tipsSafeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your data safe'**
+  String get tipsSafeTitle;
+
+  /// No description provided for @tipsSafeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Unsent work exists only on this device: push every day you have a connection, and never clear local data with pending changes. This app holds children\'s personal data: never share your account. Switch language in Settings. Reopen this guide from the ? icon on Home.'**
+  String get tipsSafeBody;
+
+  /// No description provided for @tipHomeSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Push changes whenever you have a connection. The number on the cloud icon counts work waiting to push or needing your decision; tap it to open Sync centre.'**
+  String get tipHomeSync;
+
+  /// No description provided for @tipRegistrationsSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name, ID number or record number before registering. The icon on each row shows its sync state: Pending, Synced, Duplicate, Conflict.'**
+  String get tipRegistrationsSearch;
+
+  /// No description provided for @tipAttendanceFlow.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the centre or school, round, programme and date, then tap Load children. Mark all present, switch anyone absent to Absent with a reason, then Save. Use Day off to close a day.'**
+  String get tipAttendanceFlow;
+
+  /// No description provided for @tipSyncCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it.'**
+  String get tipSyncCenter;
 }
 
 class _AppLocalizationsDelegate

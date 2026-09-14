@@ -15,6 +15,8 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../tips/tip_card.dart';
+import '../tips/tips_content.dart';
 
 /// Sync centre: push/pull controls, outbox counts, records needing a
 /// decision (duplicates, conflicts, errors) and the latest push report.
@@ -126,6 +128,7 @@ class SyncCenterScreen extends ConsumerWidget {
               ),
             ),
           ),
+          TipCard(id: TipIds.syncCenter, text: l10n.tipSyncCenter),
           FutureBuilder<SyncBatch?>(
             future: latestFuture,
             builder: (context, snapshot) {

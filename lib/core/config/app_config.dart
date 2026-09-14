@@ -19,6 +19,10 @@ class AppConfig {
   /// App version reported to the server on login and push.
   static const String appVersion = '1.0.0+1';
 
+  /// Version of the getting-started tips. Bump it only when the wizard content
+  /// changes enough that every account should see the tour once more.
+  static const int tipsVersion = 1;
+
   /// Network timeouts.
   static const Duration connectTimeout = Duration(seconds: 20);
   static const Duration receiveTimeout = Duration(minutes: 3);

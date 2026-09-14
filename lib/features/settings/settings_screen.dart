@@ -13,6 +13,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../tips/tips_controller.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -84,6 +85,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             ]),
           ),
           const SizedBox(height: 12),
+          OutlinedButton.icon(
+            key: const ValueKey('settings-show-tips'),
+            icon: const Icon(Icons.tips_and_updates_outlined),
+            label: Text(l10n.tipsShowAgain),
+            onPressed: () async {
+              // Restores this user's dismissed TipCards; never clears the seen flag.
+              final id = auth.profile?.id;
+              if (id != null) await ref.read(tipsControllerProvider.notifier).restoreTips(id);
+              if (context.mounted) context.push(Routes.tips);
+            },
+          ),
+          const SizedBox(height: 8),
           OutlinedButton.icon(
             icon: const Icon(Icons.refresh),
             label: Text(l10n.fullRefresh),

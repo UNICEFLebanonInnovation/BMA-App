@@ -17,6 +17,8 @@ import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../tips/tip_card.dart';
+import '../tips/tips_content.dart';
 import 'attendance_roster.dart';
 
 /// Daily attendance sheet for a centre (MSCC), school programme (ALP) or
@@ -158,6 +160,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               children: [
                 _filters(context, language, scope),
                 const SizedBox(height: 8),
+                // Only until a roster is loaded so it never competes with the sheet.
+                if (_rows == null && !_loading) TipCard(id: TipIds.attendanceFlow, text: l10n.tipAttendanceFlow),
                 Row(children: [
                   Expanded(
                     child: FilledButton.icon(

@@ -23,6 +23,8 @@ import 'features/sync/sync_center_screen.dart';
 import 'features/sync/sync_history_screen.dart';
 import 'features/teachers/teacher_form_screen.dart';
 import 'features/teachers/teacher_list_screen.dart';
+import 'features/tips/tips_controller.dart';
+import 'features/tips/tips_wizard_screen.dart';
 
 /// Route names used across the app.
 class Routes {
@@ -33,6 +35,7 @@ class Routes {
   static const home = '/home';
   static const settings = '/settings';
   static const sync = '/sync';
+  static const tips = '/tips';
   static const syncHistory = '/sync/history';
   static String pushReport(String batchUuid) => '/sync/report/$batchUuid';
   static String resolveDuplicate(String uuid) => '/sync/duplicate/$uuid';
@@ -76,6 +79,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (auth.status == AuthStatus.signedOut) {
         return location == Routes.login ? null : Routes.login;
       }
+      // Signed in from here on. The wizard route itself never redirects (seen or not): loop-free
+      // and re-openable from Home/Settings. A first-run account is gated to /tips from anywhere.
+      if (location == Routes.tips) return null;
+      if (ref.read(tipsPendingProvider)) return Routes.tips;
       if (location == Routes.splash || location == Routes.login) return Routes.home;
       return null;
     },
@@ -84,6 +91,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
       GoRoute(path: Routes.home, builder: (_, _) => const HomeShell()),
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
+      GoRoute(path: Routes.tips, builder: (_, _) => const TipsWizardScreen()),
       GoRoute(path: Routes.sync, builder: (_, _) => const SyncCenterScreen()),
       GoRoute(path: Routes.syncHistory, builder: (_, _) => const SyncHistoryScreen()),
       GoRoute(
