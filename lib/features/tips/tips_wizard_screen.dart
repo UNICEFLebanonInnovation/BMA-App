@@ -150,32 +150,34 @@ class _TipPageView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MergeSemantics(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final wide = constraints.maxWidth >= 700;
-            final icon = ExcludeSemantics(
-              child: Container(
-                width: iconSize + 48,
-                height: iconSize + 48,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.secondary.withValues(alpha: 0.12),
-                ),
-                child: Icon(page.icon, size: iconSize, color: AppColors.primary),
+      // Measured on the page width, before the 24 px padding, so the 720 px
+      // tablet column qualifies for the side-by-side layout.
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final wide = constraints.maxWidth >= 700;
+          final icon = ExcludeSemantics(
+            child: Container(
+              width: iconSize + 48,
+              height: iconSize + 48,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.secondary.withValues(alpha: 0.12),
               ),
-            );
-            final text = _PageText(page: page, profile: profile, align: wide ? TextAlign.start : TextAlign.center);
-            return wide
+              child: Icon(page.icon, size: iconSize, color: AppColors.primary),
+            ),
+          );
+          final text = _PageText(page: page, profile: profile, align: wide ? TextAlign.start : TextAlign.center);
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: wide
                 ? Row(
                     key: const Key('tips-page-wide'),
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [icon, const SizedBox(width: 32), Expanded(child: text)],
                   )
-                : Column(children: [icon, const SizedBox(height: 16), text]);
-          },
-        ),
+                : Column(children: [icon, const SizedBox(height: 16), text]),
+          );
+        },
       ),
     );
   }
@@ -229,7 +231,8 @@ class _BootstrapStatusLine extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final busy = ref.watch(syncEngineProvider.select((s) => s.busy));
-    final ready = ref.watch(bootstrapReadyProvider).value;
+    // valueOrNull: never rethrows if the lookup failed, the footer just stays hidden.
+    final ready = ref.watch(bootstrapReadyProvider).valueOrNull;
     final String? text = busy
         ? l10n.loadingReference
         : ready == true

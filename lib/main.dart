@@ -20,7 +20,8 @@ Future<void> main() async {
       overrides: [
         appDatabaseProvider.overrideWithValue(database),
         settingsControllerProvider.overrideWith(() => settings),
-        // Only main() and the screenshot harness override this; without it tips are in-memory only.
+        // The app only overrides this here (tests and the screenshot harness do too);
+        // without an override the tips flags are in-memory only.
         tipsControllerProvider.overrideWith(() => tips),
       ],
       child: const BmaApp(),
