@@ -1,0 +1,54 @@
+{
+ "batch_id": 6,
+ "batch_uuid": "f50ae7a0-7488-4a71-89bd-f51a2ea40fdd",
+ "status": "completed",
+ "received_at": "2026-09-12T21:43:26.381931",
+ "completed_at": "2026-09-12T21:43:26.396750",
+ "summary": {
+  "total": 1,
+  "duplicate": 1
+ },
+ "results": [
+  {
+   "client_uuid": "fixture-dup",
+   "entity": "mscc.registration",
+   "op": "create",
+   "status": "duplicate",
+   "server_id": null,
+   "parent_id": null,
+   "message": "A child with the same identity already exists (identity).",
+   "errors": {},
+   "duplicates": [
+    {
+     "label": "محمد أحمد السيد",
+     "match": {
+      "score": 1.0,
+      "fields": [
+       "names",
+       "mother",
+       "birthday",
+       "gender"
+      ],
+      "reason": "identity"
+     },
+     "round": "2025-2026",
+     "center": "Makani Centre – Bar Elias",
+     "gender": "Male",
+     "number": "13093601005548M",
+     "school": null,
+     "created": "2026-09-12T21:43:26.028938",
+     "partner": "Partner NGO Lebanon",
+     "birthday": "2015-3-5",
+     "child_id": 4,
+     "unicef_id": "0",
+     "nationality": "سوري",
+     "mother_fullname": "فاطمة علي",
+     "registration_id": 4,
+     "registration_date": null
+    }
+   ],
+   "base_modified": null,
+   "client_modified": null
+  }
+ ]
+}
