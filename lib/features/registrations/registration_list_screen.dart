@@ -70,7 +70,10 @@ class _RegistrationListScreenState extends ConsumerState<RegistrationListScreen>
               onSelectionChanged: (s) => setState(() => _filter = s.first),
             ),
           ),
-          TipCard(id: TipIds.registrationsSearch, text: l10n.tipRegistrationsSearch),
+          // Fixed child above the list: hidden while the keyboard is open so the
+          // column always fits a short viewport.
+          if (MediaQuery.viewInsetsOf(context).bottom == 0)
+            TipCard(id: TipIds.registrationsSearch, text: l10n.tipRegistrationsSearch),
           Expanded(
             child: FutureBuilder<List<EntityRecord>>(
               future: future,

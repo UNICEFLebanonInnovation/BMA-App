@@ -44,6 +44,7 @@ never drifts from the website.
   `get_or_create` logic.
 * Every batch is kept locally (Sync history) and on the server (Django admin
   → Mobile sync batches) for audit.
+* **First-run tips wizard**, per account and per tips version, EN/AR.
 
 The full contract is documented in
 [`docs/mobile_sync_protocol.md`](https://github.com/UNICEFLebanonInnovation/BMA-NFE/blob/main/docs/mobile_sync_protocol.md)
@@ -65,8 +66,9 @@ lib/
     forms/      Schema-driven form engine: controller, validation, field widgets, reference pickers
     widgets/    Shared widgets (sync state chip, offline banner, stat tiles …)
   features/
-    auth/ home/ settings/ registrations/ services/ attendance/ teachers/ dashboard/ sync/
-test/                                    unit tests (form engine, DAO, sync engine, name normalisation)
+    auth/ home/ settings/ registrations/ services/ attendance/ teachers/ dashboard/ sync/ tips/
+                                        tips/ = getting-started wizard + dismissible screen tips
+test/                                    unit tests (form engine, DAO, sync engine, name normalisation, tips), tips_wizard_test / tips_redirect_test
 ```
 
 ### Local data model
@@ -97,6 +99,12 @@ username and password of a BMA-NFE account that belongs to one of the MSCC,
 ALP or CLM groups. The app downloads reference data and the records visible to
 that account, then works offline. Use **Sync centre** to push, pull or run a
 full refresh, and to resolve records flagged by the server.
+
+The first time an account signs in on a device the app opens a short
+**Getting started** tour (offline work, registration, attendance, push and
+duplicate resolution); reopen it any time from the ? icon on Home or
+**Settings → Show tips again**, which also brings back the dismissible tips
+shown on Home, Beneficiaries, Attendance and Sync centre.
 
 ### Server-side requirements
 
@@ -153,15 +161,20 @@ BMA_SCREENSHOTS=1 flutter test test/screenshots/screenshot_generator_test.dart
 | ![Caregivers step](screenshots/07_registration_wizard_caregivers.png) | ![PSS service form](screenshots/08_service_form_pss.png) | ![Teachers](screenshots/09_teachers.png) |
 | ![Dashboard](screenshots/10_dashboard.png) | ![Sync centre](screenshots/11_sync_center.png) | ![Push report](screenshots/12_push_report.png) |
 | ![Duplicate resolution](screenshots/13_duplicate_resolution.png) | ![Sync history](screenshots/14_sync_history.png) | ![Settings](screenshots/15_settings.png) |
+| ![Getting started](screenshots/22_tips_welcome.png) | ![Tips: registering](screenshots/23_tips_register.png) | ![Tips: push](screenshots/24_tips_push.png) |
 | ![Home (Arabic)](screenshots/18_home_arabic.png) | ![Beneficiaries (Arabic)](screenshots/19_beneficiaries_arabic.png) | ![Registration wizard (Arabic)](screenshots/20_registration_wizard_arabic.png) |
+| ![Getting started (Arabic)](screenshots/25_tips_welcome_arabic.png) | ![Tips: push (Arabic)](screenshots/26_tips_push_arabic.png) | ![Sync centre (Arabic)](screenshots/21_sync_center_arabic.png) |
 
-Tablet layout (attendance sheet and beneficiaries list):
+Tablet layout (attendance sheet, beneficiaries list and the Getting started
+tour):
 
-| | |
-|---|---|
-| ![Attendance on tablet](screenshots/16_attendance_tablet.png) | ![Beneficiaries on tablet](screenshots/17_beneficiaries_tablet.png) |
+| | | |
+|---|---|---|
+| ![Attendance on tablet](screenshots/16_attendance_tablet.png) | ![Beneficiaries on tablet](screenshots/17_beneficiaries_tablet.png) | ![Getting started on tablet](screenshots/27_tips_welcome_tablet.png) |
 
-`screenshots/contact_sheet.png` shows all phone screens on one page.
+`screenshots/contact_sheet.png` shows every phone screen on one page. Rebuild it
+after regenerating the captures with `python3 tool/contact_sheet.py` (needs
+Pillow).
 
 ## Licence
 

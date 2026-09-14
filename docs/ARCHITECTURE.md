@@ -31,6 +31,14 @@ UI (features/*)  ──▶  SchemaForm engine (core/forms)  ──▶  EntityDao
 * Attendance sheets are stored exactly as the server payload
   (`children_attendance` rows referencing `registration_id` or, for children
   registered offline, `registration_uuid`).
+* `features/*` holds one folder per screen group: `auth`, `home`, `settings`,
+  `registrations`, `services`, `attendance`, `teachers`, `dashboard`, `sync`
+  and `tips` (getting-started wizard and the dismissible `TipCard`).
+* UI preferences that must outlive the database live in `SharedPreferences`
+  and are loaded in `main()` before the first frame: `SettingsController`
+  (server URL, language) and `TipsController` (which accounts have seen the
+  wizard and which screen tips they closed). Both survive logout and *Clear
+  local data*.
 
 ## Sync engine
 
@@ -50,6 +58,101 @@ The login response carries `modules.{mscc,alp,clm}` with `enabled`,
 `scope` (`all`, `partner`, `center`, `school`). The UI hides what a user
 cannot do; the server re-checks every write and forces centre/school/partner
 from the account exactly as the web views do.
+
+## First-run tips
+
+Route `/tips` opens `TipsWizardScreen` (`lib/features/tips/`), a `PageView`
+of five to seven pages built by `tipPages(l10n, profile)`: welcome
+(personalised with the account's name and partner · centre · school), your
+data on this device (with a text-only footer: downloading / ready / full
+refresh needed), registering a child (only if an enabled module has
+`can_register`), services and attendance, push and the report, duplicates and
+conflicts (only with `can_register` or `can_edit`) and keeping data safe.
+Skip (first run only, hidden on the last page) and Done both mark the tour as
+seen for the signed-in account. System back goes to the previous page; on
+page 1 it pops only when the wizard was pushed from Home or Settings, and on
+a first run it is a no-op so the tour is never marked seen silently.
+
+### Routing
+
+The `redirect` in `lib/router.dart` runs in this order:
+
+1. Auth checks, unchanged: `unknown` → splash, `signedOut` → login. Session
+   expiry therefore still wins over the wizard.
+2. `/tips` itself never redirects, seen or not, so the rule is loop-free and
+   a user who has already seen the tour can `context.push(Routes.tips)`.
+3. `tipsPendingProvider` (signed in and no `tips_seen` entry for the current
+   tips version) sends every other location to `/tips`, deep links included.
+4. Splash and login go to home; everything else stays where it is.
+
+Only `ref.read` is used inside `redirect` (a `ref.watch` would rebuild the
+`GoRouter` and reset the navigator) and `_AuthListenable` is unchanged: login
+and restore already re-run the redirect through `AuthState`, and the wizard
+navigates explicitly after `markSeen` (`context.go(Routes.home)` on a first
+run, `context.pop()` when pushed from Home or Settings). `markSeen` updates
+the state synchronously before persisting, so the redirect triggered by that
+navigation already sees `pending == false`.
+
+Accepted consequences: a deep link opened during a pending first run ends on
+Home, and accounts on installs upgraded to this release see the tour once.
+
+### Persistence
+
+`TipsController` keeps two `SharedPreferences` string lists, loaded by
+`TipsController.load()` in `main()` next to `SettingsController.load()`:
+
+| Key | Entries | Written by |
+|---|---|---|
+| `tips_seen` | `<user id>:<AppConfig.tipsVersion>` | `markSeen` (Skip or Done) |
+| `tips_dismissed` | `<user id>:<tip id>` | `dismissTip` (Got it), `restoreTips` (Show tips again) |
+
+Entries are keyed on `UserProfile.id` because shared tablets host several
+accounts. They survive logout and *Clear local data* on purpose: the SQLite
+`meta` table is not used because `AppDatabase.clearAll()` wipes it, and
+`AppSettings` is not used because `BmaApp` watches the whole settings object.
+
+### Rules
+
+* Bump `AppConfig.tipsVersion` only when the wizard content changes enough
+  that every account should see the tour once more; dismissed screen tips are
+  kept.
+* *Show tips again* (Settings) calls `restoreTips` for the current user and
+  pushes `/tips`. It must never clear `tips_seen`: a cleared flag while on
+  `/settings` would make the next navigation jump to `/tips` and drop the
+  stack.
+* `tipsControllerProvider` has a working in-memory default, so tests that do
+  not care about tips need no override. `main()` replaces it with the instance
+  loaded from `SharedPreferences`; the screenshot harness
+  (`_container(tipsSeen:)`) and the tips tests (`test/support/fakes.dart`)
+  override it with in-memory state.
+* Screen tips are `TipCard(id: TipIds.x, text: l10n.tipX)` widgets rendered as
+  `SizedBox.shrink()` once dismissed: Home (under the sync card), Beneficiaries
+  list (under the filter, hidden while the keyboard is open because it is a
+  fixed child above the list), Attendance (until a roster is loaded) and Sync
+  centre (under the status card).
+* Stable keys for tests and the harness: `tips-skip`, `tips-back`,
+  `tips-next`, `tips-page-wide`, `tip-<id>`, `home-help` and
+  `settings-show-tips`.
+
+### Adding a tip
+
+A wizard page:
+
+1. Add `tipsXTitle` / `tipsXBody` to both `lib/l10n/app_en.arb` and
+   `app_ar.arb`, then run `flutter gen-l10n`.
+2. Add the value to `TipPageKind` and append a `TipPage` in `tipPages()`
+   (`lib/features/tips/tips_content.dart`) with its capability gate.
+3. Update the page-count expectations in `test/tips_content_test.dart` and
+   `test/tips_wizard_test.dart`.
+4. Bump `AppConfig.tipsVersion` if existing accounts should see it.
+
+A screen tip:
+
+1. Add `tipY` to both ARB files and run `flutter gen-l10n`.
+2. Add a constant to `TipIds`.
+3. Place `TipCard(id: TipIds.y, text: l10n.tipY)` at the point of need.
+4. Regenerate the affected screenshot (`BMA_SCREENSHOTS=1 flutter test
+   test/screenshots/screenshot_generator_test.dart`).
 
 ## Adding a new form to the app
 

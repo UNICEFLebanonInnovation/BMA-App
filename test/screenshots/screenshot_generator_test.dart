@@ -472,4 +472,45 @@ void main() {
     await _go(tester, container, Routes.sync);
     await _shoot(tester, '21_sync_center_arabic', _phone.dpr);
   }, skip: !_enabled);
+
+  testWidgets('tips wizard', (tester) async {
+    // tipsSeen: false, so the first settled frame is the first-run wizard the
+    // router redirects to; seeding first makes the data page report ready.
+    _setSize(tester, _phone);
+    addTearDown(tester.view.reset);
+    final english = await tester.runAsync(() => _container(signedIn: true, tipsSeen: false));
+    addTearDown(english!.dispose);
+    await tester.runAsync(() => _seed(english));
+    await tester.pumpWidget(_app(english));
+    await _settle(tester);
+    await _shoot(tester, '22_tips_welcome', _phone.dpr);
+
+    await _tapText(tester, 'Next');
+    await _tapText(tester, 'Next');
+    await _shoot(tester, '23_tips_register', _phone.dpr);
+
+    await _tapText(tester, 'Next');
+    await _tapText(tester, 'Next');
+    await _shoot(tester, '24_tips_push', _phone.dpr);
+
+    final arabic = await tester.runAsync(() => _container(signedIn: true, language: 'ar', tipsSeen: false));
+    addTearDown(arabic!.dispose);
+    await tester.runAsync(() => _seed(arabic));
+    await tester.pumpWidget(_app(arabic));
+    await _settle(tester);
+    await _shoot(tester, '25_tips_welcome_arabic', _phone.dpr);
+
+    for (var i = 0; i < 4; i++) {
+      await _tapText(tester, 'التالي');
+    }
+    await _shoot(tester, '26_tips_push_arabic', _phone.dpr);
+
+    _setSize(tester, _tablet);
+    final tablet = await tester.runAsync(() => _container(signedIn: true, tipsSeen: false));
+    addTearDown(tablet!.dispose);
+    await tester.runAsync(() => _seed(tablet));
+    await tester.pumpWidget(_app(tablet));
+    await _settle(tester);
+    await _shoot(tester, '27_tips_welcome_tablet', _tablet.dpr);
+  }, skip: !_enabled);
 }
