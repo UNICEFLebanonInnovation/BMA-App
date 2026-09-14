@@ -1,0 +1,110 @@
+name: Release
+
+# Publishes the Android APK as a GitHub release asset, which gives a permanent
+# download link that needs no GitHub account (this repository is public).
+#
+#   git tag v0.1.0 && git push origin v0.1.0
+#
+# or run this workflow by hand once it is on the default branch.
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to create and release, e.g. v0.1.0'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as a pre-release (field-test build)'
+        default: true
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish the APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve the release tag
+        id: meta
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          if [[ ! "$TAG" =~ ^v[0-9A-Za-z.\-]+$ ]]; then
+            echo "::error::Tag '$TAG' must look like v0.1.0"
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "apk=bma-app-$TAG.apk" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+
+      # A release only goes out on green code.
+      - run: flutter analyze --no-pub
+      - run: flutter test
+
+      - name: Build the release APK
+        run: |
+          flutter build apk --release
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk "dist/${{ steps.meta.outputs.apk }}"
+          cd dist && sha256sum "${{ steps.meta.outputs.apk }}" > "${{ steps.meta.outputs.apk }}.sha256"
+
+      - name: Write the release notes
+        run: |
+          cat > dist/notes.md <<'NOTES'
+          Android build of the BMA-NFE offline mobile app.
+
+          ## Install
+
+          1. Download the `.apk` below on the phone or tablet.
+          2. Allow installation from unknown sources when Android asks.
+          3. Open the app, enter the address of your BMA-NFE server on the
+             **Set up the server** page, then sign in with a BMA-NFE account.
+
+          The server must run the `student_registration.mobile_api` app. Use
+          **Test connection** on the setup page to confirm before signing in.
+
+          ## Notes
+
+          - This APK is signed with the Android debug key so it installs on any
+            device for field testing. It is not a Play Store build, and it
+            cannot be installed over a copy signed with a different key.
+          - Verify the download against the `.sha256` file published beside it.
+          NOTES
+          {
+            echo ""
+            echo "Built from \`${GITHUB_SHA}\` on \`${GITHUB_REF_NAME}\`."
+          } >> dist/notes.md
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRERELEASE: ${{ github.event.inputs.prerelease }}
+        run: |
+          FLAGS=()
+          # Tag pushes are field-test builds too unless the tag is a plain vX.Y.Z.
+          if [[ "$PRERELEASE" == "true" || "${{ steps.meta.outputs.tag }}" == *-* ]]; then
+            FLAGS+=(--prerelease)
+          fi
+          gh release create "${{ steps.meta.outputs.tag }}" \
+            "dist/${{ steps.meta.outputs.apk }}" \
+            "dist/${{ steps.meta.outputs.apk }}.sha256" \
+            --target "$GITHUB_SHA" \
+            --title "BMA Mobile ${{ steps.meta.outputs.tag }}" \
+            --notes-file dist/notes.md \
+            "${FLAGS[@]}"

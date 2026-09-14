@@ -130,6 +130,22 @@ flutter build ipa --release          # iOS (macOS + Xcode)
 
 The default server URL and app version live in `lib/core/config/app_config.dart`.
 
+#### Releases (permanent download link)
+
+Tagging a commit publishes the APK as a GitHub release asset, which anyone can
+download without a GitHub account:
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+`.github/workflows/release.yml` analyses, tests and builds the release APK,
+then attaches `bma-app-<tag>.apk` and its `.sha256` to the release. The newest
+build is always at
+[releases/latest](https://github.com/UNICEFLebanonInnovation/BMA-App/releases/latest).
+Tags with a suffix (`v0.1.0-beta.1`) are published as pre-releases.
+
 #### APK from GitHub Actions
 
 Every push runs `.github/workflows/build.yml`, which analyses and tests the
