@@ -17,6 +17,7 @@ import 'features/registrations/registration_list_screen.dart';
 import 'features/registrations/registration_wizard_screen.dart';
 import 'features/services/service_form_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/profiles/facility_profile_screen.dart';
 import 'features/setup/server_setup_screen.dart';
 import 'features/sync/conflict_resolution_screen.dart';
 import 'features/sync/duplicate_resolution_screen.dart';
@@ -39,6 +40,10 @@ class Routes {
   static const settings = '/settings';
   static const sync = '/sync';
   static const tips = '/tips';
+  static const centerProfile = '/profile/center';
+  static const schoolProfile = '/profile/school';
+  /// Form of an entity that has no parent record (the ALP school profile).
+  static String standaloneForm(String entity) => '/form/$entity';
   static const syncHistory = '/sync/history';
   static String pushReport(String batchUuid) => '/sync/report/$batchUuid';
   static String resolveDuplicate(String uuid) => '/sync/duplicate/$uuid';
@@ -103,6 +108,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: Routes.home, builder: (_, _) => const HomeShell()),
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
       GoRoute(path: Routes.tips, builder: (_, _) => const TipsWizardScreen()),
+      GoRoute(path: Routes.centerProfile, builder: (_, _) => const CenterProfileScreen()),
+      GoRoute(path: Routes.schoolProfile, builder: (_, _) => const SchoolProfileScreen()),
+      GoRoute(
+        path: '/form/:entity',
+        builder: (_, state) => ServiceFormScreen(entity: state.pathParameters['entity']),
+      ),
       GoRoute(path: Routes.sync, builder: (_, _) => const SyncCenterScreen()),
       GoRoute(path: Routes.syncHistory, builder: (_, _) => const SyncHistoryScreen()),
       GoRoute(

@@ -125,7 +125,8 @@ class InfoLine extends StatelessWidget {
   }
 }
 
-/// Small numeric tile for dashboards.
+/// Small numeric tile. Tonal rather than a card, so rows of them read as one
+/// group; the caller decides the width (grid cell or Expanded).
 class StatTile extends StatelessWidget {
   const StatTile({super.key, required this.label, required this.value, this.color, this.icon, this.onTap});
 
@@ -138,20 +139,34 @@ class StatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = color ?? AppColors.primary;
-    return Card(
+    return Material(
+      color: AppColors.surfaceAlt.withValues(alpha: 0.7),
+      borderRadius: AppRadius.controlRadius,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppRadius.controlRadius,
         child: Padding(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (icon != null) Icon(icon, color: c),
-              const SizedBox(height: 6),
-              Text(value, style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: c, fontWeight: FontWeight.w700)),
-              Text(label, style: const TextStyle(color: AppColors.muted, fontSize: 12)),
+              if (icon != null) ...[Icon(icon, size: 18, color: c), const SizedBox(height: 8)],
+              Text(
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: c, height: 1.1),
+              ),
+              const SizedBox(height: 2),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: AppColors.muted, fontSize: 12),
+                ),
+              ),
             ],
           ),
         ),

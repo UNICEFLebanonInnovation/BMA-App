@@ -33,8 +33,8 @@ UI (features/*)  ──▶  SchemaForm engine (core/forms)  ──▶  EntityDao
   registered offline, `registration_uuid`).
 * `features/*` holds one folder per screen group: `auth`, `home`, `settings`,
   `registrations`, `services`, `attendance`, `teachers`, `dashboard`, `sync`,
-  `setup` (first-run server address page) and `tips` (getting-started wizard
-  and the dismissible `TipCard`).
+  `profiles` (NFE centre and ALP school), `setup` (first-run server address
+  page) and `tips` (getting-started wizard and the dismissible `TipCard`).
 * UI preferences that must outlive the database live in `SharedPreferences`
   and are loaded in `main()` before the first frame: `SettingsController`
   (server URL, whether it was ever confirmed, language) and `TipsController`
@@ -59,6 +59,36 @@ The login response carries `modules.{mscc,alp,clm}` with `enabled`,
 `scope` (`all`, `partner`, `center`, `school`). The UI hides what a user
 cannot do; the server re-checks every write and forces centre/school/partner
 from the account exactly as the web views do.
+
+## Facility profiles
+
+The MSCC module is presented as **NFE** throughout the interface; `mscc` stays
+its key in the API, the database and the entity names, so only the label
+changed.
+
+`lib/features/profiles/` builds a profile of the facility the account works at:
+`/profile/center` for NFE and `/profile/school` for ALP, both reached from the
+programme card on the home screen and both offline-only reads.
+
+`facility_profile.dart` holds the logic and takes its labels from the caller,
+so it carries no widgets and is unit-tested directly. It assembles:
+
+* the facts, from the `centers` and `schools` reference lists the bootstrap
+  already sends (partner, governorate, district, cadaster, type, programmes,
+  coordinates, school number, BMA flag, working days);
+* the location names, by resolving the id chain against the `locations`
+  reference list in the interface language;
+* the figures, by counting local records (registrations, attendance days and
+  anything still pending for that module).
+
+Values the server did not send are skipped rather than shown empty, and an
+unknown location id falls back to "Not recorded" instead of throwing.
+
+ALP schools additionally have a real form on the server
+(`alp.school_profile`, one per school), so the school profile offers an edit
+card that opens it through the ordinary schema form engine. That entity has no
+parent record, which is why `ServiceFormScreen` accepts a null `parentUuid` and
+the router carries a `/form/:entity` route for it.
 
 ## First-run server setup
 

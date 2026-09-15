@@ -88,7 +88,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get arabic => 'Arabic';
 
   @override
-  String get mscc => 'Makani (MSCC)';
+  String get mscc => 'NFE';
 
   @override
   String get alp => 'ALP schools';
@@ -717,4 +717,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get setupChangeLater => 'You can change the server later in Settings.';
+
+  @override
+  String get centerProfile => 'Centre profile';
+
+  @override
+  String get profileNoCenter => 'Your account is not linked to a centre.';
+
+  @override
+  String get profileNoSchool => 'Your account is not linked to a school.';
+
+  @override
+  String get profileNotDownloaded =>
+      'The details arrive with the reference data. Connect and run a full refresh.';
+
+  @override
+  String get partner => 'Partner';
+
+  @override
+  String get governorate => 'Governorate';
+
+  @override
+  String get district => 'District';
+
+  @override
+  String get cadaster => 'Cadaster';
+
+  @override
+  String get facilityType => 'Type';
+
+  @override
+  String get programmes => 'Programmes';
+
+  @override
+  String get packagesOffered => 'Services offered';
+
+  @override
+  String get statusLabel => 'Status';
+
+  @override
+  String get activeLabel => 'Active';
+
+  @override
+  String get inactiveLabel => 'Inactive';
+
+  @override
+  String get schoolNumber => 'School number';
+
+  @override
+  String get bmaSchool => 'BMA school';
+
+  @override
+  String get closedLabel => 'Closed';
+
+  @override
+  String get openLabel => 'Open';
+
+  @override
+  String get workingDays => 'Working days';
+
+  @override
+  String get weekendLabel => 'Weekend';
+
+  @override
+  String get coordinates => 'Coordinates';
+
+  @override
+  String get locationLabel => 'Location';
+
+  @override
+  String get atAGlance => 'At a glance';
+
+  @override
+  String get quickActions => 'Quick actions';
+
+  @override
+  String get yourProgrammes => 'Your programmes';
+
+  @override
+  String get registeredChildren => 'Registered children';
+
+  @override
+  String get notRecorded => 'Not recorded';
+
+  @override
+  String get viewProfile => 'View profile';
 }

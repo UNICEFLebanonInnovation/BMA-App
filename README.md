@@ -67,7 +67,8 @@ lib/
     widgets/    Shared widgets (sync state chip, offline banner, stat tiles …)
   features/
     auth/ home/ settings/ registrations/ services/ attendance/ teachers/ dashboard/ sync/
-    setup/ tips/
+    profiles/ setup/ tips/
+                                    profiles/ = NFE centre and ALP school profiles
                                        setup/ = first-run server address page
                                         tips/ = getting-started wizard + dismissible screen tips
 test/                                    unit tests (form engine, DAO, sync engine, name normalisation, tips), tips_wizard_test / tips_redirect_test
@@ -95,6 +96,15 @@ flutter analyze
 flutter test
 flutter run                # pick a device / emulator
 ```
+
+The programme the web platform calls Makani appears here as **NFE**, matching
+the sector's own naming.
+
+NFE accounts get a **Centre profile** and ALP accounts a **School profile**,
+reached from the programme card on the home screen. Both show the facility's
+partner, location chain, type and programmes from the reference data, plus the
+work held on the device, and both work offline. The ALP one also opens the
+editable school profile form that the web platform has.
 
 A device that has never been set up opens a **Set up the server** page first:
 enter the address of the BMA-NFE deployment (e.g. `https://bma-nfe.example.org`),
@@ -191,11 +201,11 @@ BMA_SCREENSHOTS=1 flutter test test/screenshots/screenshot_generator_test.dart
 | ![Registration wizard](screenshots/06_registration_wizard_identity.png) | ![Caregivers step](screenshots/07_registration_wizard_caregivers.png) | ![PSS service form](screenshots/08_service_form_pss.png) |
 | ![Teachers](screenshots/09_teachers.png) | ![Dashboard](screenshots/10_dashboard.png) | ![Sync centre](screenshots/11_sync_center.png) |
 | ![Push report](screenshots/12_push_report.png) | ![Duplicate resolution](screenshots/13_duplicate_resolution.png) | ![Sync history](screenshots/14_sync_history.png) |
-| ![Settings](screenshots/15_settings.png) | | |
+| ![Settings](screenshots/15_settings.png) | ![NFE centre profile](screenshots/30_center_profile.png) | |
 | ![Getting started](screenshots/22_tips_welcome.png) | ![Tips: registering](screenshots/23_tips_register.png) | ![Tips: push](screenshots/24_tips_push.png) |
 | ![Server setup (Arabic)](screenshots/29_server_setup_arabic.png) | ![Home (Arabic)](screenshots/18_home_arabic.png) | ![Beneficiaries (Arabic)](screenshots/19_beneficiaries_arabic.png) |
 | ![Registration wizard (Arabic)](screenshots/20_registration_wizard_arabic.png) | ![Getting started (Arabic)](screenshots/25_tips_welcome_arabic.png) | ![Tips: push (Arabic)](screenshots/26_tips_push_arabic.png) |
-| ![Sync centre (Arabic)](screenshots/21_sync_center_arabic.png) | | |
+| ![Sync centre (Arabic)](screenshots/21_sync_center_arabic.png) | ![Centre profile (Arabic)](screenshots/31_center_profile_arabic.png) | |
 
 Tablet layout (attendance sheet, beneficiaries list and the Getting started
 tour):

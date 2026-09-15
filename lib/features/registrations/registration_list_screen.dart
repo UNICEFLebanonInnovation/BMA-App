@@ -9,6 +9,7 @@ import '../../core/db/providers.dart';
 import '../../core/models/entity_record.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common.dart';
+import '../../core/widgets/ui.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../tips/tip_card.dart';
@@ -111,16 +112,42 @@ class _RegistrationTile extends StatelessWidget {
       if (view.nationalityLabel != null) view.nationalityLabel,
       view.centerLabel ?? view.schoolLabel,
     ].whereType<String>().join(' · ');
-    return ListTile(
-      leading: CircleAvatar(
-        backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-        child: Text(view.fullName.isEmpty ? '?' : view.fullName.characters.first.toUpperCase(),
-            style: const TextStyle(color: AppColors.primary)),
-      ),
-      title: Text(view.fullName.isEmpty ? l10n.unknown : view.fullName),
-      subtitle: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
-      trailing: SyncStateChip(record.syncState, compact: true),
+    final name = view.fullName.isEmpty ? l10n.unknown : view.fullName;
+    return InkWell(
       onTap: () => context.push(Routes.profile(record.uuid)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            InitialsAvatar(name),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 3),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: AppColors.muted, fontSize: 13, height: 1.25),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            SyncStateChip(record.syncState, compact: true),
+          ],
+        ),
+      ),
     );
   }
 }

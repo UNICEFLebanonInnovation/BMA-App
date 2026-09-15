@@ -88,7 +88,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get arabic => 'العربية';
 
   @override
-  String get mscc => 'مكاني (MSCC)';
+  String get mscc => 'التعليم غير النظامي';
 
   @override
   String get alp => 'مدارس ALP';
@@ -715,4 +715,89 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get setupChangeLater => 'يمكنك تغيير الخادم لاحقاً من «الإعدادات».';
+
+  @override
+  String get centerProfile => 'ملف المركز';
+
+  @override
+  String get profileNoCenter => 'حسابك غير مرتبط بمركز.';
+
+  @override
+  String get profileNoSchool => 'حسابك غير مرتبط بمدرسة.';
+
+  @override
+  String get profileNotDownloaded =>
+      'تصل التفاصيل مع البيانات المرجعية. اتصل بالإنترنت وقم بتحديث كامل.';
+
+  @override
+  String get partner => 'الشريك';
+
+  @override
+  String get governorate => 'المحافظة';
+
+  @override
+  String get district => 'القضاء';
+
+  @override
+  String get cadaster => 'المنطقة العقارية';
+
+  @override
+  String get facilityType => 'النوع';
+
+  @override
+  String get programmes => 'البرامج';
+
+  @override
+  String get packagesOffered => 'الخدمات المتاحة';
+
+  @override
+  String get statusLabel => 'الحالة';
+
+  @override
+  String get activeLabel => 'نشط';
+
+  @override
+  String get inactiveLabel => 'غير نشط';
+
+  @override
+  String get schoolNumber => 'رقم المدرسة';
+
+  @override
+  String get bmaSchool => 'مدرسة BMA';
+
+  @override
+  String get closedLabel => 'مغلقة';
+
+  @override
+  String get openLabel => 'مفتوحة';
+
+  @override
+  String get workingDays => 'أيام الدوام';
+
+  @override
+  String get weekendLabel => 'العطلة الأسبوعية';
+
+  @override
+  String get coordinates => 'الإحداثيات';
+
+  @override
+  String get locationLabel => 'الموقع';
+
+  @override
+  String get atAGlance => 'نظرة سريعة';
+
+  @override
+  String get quickActions => 'إجراءات سريعة';
+
+  @override
+  String get yourProgrammes => 'برامجك';
+
+  @override
+  String get registeredChildren => 'الأطفال المسجلون';
+
+  @override
+  String get notRecorded => 'غير مسجل';
+
+  @override
+  String get viewProfile => 'عرض الملف';
 }

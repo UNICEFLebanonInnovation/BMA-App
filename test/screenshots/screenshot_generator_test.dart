@@ -501,6 +501,26 @@ void main() {
     await _shoot(tester, '21_sync_center_arabic', _phone.dpr);
   }, skip: !_enabled);
 
+  testWidgets('NFE centre profile', (tester) async {
+    _setSize(tester, _phone);
+    addTearDown(tester.view.reset);
+    final container = await tester.runAsync(() => _container(signedIn: true));
+    addTearDown(container!.dispose);
+    await tester.runAsync(() => _seed(container));
+    await tester.pumpWidget(_app(container));
+    await _settle(tester);
+    await _go(tester, container, Routes.centerProfile);
+    await _shoot(tester, '30_center_profile', _phone.dpr);
+
+    final arabic = await tester.runAsync(() => _container(signedIn: true, language: 'ar'));
+    addTearDown(arabic!.dispose);
+    await tester.runAsync(() => _seed(arabic));
+    await tester.pumpWidget(_app(arabic));
+    await _settle(tester);
+    await _go(tester, arabic, Routes.centerProfile);
+    await _shoot(tester, '31_center_profile_arabic', _phone.dpr);
+  }, skip: !_enabled);
+
   testWidgets('tips wizard', (tester) async {
     // tipsSeen: false, so the first settled frame is the first-run wizard the
     // router redirects to; seeding first makes the data page report ready.

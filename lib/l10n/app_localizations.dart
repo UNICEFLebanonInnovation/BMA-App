@@ -251,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @mscc.
   ///
   /// In en, this message translates to:
-  /// **'Makani (MSCC)'**
+  /// **'NFE'**
   String get mscc;
 
   /// No description provided for @alp.
@@ -1381,6 +1381,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You can change the server later in Settings.'**
   String get setupChangeLater;
+
+  /// No description provided for @centerProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre profile'**
+  String get centerProfile;
+
+  /// No description provided for @profileNoCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not linked to a centre.'**
+  String get profileNoCenter;
+
+  /// No description provided for @profileNoSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not linked to a school.'**
+  String get profileNoSchool;
+
+  /// No description provided for @profileNotDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'The details arrive with the reference data. Connect and run a full refresh.'**
+  String get profileNotDownloaded;
+
+  /// No description provided for @partner.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get partner;
+
+  /// No description provided for @governorate.
+  ///
+  /// In en, this message translates to:
+  /// **'Governorate'**
+  String get governorate;
+
+  /// No description provided for @district.
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get district;
+
+  /// No description provided for @cadaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Cadaster'**
+  String get cadaster;
+
+  /// No description provided for @facilityType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get facilityType;
+
+  /// No description provided for @programmes.
+  ///
+  /// In en, this message translates to:
+  /// **'Programmes'**
+  String get programmes;
+
+  /// No description provided for @packagesOffered.
+  ///
+  /// In en, this message translates to:
+  /// **'Services offered'**
+  String get packagesOffered;
+
+  /// No description provided for @statusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get statusLabel;
+
+  /// No description provided for @activeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeLabel;
+
+  /// No description provided for @inactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get inactiveLabel;
+
+  /// No description provided for @schoolNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'School number'**
+  String get schoolNumber;
+
+  /// No description provided for @bmaSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'BMA school'**
+  String get bmaSchool;
+
+  /// No description provided for @closedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get closedLabel;
+
+  /// No description provided for @openLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get openLabel;
+
+  /// No description provided for @workingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Working days'**
+  String get workingDays;
+
+  /// No description provided for @weekendLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend'**
+  String get weekendLabel;
+
+  /// No description provided for @coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates'**
+  String get coordinates;
+
+  /// No description provided for @locationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get locationLabel;
+
+  /// No description provided for @atAGlance.
+  ///
+  /// In en, this message translates to:
+  /// **'At a glance'**
+  String get atAGlance;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get quickActions;
+
+  /// No description provided for @yourProgrammes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your programmes'**
+  String get yourProgrammes;
+
+  /// No description provided for @registeredChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered children'**
+  String get registeredChildren;
+
+  /// No description provided for @notRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded'**
+  String get notRecorded;
+
+  /// No description provided for @viewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get viewProfile;
 }
 
 class _AppLocalizationsDelegate

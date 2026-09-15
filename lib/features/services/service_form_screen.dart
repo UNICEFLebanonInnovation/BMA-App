@@ -53,7 +53,7 @@ class _ServiceFormScreenState extends ConsumerState<ServiceFormScreen> {
     if (widget.editUuid != null) {
       _editing = await dao.byUuid(widget.editUuid!);
       if (_editing?.parentUuid != null) _parent = await dao.byUuid(_editing!.parentUuid!);
-    } else {
+    } else if (widget.parentUuid != null) {
       _parent = await dao.byUuid(widget.parentUuid!);
     }
     final base = await ref.read(schemaProvider(_entity).future);
