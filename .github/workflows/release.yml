@@ -3,13 +3,15 @@ name: Release
 # Publishes the Android APK as a GitHub release asset, which gives a permanent
 # download link that needs no GitHub account (this repository is public).
 #
-#   git tag v0.1.0 && git push origin v0.1.0
-#
-# or run this workflow by hand once it is on the default branch.
+# Two ways in:
+#   * a version tag, for a real release:  git tag v0.1.0 && git push origin v0.1.0
+#   * a push to the field-test branch, which refreshes the rolling `field-test`
+#     pre-release so partners always have the newest build at the same link.
 
 on:
   push:
     tags: ['v*']
+    branches: ['claude/kind-brahmagupta-j47zvz']
   workflow_dispatch:
     inputs:
       tag:
@@ -24,6 +26,11 @@ on:
 permissions:
   contents: write
 
+# A newer push supersedes a release build that is still running.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release:
     name: Build and publish the APK
@@ -34,13 +41,32 @@ jobs:
       - name: Resolve the release tag
         id: meta
         run: |
-          TAG="${{ github.event.inputs.tag || github.ref_name }}"
-          if [[ ! "$TAG" =~ ^v[0-9A-Za-z.\-]+$ ]]; then
+          if [[ -n "${{ github.event.inputs.tag }}" ]]; then
+            TAG="${{ github.event.inputs.tag }}"
+            ROLLING=false
+          elif [[ "$GITHUB_REF_TYPE" == "tag" ]]; then
+            TAG="$GITHUB_REF_NAME"
+            ROLLING=false
+          else
+            # Rolling build of the field-test branch: same tag every time, so
+            # the download link stays valid.
+            TAG="field-test"
+            ROLLING=true
+          fi
+          if [[ ! "$TAG" =~ ^(v[0-9A-Za-z.\-]+|field-test)$ ]]; then
             echo "::error::Tag '$TAG' must look like v0.1.0"
             exit 1
           fi
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "apk=bma-app-$TAG.apk" >> "$GITHUB_OUTPUT"
+          if [[ "$ROLLING" == "true" ]]; then
+            APK="bma-app-field-test-${GITHUB_SHA::7}.apk"
+          else
+            APK="bma-app-$TAG.apk"
+          fi
+          {
+            echo "tag=$TAG"
+            echo "apk=$APK"
+            echo "rolling=$ROLLING"
+          } >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-java@v4
         with:
@@ -86,6 +112,14 @@ jobs:
             cannot be installed over a copy signed with a different key.
           - Verify the download against the `.sha256` file published beside it.
           NOTES
+          if [[ "${{ steps.meta.outputs.rolling }}" == "true" ]]; then
+            {
+              echo ""
+              echo "This is a rolling field-test build: it is replaced by the"
+              echo "newest commit on the branch, and the download link stays"
+              echo "the same."
+            } >> dist/notes.md
+          fi
           {
             echo ""
             echo "Built from \`${GITHUB_SHA}\` on \`${GITHUB_REF_NAME}\`."
@@ -94,17 +128,28 @@ jobs:
       - name: Publish the release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          ROLLING: ${{ steps.meta.outputs.rolling }}
           PRERELEASE: ${{ github.event.inputs.prerelease }}
         run: |
+          # The rolling release is recreated so its tag follows the branch head.
+          if [[ "$ROLLING" == "true" ]] && gh release view "$TAG" >/dev/null 2>&1; then
+            gh release delete "$TAG" --yes --cleanup-tag
+          fi
           FLAGS=()
-          # Tag pushes are field-test builds too unless the tag is a plain vX.Y.Z.
-          if [[ "$PRERELEASE" == "true" || "${{ steps.meta.outputs.tag }}" == *-* ]]; then
+          if [[ "$ROLLING" == "true" || "$PRERELEASE" == "true" || "$TAG" == *-* ]]; then
             FLAGS+=(--prerelease)
           fi
-          gh release create "${{ steps.meta.outputs.tag }}" \
+          if [[ "$ROLLING" == "true" ]]; then
+            TITLE="BMA Mobile field-test build"
+          else
+            TITLE="BMA Mobile $TAG"
+          fi
+          gh release create "$TAG" \
             "dist/${{ steps.meta.outputs.apk }}" \
             "dist/${{ steps.meta.outputs.apk }}.sha256" \
             --target "$GITHUB_SHA" \
-            --title "BMA Mobile ${{ steps.meta.outputs.tag }}" \
+            --title "$TITLE" \
             --notes-file dist/notes.md \
             "${FLAGS[@]}"
+          echo "### [$TITLE](https://github.com/$GITHUB_REPOSITORY/releases/tag/$TAG)" >> "$GITHUB_STEP_SUMMARY"

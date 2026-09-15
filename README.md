@@ -132,18 +132,25 @@ The default server URL and app version live in `lib/core/config/app_config.dart`
 
 #### Releases (permanent download link)
 
-Tagging a commit publishes the APK as a GitHub release asset, which anyone can
-download without a GitHub account:
+`.github/workflows/release.yml` publishes the APK as a GitHub release asset,
+which anyone can download without a GitHub account. It analyses, tests and
+builds the release APK, then attaches `bma-app-<version>.apk` and its `.sha256`
+to the release.
+
+Every push to the field-test branch refreshes the rolling **field-test**
+pre-release, so partners keep one permanent link:
+
+```
+https://github.com/UNICEFLebanonInnovation/BMA-App/releases/tag/field-test
+```
+
+For a real version, tag the commit; the tag name becomes the release:
 
 ```bash
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-`.github/workflows/release.yml` analyses, tests and builds the release APK,
-then attaches `bma-app-<tag>.apk` and its `.sha256` to the release. The newest
-build is always at
-[releases/latest](https://github.com/UNICEFLebanonInnovation/BMA-App/releases/latest).
 Tags with a suffix (`v0.1.0-beta.1`) are published as pre-releases.
 
 #### APK from GitHub Actions
