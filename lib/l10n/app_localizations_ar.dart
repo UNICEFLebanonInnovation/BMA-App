@@ -397,6 +397,33 @@ class AppLocalizationsAr extends AppLocalizations {
   String get childMonth => 'الحضور الشهري';
 
   @override
+  String get colName => 'الاسم';
+
+  @override
+  String get colMother => 'الأم';
+
+  @override
+  String get colBirthday => 'الميلاد';
+
+  @override
+  String get colAttendance => 'الحضور';
+
+  @override
+  String get colReason => 'السبب';
+
+  @override
+  String get notMarked => 'غير محدد';
+
+  @override
+  String get sessionLabel => 'الجلسة';
+
+  @override
+  String get rosterLabel => 'القائمة';
+
+  @override
+  String get noSheetForDay => 'لا يوجد سجل';
+
+  @override
   String get attended => 'حضر';
 
   @override
@@ -800,4 +827,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get viewProfile => 'عرض الملف';
+
+  @override
+  String get selectBeneficiary => 'اختر مستفيدًا لعرض ملفه.';
+
+  @override
+  String get switchModule => 'تبديل البرنامج';
+
+  @override
+  String get unsavedChanges => 'مغادرة النموذج؟ ستفقد التغييرات غير المحفوظة.';
 }

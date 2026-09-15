@@ -5,6 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../core/auth/auth_controller.dart';
 import '../../core/config/app_config.dart';
 import '../../core/db/providers.dart';
+import '../../core/layout/adaptive.dart';
+import '../../core/layout/app_layout.dart';
+import '../../core/layout/breakpoints.dart';
 import '../../core/models/user_profile.dart';
 import '../../core/sync/connectivity_service.dart';
 import '../../core/sync/sync_engine.dart';
@@ -29,76 +32,186 @@ class HomeShell extends ConsumerWidget {
     final online = ref.watch(isOnlineProvider);
     final bootstrapReady = ref.watch(bootstrapReadyProvider).value ?? true;
     final attention = sync.pendingCount + sync.attentionCount;
+    final modules = profile?.enabledModules ?? const <BmaModule>[];
 
-    return Scaffold(
-      body: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          const OfflineBanner(),
-          HeroHeader(
-            title: profile == null ? l10n.appTitle : l10n.welcome(profile.displayName),
-            subtitle: profile == null ? null : _scope(profile),
-            leading: profile == null
-                ? null
-                : CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Colors.white.withValues(alpha: 0.18),
-                    child: Text(
-                      InitialsAvatar.initialsOf(profile.displayName),
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-                    ),
-                  ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _HeaderAction(
-                  tooltip: l10n.syncCenter,
-                  icon: online ? Icons.cloud_sync : Icons.cloud_off,
-                  badge: attention > 0 ? '$attention' : null,
-                  onPressed: () => context.push(Routes.sync),
-                ),
-                _HeaderAction(
-                  key: const ValueKey('home-help'),
-                  tooltip: l10n.tipsTitle,
-                  icon: Icons.help_outline,
-                  onPressed: () => context.push(Routes.tips),
-                ),
-                _HeaderAction(
-                  tooltip: l10n.settings,
-                  icon: Icons.settings_outlined,
-                  onPressed: () => context.push(Routes.settings),
-                ),
-              ],
-            ),
-            footer: _SyncStrip(sync: sync, online: online),
-          ),
-          if (!bootstrapReady)
-            AppCard(
-              color: AppColors.warning.withValues(alpha: 0.10),
-              borderColor: AppColors.warning.withValues(alpha: 0.45),
-              child: Row(
-                children: [
-                  const Icon(Icons.warning_amber, color: AppColors.warning),
-                  const SizedBox(width: 12),
-                  Expanded(child: Text(l10n.bootstrapRequired)),
-                  const SizedBox(width: 8),
-                  FilledButton(
-                    onPressed: sync.busy || !online ? null : () => _fullRefresh(context, ref),
-                    child: Text(l10n.fullRefresh),
-                  ),
-                ],
+    // Every block below is built once and placed differently per width class,
+    // so the phone branch is the same widgets in the same order it has today.
+    final header = HeroHeader(
+      title: profile == null ? l10n.appTitle : l10n.welcome(profile.displayName),
+      subtitle: profile == null ? null : _scope(profile),
+      leading: profile == null
+          ? null
+          : CircleAvatar(
+              radius: 22,
+              backgroundColor: Colors.white.withValues(alpha: 0.18),
+              child: Text(
+                InitialsAvatar.initialsOf(profile.displayName),
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
               ),
             ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _HeaderAction(
+            tooltip: l10n.syncCenter,
+            icon: online ? Icons.cloud_sync : Icons.cloud_off,
+            badge: attention > 0 ? '$attention' : null,
+            onPressed: () => context.push(Routes.sync),
+          ),
+          _HeaderAction(
+            key: const ValueKey('home-help'),
+            tooltip: l10n.tipsTitle,
+            icon: Icons.help_outline,
+            onPressed: () => context.push(Routes.tips),
+          ),
+          _HeaderAction(
+            tooltip: l10n.settings,
+            icon: Icons.settings_outlined,
+            onPressed: () => context.push(Routes.settings),
+          ),
+        ],
+      ),
+      footer: _SyncStrip(sync: sync, online: online),
+    );
+
+    final bootstrapCard = AppCard(
+      color: AppColors.warning.withValues(alpha: 0.10),
+      borderColor: AppColors.warning.withValues(alpha: 0.45),
+      child: Row(
+        children: [
+          const Icon(Icons.warning_amber, color: AppColors.warning),
+          const SizedBox(width: 12),
+          Expanded(child: Text(l10n.bootstrapRequired)),
+          const SizedBox(width: 8),
+          FilledButton(
+            onPressed: sync.busy || !online ? null : () => _fullRefresh(context, ref),
+            child: Text(l10n.fullRefresh),
+          ),
+        ],
+      ),
+    );
+
+    // Who you are, what still has to reach the server, and the tip about it.
+    List<Widget> summary() => [
+          header,
+          if (!bootstrapReady) bootstrapCard,
           SectionHeader(l10n.quickActions),
           _SyncActions(sync: sync, online: online),
           TipCard(id: TipIds.homeSync, text: l10n.tipHomeSync),
-          if (profile != null && profile.enabledModules.isNotEmpty) SectionHeader(l10n.yourProgrammes),
-          if (profile != null)
-            for (final module in profile.enabledModules)
-              _ModuleCard(module: module, capabilities: profile.capabilities(module), profile: profile),
-          if (profile != null && profile.enabledModules.isEmpty)
-            Padding(padding: const EdgeInsets.all(24), child: Text(l10n.moduleDisabled)),
-        ],
+        ];
+
+    List<Widget> moduleCards() => [
+          for (final module in modules)
+            _ModuleCard(module: module, capabilities: profile!.capabilities(module), profile: profile),
+        ];
+
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final layout = AppLayout.forWidth(constraints.maxWidth);
+
+          if (!layout.width.atLeastMedium) {
+            // PHONE. No LayoutScope, no AdaptiveBody, no cap: this is the
+            // list that ships today, child for child.
+            return ListView(
+              padding: const EdgeInsets.only(bottom: 24),
+              children: [
+                const OfflineBanner(),
+                ...summary(),
+                if (profile != null && modules.isNotEmpty) SectionHeader(l10n.yourProgrammes),
+                ...moduleCards(),
+                if (profile != null && modules.isEmpty)
+                  Padding(padding: const EdgeInsets.all(24), child: Text(l10n.moduleDisabled)),
+              ],
+            );
+          }
+
+          if (layout.width.isExpanded) {
+            // TABLET LANDSCAPE. Identity and sync on the left, the programmes
+            // — the reason the app is open — take the rest. A plain Row puts
+            // the summary on the right under Directionality.rtl.
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const OfflineBanner(),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        width: layout.listPaneWidth,
+                        child: LayoutScope(
+                          // A 400 px pane is compact, and that is the right
+                          // answer: the hero, the two stat tiles and the
+                          // Push/Pull pair render exactly as they do on the
+                          // phone rather than being stretched.
+                          layout: AppLayout.forWidth(layout.listPaneWidth),
+                          child: ListView(
+                            key: const ValueKey('home-summary-pane'),
+                            padding: const EdgeInsets.only(bottom: 24),
+                            children: summary(),
+                          ),
+                        ),
+                      ),
+                      const VerticalDivider(width: 1),
+                      Expanded(
+                        child: LayoutBuilder(
+                          builder: (context, pane) => LayoutScope(
+                            layout: AppLayout.forWidth(pane.maxWidth),
+                            child: ListView(
+                              key: const ValueKey('home-modules'),
+                              padding: const EdgeInsets.only(bottom: 24),
+                              children: [
+                                if (profile != null && modules.isNotEmpty) SectionHeader(l10n.yourProgrammes),
+                                if (profile != null && modules.isNotEmpty)
+                                  _ModuleGrid(cards: moduleCards(), available: pane.maxWidth),
+                                if (profile != null && modules.isEmpty)
+                                  Padding(padding: const EdgeInsets.all(24), child: Text(l10n.moduleDisabled)),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // TABLET PORTRAIT / phone landscape. One column, capped, with the
+          // gradient band still full bleed above it.
+          return LayoutScope(
+            layout: layout,
+            child: ListView(
+              padding: const EdgeInsets.only(bottom: 24),
+              children: [
+                const OfflineBanner(),
+                header,
+                AdaptiveBody(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (!bootstrapReady) bootstrapCard,
+                      SectionHeader(l10n.quickActions),
+                      _SyncActions(sync: sync, online: online),
+                      TipCard(id: TipIds.homeSync, text: l10n.tipHomeSync),
+                      if (profile != null && modules.isNotEmpty) SectionHeader(l10n.yourProgrammes),
+                      if (profile != null && modules.isNotEmpty)
+                        // Stacked, not 2-up: a portrait tablet is 752 px wide
+                        // inside the gutter, and two module cards there would
+                        // squeeze the action tiles harder than the extra row
+                        // of scrolling costs.
+                        KeyedSubtree(key: const ValueKey('home-modules'), child: Column(children: moduleCards())),
+                      if (profile != null && modules.isEmpty)
+                        Padding(padding: const EdgeInsets.all(24), child: Text(l10n.moduleDisabled)),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -241,24 +354,17 @@ class _SyncActions extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: sync.busy || !online || sync.pendingCount == 0 ? null : () => _run(context, engine.push),
-                  icon: const Icon(Icons.upload),
-                  label: Text(l10n.pushNow),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: sync.busy || !online ? null : () => _run(context, () => engine.pull()),
-                  icon: const Icon(Icons.download),
-                  label: Text(l10n.pullNow),
-                ),
-              ),
-            ],
+          _PushPull(
+            push: FilledButton.icon(
+              onPressed: sync.busy || !online || sync.pendingCount == 0 ? null : () => _run(context, engine.push),
+              icon: const Icon(Icons.upload),
+              label: Text(l10n.pushNow),
+            ),
+            pull: OutlinedButton.icon(
+              onPressed: sync.busy || !online ? null : () => _run(context, () => engine.pull()),
+              icon: const Icon(Icons.download),
+              label: Text(l10n.pullNow),
+            ),
           ),
         ],
       ),
@@ -330,18 +436,36 @@ class _ModuleCard extends StatelessWidget {
           const SizedBox(height: 14),
           LayoutBuilder(
             builder: (context, constraints) {
-              final columns = constraints.maxWidth > 560 ? 4 : 3;
-              return GridView.count(
-                crossAxisCount: columns,
+              final layout = LayoutScope.of(context);
+              final tiles = [
+                for (final action in actions)
+                  ActionTile(icon: action.icon, label: action.label, onTap: action.onTap, color: accent),
+              ];
+              if (!layout.width.atLeastMedium) {
+                // Verbatim: 3 or 4 square-ish tiles, exactly as today.
+                final columns = constraints.maxWidth > 560 ? 4 : 3;
+                return GridView.count(
+                  crossAxisCount: columns,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  childAspectRatio: 0.95,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  children: tiles,
+                );
+              }
+              // Extent-based: a 44 px glyph does not need a 300x316 slab.
+              // The tile keeps a fixed size and the COUNT absorbs the width.
+              return GridView(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: layout.actionTileExtent,
+                  mainAxisExtent: _actionTileHeight(context, layout),
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                ),
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                childAspectRatio: 0.95,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                children: [
-                  for (final action in actions)
-                    ActionTile(icon: action.icon, label: action.label, onTap: action.onTap, color: accent),
-                ],
+                children: tiles,
               );
             },
           ),
@@ -357,4 +481,78 @@ class _Action {
   final String label;
   final IconData icon;
   final VoidCallback onTap;
+}
+
+/// Push and Pull. Two Expandeds on the phone, where filling the row is the
+/// point; content-sized from 600 px up, where a 600 px-wide "Pull" button is
+/// just a bigger accident waiting to happen.
+class _PushPull extends StatelessWidget {
+  const _PushPull({required this.push, required this.pull});
+
+  final Widget push;
+  final Widget pull;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!LayoutScope.of(context).width.atLeastMedium) {
+      return Row(
+        children: [
+          Expanded(child: push),
+          const SizedBox(width: 8),
+          Expanded(child: pull),
+        ],
+      );
+    }
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: Wrap(spacing: 12, runSpacing: 12, children: [push, pull]),
+    );
+  }
+}
+
+/// Lays the module cards out at up to [_maxCardExtent] each — 2-up on a 1280
+/// px landscape tablet, one column anywhere narrower.
+class _ModuleGrid extends StatelessWidget {
+  const _ModuleGrid({required this.cards, required this.available});
+
+  final List<Widget> cards;
+  final double available;
+
+  static const double _maxCardExtent = 620;
+  static const double _gap = 16;
+
+  @override
+  Widget build(BuildContext context) {
+    final columns = (available / _maxCardExtent).ceil().clamp(1, cards.length);
+    if (columns == 1) return Column(children: cards);
+    final width = (available - _gap * (columns - 1)) / columns;
+    // Wrap, not GridView: module cards differ in height with the number of
+    // actions the account may use, and a fixed cell would clip the tallest.
+    return Wrap(
+      spacing: _gap,
+      children: [for (final card in cards) SizedBox(width: width, child: card)],
+    );
+  }
+}
+
+/// Height one [ActionTile] needs, with [AppLayout.actionTileHeight] as the
+/// FLOOR rather than the answer.
+///
+/// A grid cell hands its child a TIGHT height, so anything the tile needs
+/// beyond the cell is a RenderFlex overflow rather than a taller tile. The
+/// token (116/124) is a pixel or six short of a two-line label even at scale
+/// 1.0, and Arabic at 1.3x needs ~10 px more again, so the real height is
+/// derived from ActionTile's own box model: a 1 px border top and bottom, 14
+/// px of vertical padding each side, the icon circle, an 8 px gap and up to
+/// two label lines at height 1.2. Kept next to the only grid that uses it;
+/// test/layout/home_dash_layout_test.dart pins the no-overflow result at both
+/// text scales.
+double _actionTileHeight(BuildContext context, AppLayout layout) {
+  final (circle, label) = switch (layout.width) {
+    WidthClass.compact => (44.0, 12.5),
+    WidthClass.medium => (52.0, 13.5),
+    WidthClass.expanded => (56.0, 14.0),
+  };
+  final needed = 2 + 28 + circle + 8 + 2 * MediaQuery.textScalerOf(context).scale(label) * 1.2;
+  return needed > layout.actionTileHeight ? needed : layout.actionTileHeight;
 }

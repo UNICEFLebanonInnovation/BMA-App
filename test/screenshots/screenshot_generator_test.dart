@@ -370,6 +370,16 @@ Future<void> _tapText(WidgetTester tester, String text, {bool last = false}) asy
   await _settle(tester, rounds: 4);
 }
 
+/// Taps a control by its stable ValueKey. Preferred over [_tapText] for the
+/// app's own controls: a label change or a layout redesign must not silently
+/// turn a capture into a screenshot of an empty screen.
+Future<void> _tapKey(WidgetTester tester, String key) async {
+  final finder = find.byKey(ValueKey(key));
+  expect(finder, findsOneWidget, reason: 'no widget with key "$key" to tap');
+  await tester.tap(finder, warnIfMissed: false);
+  await _settle(tester, rounds: 4);
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -469,12 +479,15 @@ void main() {
     await _settle(tester);
 
     await _go(tester, container, Routes.attendance(BmaModule.mscc));
-    await _tapText(tester, 'Programme');
+    await _tapKey(tester, 'att-programme');
     await _tapText(tester, 'BLN Level 1', last: true);
-    await _tapText(tester, 'Section');
+    await _tapKey(tester, 'att-section');
     await _tapText(tester, 'A', last: true);
-    await _tapText(tester, 'Load children');
+    await _tapKey(tester, 'att-load');
     await _settle(tester);
+    // The capture is only worth keeping if the roster actually loaded.
+    expect(find.byKey(const ValueKey('att-save')), findsOneWidget);
+    expect(find.byKey(const ValueKey('att-mark-all')), findsOneWidget);
     await _shoot(tester, '16_attendance_tablet', _tablet.dpr);
 
     await _go(tester, container, Routes.registrations(BmaModule.mscc));

@@ -143,6 +143,15 @@
   "noChildrenForSelection": "No enrolled children for this selection.",
   "attendanceSaved": "Attendance saved on this device.",
   "childMonth": "Monthly attendance",
+  "colName": "Name",
+  "colMother": "Mother",
+  "colBirthday": "Birth date",
+  "colAttendance": "Attendance",
+  "colReason": "Reason",
+  "notMarked": "Not marked",
+  "sessionLabel": "Session",
+  "rosterLabel": "Roster",
+  "noSheetForDay": "No sheet",
   "attended": "Attended",
   "totalRegistrations": "Registrations",
   "byGender": "By gender",
@@ -331,5 +340,8 @@
   "yourProgrammes": "Your programmes",
   "registeredChildren": "Registered children",
   "notRecorded": "Not recorded",
-  "viewProfile": "View profile"
+  "viewProfile": "View profile",
+  "selectBeneficiary": "Select a beneficiary to see their profile.",
+  "switchModule": "Switch programme",
+  "unsavedChanges": "Leave this form? Unsaved changes will be lost."
 }

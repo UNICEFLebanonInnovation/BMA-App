@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../layout/app_layout.dart';
 import '../models/form_schema.dart';
 import 'reference_cache.dart';
 import 'reference_picker.dart';
@@ -79,7 +80,12 @@ class _SchemaFieldWidgetState extends ConsumerState<SchemaFieldWidget> {
       case 'hidden':
         return const SizedBox.shrink();
       case 'textarea':
-        return _textField(maxLines: 4);
+        // A textarea owns a whole row (FieldSpec.spansFullRow), so on a tablet
+        // it has the width to be worth two more lines of height. The phone
+        // keeps its four.
+        return _textField(
+          maxLines: field.spansFullRow && LayoutScope.of(context).width.atLeastMedium ? 6 : 4,
+        );
       case 'number':
         return _textField(keyboardType: TextInputType.number);
       case 'decimal':
@@ -89,7 +95,7 @@ class _SchemaFieldWidgetState extends ConsumerState<SchemaFieldWidget> {
       case 'date':
         return _dateField(context);
       case 'boolean':
-        return _booleanField();
+        return _booleanField(context);
       case 'select':
         return _selectField();
       case 'multiselect':
@@ -154,17 +160,23 @@ class _SchemaFieldWidgetState extends ConsumerState<SchemaFieldWidget> {
   static String _iso(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-  Widget _booleanField() {
+  Widget _booleanField(BuildContext context) {
     final value = controller.value(field.name);
     final checked = value == true || value?.toString() == 'True' || value?.toString() == 'true';
+    final tile = SwitchListTile(
+      contentPadding: EdgeInsets.zero,
+      value: checked,
+      title: Text(field.labelFor(widget.languageCode)),
+      onChanged: widget.readOnly ? null : (v) => controller.setValue(field.name, v),
+    );
     return InputDecorator(
       decoration: _decoration(),
-      child: SwitchListTile(
-        contentPadding: EdgeInsets.zero,
-        value: checked,
-        title: Text(field.labelFor(widget.languageCode)),
-        onChanged: widget.readOnly ? null : (v) => controller.setValue(field.name, v),
-      ),
+      // A boolean is a one-column field, but a one-column form on a tablet is
+      // still ~760 px wide, and a label 700 px from its switch is unusable.
+      // Capped at medium+ only, so the phone tree gains no wrapper.
+      child: LayoutScope.of(context).width.atLeastMedium
+          ? ConstrainedBox(constraints: const BoxConstraints(maxWidth: 420), child: tile)
+          : tile,
     );
   }
 

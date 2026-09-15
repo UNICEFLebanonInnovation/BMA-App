@@ -69,6 +69,37 @@ class FieldSpec {
   bool get isMulti => type == 'multiselect' || type == 'multiref';
   bool get isReference => type == 'ref' || type == 'multiref';
 
+  /// LAYOUT, not validation. Declared here rather than inside the packer so
+  /// that `field_layout.dart` and `field_widgets.dart` cannot disagree about
+  /// which fields own a whole row.
+  ///
+  /// A `textarea` renders four (six on a tablet row) lines, a `multiselect`
+  /// wraps chips, a `multiref` joins labels with `', '` and a `file` renders a
+  /// sentence — all of them want width. So does any field carrying a long
+  /// help text, because `helperMaxLines: 3` would otherwise turn a half-width
+  /// cell into a three-line paragraph under a one-line input.
+  ///
+  /// The 60-character test deliberately reads [helpText] (the English string)
+  /// in both locales: the packing of a form must not change when the operator
+  /// switches language mid-registration.
+  bool get spansFullRow =>
+      type == 'textarea' ||
+      type == 'multiselect' ||
+      type == 'multiref' ||
+      type == 'file' ||
+      helpText.length > 60;
+
+  /// `<base>_confirm` twins read as one control and must share a row.
+  ///
+  /// The real bootstrap ships `confirm_fields: []`, so the suffix convention
+  /// that `SchemaFormController.validate` already enforces is the
+  /// authoritative one here too.
+  bool get pairsWithPrevious => name.endsWith('_confirm');
+
+  /// Name of the field this one confirms, or null when it is not a twin.
+  String? get confirmBaseName =>
+      pairsWithPrevious ? name.substring(0, name.length - '_confirm'.length) : null;
+
   String labelFor(String languageCode) =>
       languageCode == 'ar' && (labelAr?.isNotEmpty ?? false) ? labelAr! : label;
 
@@ -238,6 +269,20 @@ class EntitySchema {
   }
 
   bool get isAttendance => kind == 'attendance' || kind == 'teacher_attendance';
+
+  /// Every field name that any [RevealRule] can show — i.e. every field whose
+  /// presence in the form depends on another field's value.
+  ///
+  /// The form packer forces a row break immediately before and after each
+  /// contiguous run of these, so that flipping a reveal can never move a
+  /// field that sits above it. It asks on every keystroke (the controller
+  /// notifies on `setValue`), so the answer is computed once per schema and
+  /// cached. An [Expando] rather than a field because [EntitySchema] has a
+  /// const constructor.
+  Set<String> get revealTargets =>
+      _revealTargets[this] ??= Set.unmodifiable({for (final rule in reveals) ...rule.show});
+
+  static final Expando<Set<String>> _revealTargets = Expando<Set<String>>('revealTargets');
 
   /// Names of the fields hidden by reveal rules given the current [values].
   Set<String> hiddenFields(Map<String, dynamic> values, String? Function(String field, Object? value) labelOf) {

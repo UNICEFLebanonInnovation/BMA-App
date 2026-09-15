@@ -398,6 +398,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get childMonth => 'Monthly attendance';
 
   @override
+  String get colName => 'Name';
+
+  @override
+  String get colMother => 'Mother';
+
+  @override
+  String get colBirthday => 'Birth date';
+
+  @override
+  String get colAttendance => 'Attendance';
+
+  @override
+  String get colReason => 'Reason';
+
+  @override
+  String get notMarked => 'Not marked';
+
+  @override
+  String get sessionLabel => 'Session';
+
+  @override
+  String get rosterLabel => 'Roster';
+
+  @override
+  String get noSheetForDay => 'No sheet';
+
+  @override
   String get attended => 'Attended';
 
   @override
@@ -802,4 +829,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewProfile => 'View profile';
+
+  @override
+  String get selectBeneficiary => 'Select a beneficiary to see their profile.';
+
+  @override
+  String get switchModule => 'Switch programme';
+
+  @override
+  String get unsavedChanges => 'Leave this form? Unsaved changes will be lost.';
 }

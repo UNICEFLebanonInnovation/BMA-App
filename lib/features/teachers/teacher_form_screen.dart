@@ -10,6 +10,9 @@ import '../../core/db/providers.dart';
 import '../../core/forms/reference_cache.dart';
 import '../../core/forms/schema_form.dart';
 import '../../core/forms/schema_form_controller.dart';
+import '../../core/layout/adaptive.dart';
+import '../../core/layout/app_layout.dart';
+import '../../core/layout/current_module.dart';
 import '../../core/models/entity_record.dart';
 import '../../core/models/form_schema.dart';
 import '../../core/sync/sync_engine.dart';
@@ -28,6 +31,7 @@ class TeacherFormScreen extends ConsumerStatefulWidget {
 
 class _TeacherFormScreenState extends ConsumerState<TeacherFormScreen> {
   SchemaFormController? _controller;
+  UnsavedWorkWatch? _unsaved;
   EntitySchema? _schema;
   EntityRecord? _editing;
   bool _saving = false;
@@ -43,6 +47,9 @@ class _TeacherFormScreenState extends ConsumerState<TeacherFormScreen> {
 
   Future<void> _load() async {
     final l10n = AppLocalizations.of(context);
+    // Captured before the first await: the watcher below is created after
+    // several of them, and the container outlives this element anyway.
+    final container = ProviderScope.containerOf(context, listen: false);
     final dao = ref.read(entityDaoProvider);
     if (widget.editUuid != null) _editing = await dao.byUuid(widget.editUuid!);
     final schema = await ref.read(schemaProvider(_entity).future);
@@ -88,6 +95,21 @@ class _TeacherFormScreenState extends ConsumerState<TeacherFormScreen> {
         ),
       );
     });
+    // A rail tap is a `push`/`replace`, and NEITHER triggers PopScope — so the
+    // guard that defends this form against the back gesture cannot defend it
+    // against the rail. Publish the dirty state instead and let
+    // goDestination() ask before it navigates.
+    _unsaved = UnsavedWorkWatch(
+      container: container,
+      controller: _controller!,
+      message: l10n.unsavedChanges,
+    );
+  }
+
+  @override
+  void dispose() {
+    _unsaved?.dispose();
+    super.dispose();
   }
 
   Future<void> _submit() async {
@@ -105,6 +127,7 @@ class _TeacherFormScreenState extends ConsumerState<TeacherFormScreen> {
       bumpDataVersion(ref);
       await ref.read(syncEngineProvider.notifier).refreshCounts();
       if (!mounted) return;
+      _unsaved?.clear();
       showMessage(context, l10n.saveDraft);
       context.pop();
     } finally {
@@ -136,25 +159,62 @@ class _TeacherFormScreenState extends ConsumerState<TeacherFormScreen> {
             ),
         ],
       ),
+      // The scroll body and the footer are capped at the SAME width, so
+      // Cancel and Save stay beside the fields instead of ~1200 px apart at
+      // opposite corners of a 9-inch screen.
       body: Column(children: [
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: SchemaForm(controller: _controller!, languageCode: language),
+            child: _capped(SchemaForm(controller: _controller!, languageCode: language)),
           ),
         ),
         SafeArea(
           top: false,
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-            child: Row(children: [
-              OutlinedButton(onPressed: () => context.pop(), child: Text(l10n.cancel)),
-              const Spacer(),
-              FilledButton.icon(onPressed: _saving ? null : _submit, icon: const Icon(Icons.save), label: Text(l10n.save)),
-            ]),
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 12),
+            child: LayoutBuilder(builder: (context, constraints) {
+              final layout = AppLayout.forWidth(constraints.maxWidth);
+              final wide = layout.width.atLeastMedium;
+              return AdaptiveBody(
+                maxWidth: layout.formMaxWidth,
+                gutter: false,
+                child: Row(
+                  mainAxisAlignment: wide ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  children: [
+                    OutlinedButton(
+                      key: const ValueKey('teacher-cancel'),
+                      onPressed: () => context.pop(),
+                      child: Text(l10n.cancel),
+                    ),
+                    // Compact keeps the Spacer: today's phone footer exactly.
+                    if (wide) const SizedBox(width: 12) else const Spacer(),
+                    FilledButton.icon(
+                      key: const ValueKey('teacher-save'),
+                      onPressed: _saving ? null : _submit,
+                      icon: const Icon(Icons.save),
+                      label: Text(l10n.save),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ),
         ),
       ]),
     );
   }
+
+  /// The form cap sits INSIDE the 16 px page padding, so the packer is handed
+  /// the full `formMaxWidth` (1040 landscape → three columns, 760 portrait →
+  /// two). `gutter: false` because the page padding is already paid; at
+  /// compact the cap is infinite and the gutter zero, so on a phone this is a
+  /// no-op and the tree below it is today's tree.
+  Widget _capped(Widget child) => LayoutBuilder(
+        builder: (context, constraints) => AdaptiveBody(
+          maxWidth: AppLayout.forWidth(constraints.maxWidth).formMaxWidth,
+          gutter: false,
+          child: child,
+        ),
+      );
 }

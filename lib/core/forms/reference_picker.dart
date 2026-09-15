@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../layout/app_layout.dart';
 import '../models/reference_item.dart';
 import 'reference_cache.dart';
 
@@ -33,21 +34,45 @@ class ReferencePickerSheet extends ConsumerStatefulWidget {
     Set<int> selectedIds = const {},
     bool Function(ReferenceItem item)? filter,
   }) {
+    final body = ReferencePickerSheet(
+      kind: kind,
+      title: title,
+      languageCode: languageCode,
+      multi: multi,
+      selectedIds: selectedIds,
+      filter: filter,
+    );
+    // Modality is a DEVICE question, not a box question: a 1280x720 sheet to
+    // pick one centre name puts its close button ~1200 px from the field that
+    // opened it, and `autofocus` then raises a keyboard over the list.
+    //
+    // Read WITHOUT registering a dependency — this runs from a tap callback,
+    // not from build. A screen that has not been converted yet has no scope
+    // above it, and there the device question is all there is to ask.
+    final scope = context.getInheritedWidgetOfExactType<LayoutScope>();
+    final asDialog = scope == null ? isTabletDevice(context) : scope.layout.dialogPickers;
+    if (asDialog) {
+      // THE RETURN CONTRACT IS UNCHANGED: ReferenceItem for single, List<int>
+      // for multi, null when dismissed. field_widgets.dart casts the result
+      // with `(result as dynamic).id as int` and attendance_screen.dart does
+      // an `is ReferenceItem` check, so a drift here fails at runtime in a
+      // Makani centre, not at analyze time on a laptop.
+      return showDialog<Object?>(
+        context: context,
+        useSafeArea: true,
+        builder: (_) => Dialog(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560, maxHeight: 640),
+            child: body,
+          ),
+        ),
+      );
+    }
     return showModalBottomSheet<Object?>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      builder: (_) => FractionallySizedBox(
-        heightFactor: 0.9,
-        child: ReferencePickerSheet(
-          kind: kind,
-          title: title,
-          languageCode: languageCode,
-          multi: multi,
-          selectedIds: selectedIds,
-          filter: filter,
-        ),
-      ),
+      builder: (_) => FractionallySizedBox(heightFactor: 0.9, child: body),
     );
   }
 

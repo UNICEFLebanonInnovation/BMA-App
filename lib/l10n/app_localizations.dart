@@ -830,6 +830,60 @@ abstract class AppLocalizations {
   /// **'Monthly attendance'**
   String get childMonth;
 
+  /// No description provided for @colName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get colName;
+
+  /// No description provided for @colMother.
+  ///
+  /// In en, this message translates to:
+  /// **'Mother'**
+  String get colMother;
+
+  /// No description provided for @colBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Birth date'**
+  String get colBirthday;
+
+  /// No description provided for @colAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get colAttendance;
+
+  /// No description provided for @colReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get colReason;
+
+  /// No description provided for @notMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not marked'**
+  String get notMarked;
+
+  /// No description provided for @sessionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get sessionLabel;
+
+  /// No description provided for @rosterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Roster'**
+  String get rosterLabel;
+
+  /// No description provided for @noSheetForDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No sheet'**
+  String get noSheetForDay;
+
   /// No description provided for @attended.
   ///
   /// In en, this message translates to:
@@ -1549,6 +1603,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View profile'**
   String get viewProfile;
+
+  /// No description provided for @selectBeneficiary.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a beneficiary to see their profile.'**
+  String get selectBeneficiary;
+
+  /// No description provided for @switchModule.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch programme'**
+  String get switchModule;
+
+  /// No description provided for @unsavedChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this form? Unsaved changes will be lost.'**
+  String get unsavedChanges;
 }
 
 class _AppLocalizationsDelegate

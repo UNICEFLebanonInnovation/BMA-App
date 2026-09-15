@@ -122,6 +122,15 @@
   "noChildrenForSelection": "لا يوجد أطفال مسجلون لهذا الاختيار.",
   "attendanceSaved": "تم حفظ الحضور على هذا الجهاز.",
   "childMonth": "الحضور الشهري",
+  "colName": "الاسم",
+  "colMother": "الأم",
+  "colBirthday": "الميلاد",
+  "colAttendance": "الحضور",
+  "colReason": "السبب",
+  "notMarked": "غير محدد",
+  "sessionLabel": "الجلسة",
+  "rosterLabel": "القائمة",
+  "noSheetForDay": "لا يوجد سجل",
   "attended": "حضر",
   "totalRegistrations": "التسجيلات",
   "byGender": "حسب الجنس",
@@ -241,5 +250,8 @@
   "yourProgrammes": "برامجك",
   "registeredChildren": "الأطفال المسجلون",
   "notRecorded": "غير مسجل",
-  "viewProfile": "عرض الملف"
+  "viewProfile": "عرض الملف",
+  "selectBeneficiary": "اختر مستفيدًا لعرض ملفه.",
+  "switchModule": "تبديل البرنامج",
+  "unsavedChanges": "مغادرة النموذج؟ ستفقد التغييرات غير المحفوظة."
 }

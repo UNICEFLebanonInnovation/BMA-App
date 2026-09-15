@@ -50,6 +50,12 @@ class Routes {
   static String resolveConflict(String uuid) => '/sync/conflict/$uuid';
   static String dashboard(BmaModule m) => '/dashboard/${m.key}';
   static String registrations(BmaModule m) => '/registrations/${m.key}';
+
+  /// The beneficiaries list with one child selected. The selection is a query
+  /// parameter on the SAME route, so `replace` keeps the page (and its State)
+  /// and the link is shareable. `matchedLocation` ignores query strings, so the
+  /// redirect at the top of the router is unaffected.
+  static String registrationsSelected(BmaModule m, String uuid) => '/registrations/${m.key}?sel=$uuid';
   static String newRegistration(BmaModule m) => '/registrations/${m.key}/new';
   static String profile(String uuid) => '/record/$uuid';
   static String editRegistration(String uuid) => '/record/$uuid/edit';
@@ -134,7 +140,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/registrations/:module',
-        builder: (_, state) => RegistrationListScreen(module: _module(state)),
+        builder: (_, state) => RegistrationListScreen(
+          module: _module(state),
+          selectedUuid: state.uri.queryParameters['sel'],
+        ),
       ),
       GoRoute(
         path: '/registrations/:module/new',

@@ -2,16 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../layout/app_layout.dart';
+import '../layout/breakpoints.dart';
 import '../models/entity_record.dart';
 import '../sync/connectivity_service.dart';
 import '../theme/app_theme.dart';
 
 /// Coloured chip describing the local sync state of a record.
 class SyncStateChip extends StatelessWidget {
-  const SyncStateChip(this.state, {super.key, this.compact = false});
+  const SyncStateChip(this.state, {super.key, this.compact = false, this.forceIcon = false});
 
   final SyncState state;
+
+  /// Asks for the bare icon. Honoured at compact width only: from 600 px up
+  /// there is room for the label, and a hover tooltip is not a label on a
+  /// touch device (nor is an 18 px icon a touch target).
   final bool compact;
+
+  /// Escape hatch for the one caller that needs a glyph at every width: the
+  /// counters on the sync centre put this INSIDE another Chip's avatar slot,
+  /// which cannot hold a Chip. Defaults to false.
+  final bool forceIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +36,7 @@ class SyncStateChip extends StatelessWidget {
       SyncState.error => (l10n.error, AppColors.danger, Icons.error_outline),
       SyncState.discarded => (l10n.discarded, AppColors.muted, Icons.delete_outline),
     };
-    if (compact) {
+    if (forceIcon || (compact && !LayoutScope.of(context).width.atLeastMedium)) {
       return Tooltip(message: label, child: Icon(icon, size: 18, color: color));
     }
     return Chip(
@@ -64,15 +75,25 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final layout = LayoutScope.of(context);
+    // emptyStateIcon is 56 at compact — today's literal.
+    Widget text = Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.muted));
+    // This is the "nothing selected" placeholder of every detail pane, so a
+    // 1280 px-wide sentence is the common case at tablet width, not the odd
+    // one. At compact 412 - 64 of padding is 348, already under the cap, so
+    // the branch is skipped rather than made a no-op ConstrainedBox.
+    if (layout.width.atLeastMedium) {
+      text = ConstrainedBox(constraints: const BoxConstraints(maxWidth: 420), child: text);
+    }
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: AppColors.muted),
+            Icon(icon, size: layout.emptyStateIcon, color: AppColors.muted),
             const SizedBox(height: 12),
-            Text(message, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.muted)),
+            text,
             if (action != null) ...[const SizedBox(height: 16), action!],
           ],
         ),
@@ -89,35 +110,59 @@ class SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
-      child: TextField(
-        decoration: InputDecoration(
-          prefixIcon: const Icon(Icons.search),
-          hintText: hint ?? AppLocalizations.of(context).searchHint,
-        ),
-        textInputAction: TextInputAction.search,
-        onChanged: onChanged,
+    final layout = LayoutScope.of(context);
+    Widget field = TextField(
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.search),
+        hintText: hint ?? AppLocalizations.of(context).searchHint,
       ),
+      textInputAction: TextInputAction.search,
+      onChanged: onChanged,
+    );
+    // searchMaxWidth is double.infinity at compact, so the isFinite test is
+    // also the "no scope installed" test and the phone keeps a full-bleed
+    // field. A 1256 px search box for a three-letter name is not a feature.
+    if (layout.searchMaxWidth.isFinite) {
+      field = Align(
+        alignment: AlignmentDirectional.centerStart,
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: layout.searchMaxWidth),
+          child: field,
+        ),
+      );
+    }
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 12, 4),
+      child: field,
     );
   }
 }
 
 /// Key/value line used in profile headers and reports.
 class InfoLine extends StatelessWidget {
-  const InfoLine(this.label, this.value, {super.key});
+  const InfoLine(this.label, this.value, {super.key, this.labelWidth});
 
   final String label;
   final String? value;
 
+  /// Overrides the label column. Null means "follow the layout".
+  final double? labelWidth;
+
   @override
   Widget build(BuildContext context) {
+    final layout = LayoutScope.of(context);
+    // CAREFUL: labelColumnWidth is 132 at compact because that is FactRow's
+    // literal, but InfoLine's is 140. Widening the token at medium+ is the
+    // change; the compact branch must stay 140 or every profile header on the
+    // phone shifts by 8 px.
+    final width = labelWidth ?? (layout.width.atLeastMedium ? layout.labelColumnWidth : 140.0);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 140, child: Text(label, style: const TextStyle(color: AppColors.muted))),
+          SizedBox(width: width, child: Text(label, style: const TextStyle(color: AppColors.muted))),
           Expanded(child: Text(value == null || value!.isEmpty ? '—' : value!)),
         ],
       ),
@@ -139,6 +184,12 @@ class StatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = color ?? AppColors.primary;
+    final layout = LayoutScope.of(context);
+    final (valueSize, pad) = switch (layout.width) {
+      WidthClass.compact => (22.0, 12.0),
+      WidthClass.medium => (26.0, 14.0),
+      WidthClass.expanded => (30.0, 16.0),
+    };
     return Material(
       color: AppColors.surfaceAlt.withValues(alpha: 0.7),
       borderRadius: AppRadius.controlRadius,
@@ -146,7 +197,7 @@ class StatTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppRadius.controlRadius,
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(pad),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -156,7 +207,7 @@ class StatTile extends StatelessWidget {
                 value,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: c, height: 1.1),
+                style: TextStyle(fontSize: valueSize, fontWeight: FontWeight.w700, color: c, height: 1.1),
               ),
               const SizedBox(height: 2),
               Flexible(
@@ -177,11 +228,22 @@ class StatTile extends StatelessWidget {
 
 /// Shows a snackbar with [message].
 void showMessage(BuildContext context, String message, {bool error = false}) {
+  // getInheritedWidgetOfExactType, not dependOnInheritedWidgetOfExactType:
+  // this runs from a callback, not a build, so it must not register a
+  // dependency on a context it does not own.
+  final layout = context.getInheritedWidgetOfExactType<LayoutScope>()?.layout ?? AppLayout.compact;
+  // SnackBar asserts that `width` is only set for floating behaviour, and the
+  // app theme sets floating globally — but showMessage is called from screens
+  // that a test may pump under a bare ThemeData, so ask rather than assume.
+  final floating = Theme.of(context).snackBarTheme.behavior == SnackBarBehavior.floating;
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(
       content: Text(message),
       backgroundColor: error ? AppColors.danger : null,
+      // Null at compact: today's snackbar spans the phone, which is right.
+      // 1280 px of chrome for "Saved" is not.
+      width: floating && layout.width.atLeastMedium ? 520 : null,
     ));
 }
 
