@@ -1,6 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The Flutter template only grants INTERNET in the debug and profile
+         manifests, so a release build cannot reach the server at all. The app
+         syncs with BMA-NFE, so it belongs here too. ACCESS_NETWORK_STATE backs
+         the offline banner (connectivity_plus also declares it). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application
-        android:label="bma_app"
+        android:label="BMA Mobile"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
