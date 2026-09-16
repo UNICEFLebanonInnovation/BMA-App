@@ -22,6 +22,13 @@ void tabletLandscape(WidgetTester tester) => _set(tester, 1280, 800, 2.0);
 /// height gate exists for.
 void phoneLandscape(WidgetTester tester) => _set(tester, 915, 412, 2.625);
 
+/// An arbitrary logical window at the tablet's pixel ratio, for the sizes the
+/// four presets do not name: `android:resizeableActivity="true"` means the app
+/// can be handed a freeform/desktop window of any size on the target tablet,
+/// and the navigation rail's own thresholds (1000, 1200) and height gate live
+/// between the presets.
+void freeformWindow(WidgetTester tester, double w, double h) => _set(tester, w, h, 2.0);
+
 void _set(WidgetTester tester, double w, double h, double dpr) {
   tester.view.physicalSize = Size(w * dpr, h * dpr);
   tester.view.devicePixelRatio = dpr;

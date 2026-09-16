@@ -217,6 +217,13 @@ class BmaNavigationRail extends ConsumerWidget {
           // Labels are dropped rather than overflowed on a short window — the
           // height gate allows 560, where seven labelled destinations plus the
           // chrome would not fit.
+          //
+          // THIS ESTIMATE IS A HINT, NOT A CONTRACT. A collapsed rail is 72 px
+          // wide, so `Teacher attendance` wraps to three lines and a labelled
+          // destination is 64-112 px tall, not 76 — and the estimate cannot see
+          // the text scaler either. `scrollable: true` below is what makes a
+          // wrong guess harmless: the destination group scrolls instead of
+          // pushing its last children off the rail.
           final labelled =
               box.maxHeight >= _chromeHeight + destinations.length * _labelledDestination;
           return NavigationRail(
@@ -231,29 +238,36 @@ class BmaNavigationRail extends ConsumerWidget {
             destinations: railDestinations(destinations),
             onDestinationSelected: (index) =>
                 goDestination(context, ref, destinations[index].location),
-            // NOT wrapped in an Expanded: the rail's own destination list is
-            // already inside one, and a second Expanded would split the height
-            // in half and overflow a seven-destination rail at 800 px tall.
-            // Without it the destinations keep the slack and this sits at the
-            // bottom, which is the intent.
-            trailing: Align(
-              alignment: AlignmentDirectional.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(bottom: 12),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    for (final spec in trailing)
-                      RailAction(
-                        key: ValueKey('nav-dest-${spec.key}'),
-                        spec: spec,
-                        extended: extended,
-                        selected: destinationIndexFor([spec], location) != null,
-                        badge: spec.key == 'sync' && attention > 0 ? '$attention' : null,
-                        onTap: () => goDestination(context, ref, spec.location),
-                      ),
-                  ],
-                ),
+            // THE TWO FLAGS THAT KEEP THE RAIL HONEST.
+            //  * `scrollable` wraps ONLY the destination group in a
+            //    SingleChildScrollView, so a rail that is too short for its
+            //    labels degrades to scrolling. Without it the group is a
+            //    `mainAxisSize.min` Column inside one Flexible and its last
+            //    children are simply laid out past the bottom edge —
+            //    unreachable, with overflow stripes on every screen.
+            //  * `trailingAtBottom` moves the block below into the OUTER
+            //    Column, after the Flexible. That is the only way it reaches
+            //    the bottom edge: the default (false) appends it inside the
+            //    shrink-wrapped destination group, where an
+            //    `Align(bottomCenter)` has nothing to align against and the
+            //    two app-wide actions float mid-rail.
+            scrollable: true,
+            trailingAtBottom: true,
+            trailing: Padding(
+              padding: const EdgeInsetsDirectional.only(bottom: 12),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (final spec in trailing)
+                    RailAction(
+                      key: ValueKey('nav-dest-${spec.key}'),
+                      spec: spec,
+                      extended: extended,
+                      selected: destinationIndexFor([spec], location) != null,
+                      badge: spec.key == 'sync' && attention > 0 ? '$attention' : null,
+                      onTap: () => goDestination(context, ref, spec.location),
+                    ),
+                ],
               ),
             ),
           );

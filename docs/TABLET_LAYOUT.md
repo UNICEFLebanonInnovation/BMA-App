@@ -227,10 +227,19 @@ are not:
    `SnackBar` in the root registered `Scaffold`, so a `Scaffold` above the
    `Navigator` would re-anchor every `showMessage` in the app to the window
    bottom, sliding it under the rail.
-2. **The rail has no `Overlay` ancestor.** That is why `RailAction` uses
-   `Semantics` rather than `Tooltip`, and why the module switcher opens
-   `showMenu` against the router's navigator key with manually computed global
-   coordinates. A plain `Tooltip` there throws at runtime, not at analyze time.
+2. **The rail has no `Overlay` ancestor.** The app's only `Overlay` belongs to
+   the page `Navigator`, and that `Navigator` is a *sibling* of the rail, so
+   the overlay starts after the rail and its divider (`Offset(213, 0)`,
+   `1067x800` on the target device). That is why `RailAction` uses `Semantics`
+   rather than `Tooltip` — a plain `Tooltip` there throws at runtime, not at
+   analyze time — and why the module switcher asks in a **centred dialog**
+   rather than an anchored menu. An anchored `showMenu` cannot reach back over
+   the rail and cannot be told to try: `_PopupMenuRouteLayout` clamps the menu
+   8 px inside the overlay, so window coordinates and overlay coordinates put
+   the first item in exactly the same place, clear of the control. A dialog has
+   no anchor to get wrong and matches `AppLayout.dialogPickers`, which is
+   already true everywhere the rail exists. Keys: `nav-module-menu`,
+   `nav-module-option-<module>`.
 3. **`currentLocation()` reads `routerDelegate.state.matchedLocation`, not
    `currentConfiguration.uri`.** The uri ignores imperative route matches, so
    after a `push` it still reports `/home` — and a rail that believed it would
@@ -245,10 +254,18 @@ at `[Home]` or `[Home, destination]`:
 
 | Tap | Action |
 |---|---|
-| To Home | `canPop() ? pop() : go(Routes.home)` |
+| Any tap, first | **unwind**: `pop` while the stack is deeper than two |
+| To Home | `pop` the remaining destination, `go(Routes.home)` if that did not land on Home |
 | From Home to a destination | `push` |
 | Destination to destination | `replace` |
-| The destination you are on | nothing |
+| The destination you are on, or the one the unwind landed on | nothing |
+
+The unwind is the part that is easy to leave out and impossible to notice from
+the rail alone: six screens push a page of their own ("Register new", a child
+profile below `expanded`, a sync queue item, a teacher form). Without it "to
+Home" pops one level and lands on the middle page, and a rail-to-rail `replace`
+swaps that middle page while the stale destination stays underneath — so the
+stack deepens by one on every drill-down for the rest of the session.
 
 So Android back still means "back to Home", exactly as it did on the phone.
 
@@ -262,6 +279,19 @@ So Android back still means "back to Home", exactly as it did on the phone.
 
 The gate routes — `/`, `/login`, `/setup`, `/tips` — render with no rail by
 design, so a login or tips capture at 1280x800 showing no rail is correct.
+
+The collapsed rail sets `scrollable: true` and `trailingAtBottom: true`. The
+label gate (`_chromeHeight + destinations * _labelledDestination`) is a *hint*:
+a 72 px rail wraps `Teacher attendance` to three lines, so a labelled
+destination is 64-112 px tall rather than 76, and the estimate never sees the
+text scaler. `scrollable` makes a wrong guess degrade to a scrolling
+destination group instead of laying the last destinations out past the bottom
+edge, and `trailingAtBottom` pins Sync centre and Settings in the rail's outer
+`Column` — outside that group, genuinely at the bottom. With the Flutter
+default (`false`) the trailing block is appended *inside* the shrink-wrapped
+group, where an `Align(bottomCenter)` has nothing to align against and the two
+app-wide actions float mid-rail — and where they are the first thing an
+overflow pushes off the rail.
 
 In Arabic the rail mirrors to the **trailing** (right) edge. That is the single
 most visible tablet-specific difference between the two languages, and

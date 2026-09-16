@@ -186,7 +186,16 @@ int? destinationIndexFor(List<NavDestinationSpec> destinations, String location)
 ///
 /// THIS IS THE PART THAT MUST NOT BE IMPROVISED. The rail is not itself in the
 /// back stack, so the stack has to stay shallow by construction:
-///  * to Home: `pop` if there is anything to pop, else `go`;
+///  * UNWIND FIRST — everything a destination pushed on top of ITSELF (the
+///    registration wizard, a child profile below `expanded`, a sync queue
+///    item, a teacher form) comes off before the rail acts. Without this step
+///    the two branches below both misfire: "to Home" pops a single level and
+///    lands on the middle page, and rail-to-rail `replace`s that middle page,
+///    leaving the stale destination underneath forever, so the stack deepens
+///    by one on every drill-down for the rest of the session.
+///  * to Home: pop the one remaining destination, and `go` when the bottom of
+///    the stack is not Home at all (a deep link, where there is nothing to pop
+///    back to);
 ///  * off Home: `push`, so the stack becomes depth 2;
 ///  * rail-to-rail: `replace`, which swaps the top and reuses the page key —
 ///    go_router 14.8.1 documents that as "the page key will be reused, this
@@ -195,7 +204,9 @@ int? destinationIndexFor(List<NavDestinationSpec> destinations, String location)
 /// a plain `push` everywhere would grow it without bound.
 ///
 /// Neither `push` nor `replace` triggers `PopScope`, which is precisely why the
-/// [unsavedWorkProvider] guard exists.
+/// [unsavedWorkProvider] guard exists. `pop` DOES deliver
+/// `onPopInvokedWithResult(didPop: true)`, which every `PopScope` in the app
+/// returns from immediately, so the unwind cannot re-enter a confirm dialog.
 Future<void> goDestination(BuildContext context, WidgetRef ref, String location) async {
   final router = ref.read(appRouterProvider);
   final delegate = router.routerDelegate;
@@ -212,9 +223,23 @@ Future<void> goDestination(BuildContext context, WidgetRef ref, String location)
   }
 
   if (location == here) return;
+
+  // STEP 1: back down to `[Home]` or `[Home, destination]`. The budget is the
+  // stack depth, so a route that declines to come off (an `onExit` guard, a
+  // pageless route) costs one wasted iteration instead of spinning forever.
+  var budget = delegate.currentConfiguration.matches.length;
+  while (budget-- > 0 && delegate.currentConfiguration.matches.length > 2 && router.canPop()) {
+    router.pop();
+  }
+  // The unwind can have arrived on its own: tapping Beneficiaries from the
+  // registration wizard is a "go back to the list", not a re-push of it.
+  final at = currentLocation(router);
+  if (location == at) return;
+
   if (location == Routes.home) {
-    router.canPop() ? router.pop() : router.go(Routes.home);
-  } else if (here == Routes.home) {
+    if (at != Routes.home && router.canPop()) router.pop();
+    if (currentLocation(router) != Routes.home) router.go(Routes.home);
+  } else if (at == Routes.home) {
     router.push(location);
   } else {
     router.replace(location);
@@ -313,41 +338,48 @@ class ModuleSwitcher extends ConsumerWidget {
         BmaModule.clm => (l10n.clm, AppColors.success),
       };
 
-  /// Opens the programme menu in the ROUTER'S navigator.
+  /// Asks which programme to work in, as a CENTRED DIALOG on the router's
+  /// navigator — not as a menu anchored to the switcher.
   ///
-  /// `MenuAnchor` and `Tooltip` both need an `Overlay` ancestor, and the rail
-  /// sits above the Navigator that owns the app's overlay — so the menu is
-  /// opened against the navigator's context instead, anchored to this widget's
-  /// box on screen. The root overlay covers the whole window, so global
-  /// coordinates are overlay coordinates.
+  /// THE RAIL HAS NO SURFACE TO DRAW A POPUP ON. It is installed ABOVE the
+  /// Navigator, so the app's only `Overlay` is the one the page navigator owns
+  /// and it begins AFTER the rail and its 1 px divider
+  /// (`Offset(213, 0)`, `1067x800` on the target device). An anchored
+  /// `showMenu` cannot reach back over the rail, and the anchor arithmetic
+  /// cannot express that it wants to: `_PopupMenuRouteLayout` clamps the menu
+  /// 8 px inside the overlay, so the old window-coordinate anchor AND an
+  /// overlay-coordinate one both put the first item at `Rect(221, 56)` in
+  /// English and at a right edge of `1059` in Arabic — measured identical,
+  /// which is why merely re-expressing the coordinates fixes nothing.
+  ///
+  /// A dialog has no anchor to get wrong, it mirrors under `Directionality`
+  /// for free, and it is the modality this app already uses for pickers at
+  /// this width: `AppLayout.dialogPickers` is true from `medium` up and the
+  /// rail exists only from 1000 px.
   Future<void> _pick(BuildContext context, WidgetRef ref, List<BmaModule> modules) async {
     final l10n = AppLocalizations.of(context);
     final host = ref.read(appRouterProvider).routerDelegate.navigatorKey.currentContext;
-    final box = context.findRenderObject();
-    if (host == null || box is! RenderBox || !box.hasSize) return;
-    final origin = box.localToGlobal(Offset.zero);
-    final window = MediaQuery.sizeOf(context);
-    final chosen = await showMenu<BmaModule>(
+    if (host == null) return;
+    final chosen = await showDialog<BmaModule>(
       context: host,
-      position: RelativeRect.fromLTRB(
-        origin.dx,
-        origin.dy + box.size.height,
-        window.width - origin.dx - box.size.width,
-        0,
-      ),
-      items: [
-        for (final module in modules)
-          PopupMenuItem<BmaModule>(
-            value: module,
-            child: Row(
-              children: [
-                _Dot(color: present(module, l10n).$2),
-                const SizedBox(width: 10),
-                Text(present(module, l10n).$1),
-              ],
+      builder: (dialogContext) => SimpleDialog(
+        key: const ValueKey('nav-module-menu'),
+        title: Text(l10n.switchModule),
+        children: [
+          for (final module in modules)
+            SimpleDialogOption(
+              key: ValueKey('nav-module-option-${module.name}'),
+              onPressed: () => Navigator.of(dialogContext).pop(module),
+              child: Row(
+                children: [
+                  _Dot(color: present(module, l10n).$2),
+                  const SizedBox(width: 10),
+                  Expanded(child: Text(present(module, l10n).$1)),
+                ],
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
     if (chosen != null) ref.read(currentModuleProvider.notifier).select(chosen);
   }

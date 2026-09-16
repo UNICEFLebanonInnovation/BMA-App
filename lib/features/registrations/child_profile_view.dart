@@ -183,14 +183,22 @@ class _ProfileBody extends ConsumerWidget {
         ];
 
         if (!split) {
-          // Unchanged tree: header band above the tab bodies.
+          // Unchanged tree on the phone — where `actions` is empty because the
+          // route owns the app bar — plus the one thing that was missing: a
+          // host for the actions. `_IdentityPanel` is the only other renderer
+          // of the list and it is built ONLY in the split branch, so an
+          // embedded profile in a 360-659 px detail pane used to offer no
+          // Edit, no Mark deleted and no Resolve at all, and `onClosed` was
+          // unreachable. That band is real: the beneficiaries detail pane is
+          // `window - rail - 1 - 400 - 1`, which lands in it for every window
+          // from 1073 to 1133 and from 1213 to 1273 px.
           return LayoutScope(
             layout: layout,
             child: Column(
               children: [
-                _Header(view: view),
+                _Header(view: view, actions: actions),
                 if (embedded) TabBar(tabs: tabs),
-                Expanded(child: TabBarView(children: bodies)),
+                Expanded(child: _TabBodies(children: bodies)),
               ],
             ),
           );
@@ -209,7 +217,7 @@ class _ProfileBody extends ConsumerWidget {
                 child: Column(
                   children: [
                     if (embedded) TabBar(tabs: tabs),
-                    Expanded(child: TabBarView(children: bodies)),
+                    Expanded(child: _TabBodies(children: bodies)),
                   ],
                 ),
               ),
@@ -383,10 +391,37 @@ class _IdentityPanel extends ConsumerWidget {
   }
 }
 
+/// The tab bodies, re-scoped from THEIR OWN box.
+///
+/// THE PANE CONTRACT, applied one level deeper. `_content` measures the whole
+/// detail pane, but the tabs do not get the whole detail pane: beside a 306 px
+/// identity panel in a 666 px pane they get 359 px — narrower than the 412 px
+/// phone. Reading the pane's `medium` scope there made [SchemaReview] pack a
+/// 180 px label column beside a 139 px value column for ~81 fields, which is
+/// strictly worse than the phone renders the same tab. Every other pane in the
+/// app re-scopes; this is the one that did not.
+class _TabBodies extends StatelessWidget {
+  const _TabBodies({required this.children});
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, box) => LayoutScope(
+          layout: AppLayout.forWidth(box.maxWidth),
+          child: TabBarView(children: children),
+        ),
+      );
+}
+
 class _Header extends ConsumerWidget {
-  const _Header({required this.view});
+  const _Header({required this.view, this.actions = const []});
 
   final RegistrationView view;
+
+  /// Empty for the route (its app bar owns them) and for the phone; the
+  /// embedded profile's only action host when there is no identity panel.
+  final List<_ProfileAction> actions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -426,6 +461,29 @@ class _Header extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(view.record.serverMessage!, style: const TextStyle(color: AppColors.danger, fontSize: 12)),
+            ),
+          if (actions.isNotEmpty)
+            Padding(
+              // A Wrap, not a Row: at a 1.3 text scale in Arabic four labelled
+              // buttons do not fit a 626 px pane on one line, and a Row would
+              // trade a missing action for an overflow.
+              padding: const EdgeInsets.only(top: 10),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final a in actions)
+                      if (a.primary)
+                        FilledButton.icon(
+                            key: a.key, icon: Icon(a.icon), label: Text(a.label), onPressed: a.onSelected)
+                      else
+                        OutlinedButton.icon(
+                            key: a.key, icon: Icon(a.icon), label: Text(a.label), onPressed: a.onSelected),
+                  ],
+                ),
+              ),
             ),
         ],
       ),

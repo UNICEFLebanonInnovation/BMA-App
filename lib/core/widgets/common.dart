@@ -85,20 +85,33 @@ class EmptyState extends StatelessWidget {
     if (layout.width.atLeastMedium) {
       text = ConstrainedBox(constraints: const BoxConstraints(maxWidth: 420), child: text);
     }
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: layout.emptyStateIcon, color: AppColors.muted),
-            const SizedBox(height: 12),
-            text,
-            if (action != null) ...[const SizedBox(height: 16), action!],
-          ],
-        ),
+    final content = Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: layout.emptyStateIcon, color: AppColors.muted),
+          const SizedBox(height: 12),
+          text,
+          if (action != null) ...[const SizedBox(height: 16), action!],
+        ],
       ),
     );
+    // A DETAIL PANE IS NOT A SCREEN. This is the placeholder of every pane in
+    // the app, and a pane's Expanded is what is left after the fixed toolbar,
+    // filter and tip card above it — 81 px inside the 400 px beneficiaries
+    // list pane at a 1.3 text scale, against 96 px of icon + gap + sentence.
+    // A `mainAxisSize.min` Column cannot shrink into that, so it painted
+    // overflow stripes and clipped the message. Scrolling is the degradation
+    // that keeps the whole sentence reachable.
+    //
+    // THE ORDER MATTERS, and it is what keeps the phone byte-identical: a
+    // SingleChildScrollView shrink-wraps its child and only clamps to the box
+    // when the child is taller, so INSIDE the Center it is the content's own
+    // size in every box that has room and the Center still centres it. (The
+    // other way round — a Center inside the scroll view — would need a
+    // minHeight ConstrainedBox and would cap nothing at compact.)
+    return Center(child: SingleChildScrollView(child: content));
   }
 }
 

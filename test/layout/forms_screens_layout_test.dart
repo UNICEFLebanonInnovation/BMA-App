@@ -75,7 +75,7 @@ Future<Fixture> fixture(WidgetTester tester, {String lang = 'en'}) async {
     final record = await container.read(entityDaoProvider).createLocal(
       entity: Entities.msccRegistration,
       data: {
-        'center_label': 'Makani Centre',
+        'center_label': 'NFE Centre',
         'registration_date': '2026-09-01',
         'child': {'first_name': 'Amal', 'last_name': 'Sayed', 'mother_fullname': 'Fatima Nasr'},
       },

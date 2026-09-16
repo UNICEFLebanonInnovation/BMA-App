@@ -19,6 +19,12 @@ import '../../router.dart';
 import '../tips/tip_card.dart';
 import '../tips/tips_content.dart';
 
+/// Narrowest card box that still fits the warning icon, a readable sentence
+/// and the `fullRefresh` button side by side at a 1.0 text scale. Below it the
+/// bootstrap card stacks. The 400 px summary pane (342 px of content) and the
+/// phone (354 px) are both under it; tablet portrait's 694 px is not.
+const double _bootstrapRowMin = 480;
+
 /// Landing page: who you are and where you work, what still has to reach the
 /// server, then one card per programme the account may use.
 class HomeShell extends ConsumerWidget {
@@ -74,20 +80,57 @@ class HomeShell extends ConsumerWidget {
       footer: _SyncStrip(sync: sync, online: online),
     );
 
+    // THE OUT-OF-BOX CARD, and the one sentence that tells a new user why the
+    // app is empty — so it must survive the narrowest box it is placed in.
+    //
+    // `fullRefresh` is the longest button label in the app ("Full refresh
+    // (reference data + records)", 320 px at the tablet density, 438 px in
+    // Arabic at 1.3x) and a FilledButton does not shrink: as a non-flexible
+    // Row child it takes that width first and the Expanded sentence is handed
+    // whatever is left — 0 px inside the 400 px summary pane, with the Row
+    // overflowing on top of it. Below the threshold the two stack instead, so
+    // the button gets a line of its own at its natural width and the sentence
+    // gets the whole box. The threshold follows the text scaler because the
+    // button is what grows with it.
     final bootstrapCard = AppCard(
       color: AppColors.warning.withValues(alpha: 0.10),
       borderColor: AppColors.warning.withValues(alpha: 0.45),
-      child: Row(
-        children: [
-          const Icon(Icons.warning_amber, color: AppColors.warning),
-          const SizedBox(width: 12),
-          Expanded(child: Text(l10n.bootstrapRequired)),
-          const SizedBox(width: 8),
-          FilledButton(
+      child: LayoutBuilder(
+        builder: (context, box) {
+          const icon = Icon(Icons.warning_amber, color: AppColors.warning);
+          final message = Text(l10n.bootstrapRequired);
+          final button = FilledButton(
             onPressed: sync.busy || !online ? null : () => _fullRefresh(context, ref),
             child: Text(l10n.fullRefresh),
-          ),
-        ],
+          );
+          final stacked = box.maxWidth < MediaQuery.textScalerOf(context).scale(_bootstrapRowMin);
+          if (!stacked) {
+            return Row(
+              children: [
+                icon,
+                const SizedBox(width: 12),
+                Expanded(child: message),
+                const SizedBox(width: 8),
+                button,
+              ],
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  icon,
+                  const SizedBox(width: 12),
+                  Expanded(child: message),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Align(alignment: AlignmentDirectional.centerStart, child: button),
+            ],
+          );
+        },
       ),
     );
 

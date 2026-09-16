@@ -12,13 +12,18 @@ import 'package:bma_app/core/config/app_config.dart';
 import 'package:bma_app/core/config/settings_controller.dart';
 import 'package:bma_app/core/db/app_database.dart';
 import 'package:bma_app/core/db/entity_dao.dart';
+import 'package:bma_app/core/db/providers.dart';
+import 'package:bma_app/core/layout/app_layout.dart';
+import 'package:bma_app/core/layout/breakpoints.dart';
 import 'package:bma_app/core/models/entity_record.dart';
 import 'package:bma_app/core/sync/connectivity_service.dart';
 import 'package:bma_app/core/sync/sync_engine.dart';
+import 'package:bma_app/core/widgets/common.dart';
 import 'package:bma_app/core/widgets/ui.dart';
 import 'package:bma_app/features/registrations/child_profile_screen.dart';
 import 'package:bma_app/features/registrations/child_profile_view.dart';
 import 'package:bma_app/features/registrations/registration_list_screen.dart';
+import 'package:bma_app/features/settings/settings_screen.dart';
 import 'package:bma_app/features/teachers/teacher_list_screen.dart';
 import 'package:bma_app/features/tips/tips_controller.dart';
 import 'package:bma_app/router.dart';
@@ -38,6 +43,7 @@ const filter = ValueKey('reg-filter');
 const regAdd = ValueKey('reg-add');
 const identity = ValueKey('profile-identity');
 const actionDelete = ValueKey('profile-action-delete');
+const actionEdit = ValueKey('profile-action-edit');
 const teachersSearch = ValueKey('teachers-search');
 const teachersAdd = ValueKey('teachers-add');
 
@@ -51,7 +57,7 @@ class _Engine extends SyncEngine {
 }
 
 Map<String, dynamic> _child(String first, {required String mother, required String day}) => {
-      'center_label': 'Makani Centre',
+      'center_label': 'NFE Centre',
       'registration_date': '2026-09-01',
       'child': {
         'first_name': first,
@@ -108,7 +114,7 @@ Future<Fixture> fixture(WidgetTester tester, {String lang = 'en'}) async {
         'last_name': name.split(' ').last,
         'primary_phone_number': '70 123 456',
         'teacher_assignment': 'Facilitator',
-        'center_label': 'Makani Centre',
+        'center_label': 'NFE Centre',
       }));
     }
   });
@@ -273,6 +279,196 @@ void main() {
       expect(find.byKey(detailPane), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
+  });
+
+  // THE DEAD BAND. `ChildProfileView` has exactly two hosts for its action
+  // list, and until this fix only ONE of them rendered it: `_IdentityPanel`,
+  // built solely when `min(340, pane - 360) >= 300`, i.e. from a 660 px detail
+  // pane up. The beneficiaries detail pane is `window - rail - 1 - 400 - 1`,
+  // which is 599..725 across the windows that can show a master-detail at
+  // all — so for every window from 1073 to 1133 and 1213 to 1273 px the
+  // embedded profile offered no Edit, no Mark deleted and no Resolve, and
+  // `onClosed` was unreachable. 1280x800 cleared the floor by six pixels,
+  // which is why the lane's other cases never saw it.
+  group('the embedded profile keeps its actions at every detail-pane width', () {
+    // (window, expected detail pane). Below 1200 the rail is 72 px, above it
+    // 212, and the two-pane branch needs the body to reach 1000.
+    const cases = <(double, double)>[
+      (1073, 599), // the narrowest master-detail there is
+      (1100, 626), // the finding's measured case: 0 actions before this fix
+      (1199, 725), // the widest the collapsed rail can produce
+      (1213, 599), // the extended rail's narrowest
+      (1240, 626), // the finding's second measured case
+      (1280, 666), // the shipping device, which happens to clear the floor
+    ];
+
+    for (final (window, pane) in cases) {
+      testWidgets('${window.toInt()}x800 -> a ${pane.toInt()} px detail pane', (tester) async {
+        freeformWindow(tester, window, 800);
+        final fx = await fixture(tester);
+        await open(tester, fx, Routes.registrationsSelected(BmaModule.mscc, fx.records[0].uuid));
+
+        expect(find.byKey(detailPane), findsOneWidget);
+        expect(tester.getSize(find.byKey(detailPane)).width, pane);
+        expect(find.byType(ChildProfileView), findsOneWidget);
+        // The two edit paths and the destructive one, wherever they are hosted.
+        expect(find.byKey(actionEdit), findsOneWidget, reason: 'no way to edit at $pane px');
+        expect(find.byKey(actionDelete), findsOneWidget, reason: 'no way to delete at $pane px');
+        // Whichever host renders them, they have to be inside the detail pane.
+        final detail = tester.getRect(find.byKey(detailPane));
+        for (final key in [actionEdit, actionDelete]) {
+          final rect = tester.getRect(find.byKey(key));
+          expect(detail.left, lessThanOrEqualTo(rect.left + 0.5));
+          expect(detail.right, greaterThanOrEqualTo(rect.right - 0.5));
+        }
+        expect(tester.takeException(), isNull);
+      });
+    }
+
+    testWidgets('and mark-deleted still closes the pane from the header host', (tester) async {
+      // 1100x800 takes the `!split` branch, where the action used to not exist
+      // at all — so `onClosed` was unreachable and a record could not be
+      // dismissed from the pane.
+      freeformWindow(tester, 1100, 800);
+      final fx = await fixture(tester);
+      await open(tester, fx, Routes.registrationsSelected(BmaModule.mscc, fx.records[0].uuid));
+      expect(find.byKey(identity), findsNothing, reason: 'this is the no-identity-panel branch');
+
+      await tester.tap(find.byKey(actionDelete));
+      await settle(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Confirm'));
+      await settle(tester);
+
+      expect(find.byType(RegistrationListScreen), findsOneWidget);
+      expect(find.byKey(detailPane), findsNothing);
+      expect(find.byKey(detailEmpty), findsOneWidget);
+      expect(fx.router.uri.queryParameters['sel'], isNull);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('412x915: the phone route is untouched — actions stay in the app bar', (tester) async {
+      phone(tester);
+      final fx = await fixture(tester);
+      await open(tester, fx, Routes.profile(fx.records[0].uuid));
+
+      expect(find.byType(ChildProfileScreen), findsOneWidget);
+      // The app bar hosts Edit; Mark deleted is in its overflow menu, exactly
+      // as it always has been. The header band renders no buttons.
+      expect(find.descendant(of: find.byType(AppBar), matching: find.byKey(actionEdit)), findsOneWidget);
+      expect(find.byKey(actionDelete), findsNothing);
+      expect(find.byType(PopupMenuButton<String>), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  // TAB-003. `_content` measured the whole detail pane and installed ONE scope
+  // above both the identity panel and the tabs — but the tabs do not get the
+  // whole pane. On the shipping device they get 359 px, narrower than a phone,
+  // while reading the pane's `medium` scope: SchemaReview packed a 180 px
+  // label column beside a 139 px value column for ~81 fields.
+  group('the embedded tab body re-scopes from its own box', () {
+    testWidgets('1280x800: a 666 px pane, a 306 px panel and a COMPACT 359 px tab body',
+        (tester) async {
+      tabletLandscape(tester);
+      final fx = await fixture(tester);
+      await open(tester, fx, Routes.registrationsSelected(BmaModule.mscc, fx.records[0].uuid));
+
+      expect(tester.getSize(find.byKey(detailPane)).width, 666);
+      // The panel shrinks below its 340 design width before it disappears.
+      expect(tester.getSize(find.byKey(identity)).width, 306);
+
+      final body = find.byType(TabBarView);
+      expect(tester.getSize(body).width, closeTo(359, 0.5));
+      final scope = tester.element(body).getInheritedWidgetOfExactType<LayoutScope>();
+      expect(scope, isNotNull);
+      // 359 px is compact — narrower than the 412 px phone — so the Info tab
+      // falls back to the phone's stacked ListTiles instead of packing a
+      // label column that leaves 139 px for the value.
+      expect(scope!.layout.width, WidthClass.compact);
+      expect(scope.layout.labelColumnWidth, AppLayout.compact.labelColumnWidth);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('412x915: the phone tab body still reads compact, as it always did', (tester) async {
+      phone(tester);
+      final fx = await fixture(tester);
+      await open(tester, fx, Routes.profile(fx.records[0].uuid));
+
+      final scope = tester.element(find.byType(TabBarView)).getInheritedWidgetOfExactType<LayoutScope>();
+      expect(scope!.layout.width, WidthClass.compact);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  // A `?sel=` heals with `context.replace`, and `replace` acts on the TOP of
+  // the stack — not on this page. Rows really do vanish under the user: a push
+  // result, a pull carrying `deleted`, or a local mark-deleted all remove them.
+  group('a vanished selection only heals the route the user is actually on', () {
+    testWidgets('a pushed screen survives the record disappearing underneath it', (tester) async {
+      tabletLandscape(tester);
+      final fx = await fixture(tester);
+      await open(tester, fx, Routes.registrationsSelected(BmaModule.mscc, fx.records[0].uuid));
+      expect(find.byKey(detailPane), findsOneWidget);
+
+      fx.container.read(appRouterProvider).push(Routes.settings);
+      await settle(tester);
+      expect(find.byType(SettingsScreen), findsOneWidget);
+      final depth = fx.container.read(appRouterProvider).routerDelegate.currentConfiguration.matches.length;
+      expect(depth, 2);
+
+      // A sync removes the selected child while Settings is on top.
+      await tester.runAsync(() => EntityDao(fx.db).markDeleted(fx.records[0]));
+      fx.container.read(dataVersionProvider.notifier).state++;
+      await settle(tester);
+
+      // It used to replace /settings with a SECOND copy of the list — silently,
+      // because `replace` triggers no PopScope and never reads
+      // unsavedWorkProvider, so an edit wizard would have gone the same way.
+      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(find.byType(RegistrationListScreen), findsNothing);
+      expect(
+        fx.container.read(appRouterProvider).routerDelegate.currentConfiguration.matches.length,
+        depth,
+      );
+      expect(tester.takeException(), isNull);
+
+      // Uncovering the list is what lets the heal run: the screen depends on
+      // `ModalRoute.isCurrent`, so popping rebuilds it.
+      await tester.binding.handlePopRoute();
+      await settle(tester);
+      expect(find.byType(RegistrationListScreen), findsOneWidget);
+      expect(find.byKey(detailEmpty), findsOneWidget);
+      expect(fx.router.uri.queryParameters['sel'], isNull);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  // TAB-005. The list pane stacks a banner, a toolbar, a segmented filter and a
+  // tip card above `Expanded(... EmptyState)`, so the placeholder's box is what
+  // is LEFT of 400x760 — 81 px at a 1.3 text scale, against 96 px of content.
+  group('the empty-results placeholder survives a short list pane', () {
+    for (final lang in ['en', 'ar']) {
+      testWidgets('1100x760 at 1.3x, $lang: no results scrolls instead of overflowing',
+          (tester) async {
+        freeformWindow(tester, 1100, 760);
+        bigText(tester);
+        final fx = await fixture(tester, lang: lang);
+        await open(tester, fx, Routes.registrations(BmaModule.mscc));
+        // 1027 px of body: the two-pane branch, with a 400 px list pane.
+        expect(tester.getSize(find.byKey(listPane)).width, 400);
+
+        await tester.enterText(
+            find.descendant(of: find.byKey(search), matching: find.byType(TextField)), 'zzzzz');
+        await settle(tester);
+
+        final placeholder = find.descendant(of: find.byKey(listPane), matching: find.byType(EmptyState));
+        expect(placeholder, findsOneWidget);
+        final rect = tester.getRect(placeholder);
+        final pane = tester.getRect(find.byKey(listPane));
+        expect(pane.bottom, greaterThanOrEqualTo(rect.bottom - 0.5));
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 
   group('beneficiaries, 800x1280 portrait', () {

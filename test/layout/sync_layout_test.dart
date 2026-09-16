@@ -74,7 +74,7 @@ class Fixture {
 }
 
 Map<String, dynamic> _child(String first, {required String mother, required String day}) => {
-      'center_label': 'Makani Centre',
+      'center_label': 'NFE Centre',
       'registration_date': '2026-09-01',
       'child': {
         'first_name': first,
@@ -98,7 +98,7 @@ Map<String, dynamic> _candidate(int i) => {
       'birthday': '2015-03-0$i',
       'gender': 'Female',
       'nationality': 'Syrian',
-      'center': 'Makani Centre',
+      'center': 'NFE Centre',
       'round': '2025-2026',
       'number': 'ABC-90$i',
       'match': {'reason': 'name + birthday', 'score': 90 + i},

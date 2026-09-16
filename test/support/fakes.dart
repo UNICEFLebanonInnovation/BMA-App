@@ -55,7 +55,7 @@ UserProfile profileWith({int id = 42, Map<BmaModule, ModuleCapabilities>? module
       groups: const [],
       modules: modules ?? {BmaModule.mscc: caps()},
       partner: const NamedRef(id: 1, name: 'Partner NGO'),
-      center: const NamedRef(id: 1, name: 'Makani Centre'),
+      center: const NamedRef(id: 1, name: 'NFE Centre'),
     );
 
 AuthState signedIn({int id = 42, Map<BmaModule, ModuleCapabilities>? modules}) => AuthState(

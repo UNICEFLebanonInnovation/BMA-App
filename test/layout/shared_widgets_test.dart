@@ -213,6 +213,52 @@ void main() {
       expect(tester.getSize(find.byType(Text)).width, lessThanOrEqualTo(420));
     });
 
+    // TAB-005. Fixed once here rather than at each of the ~15 call sites: this
+    // is the placeholder of every detail pane, and a pane's Expanded is what
+    // is left after the toolbar, filter and tip card above it.
+    testWidgets('a box too short for the placeholder scrolls instead of overflowing', (tester) async {
+      tabletPortrait(tester);
+      await tester.pumpWidget(host(
+        // 81 px is what the 400 px beneficiaries list pane leaves at a 1.3
+        // text scale on a 760 px window; the content wants ~96.
+        const SizedBox(
+          height: 81,
+          width: 400,
+          child: EmptyState(message: 'No results', icon: Icons.people_outline),
+        ),
+        layout: AppLayout.medium,
+      ));
+
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(EmptyState)).height, 81);
+      expect(find.descendant(of: find.byType(EmptyState), matching: find.byType(SingleChildScrollView)),
+          findsOneWidget);
+      // The message is reachable rather than clipped away.
+      expect(find.text('No results'), findsOneWidget);
+    });
+
+    testWidgets('a box with room still CENTRES it — no scroll offset, no stretch', (tester) async {
+      tabletPortrait(tester);
+      await tester.pumpWidget(host(
+        const SizedBox(
+          height: 600,
+          width: 400,
+          child: EmptyState(message: 'Select a beneficiary'),
+        ),
+        layout: AppLayout.medium,
+      ));
+
+      final box = tester.getRect(find.byType(EmptyState));
+      final content = tester.getRect(
+          find.descendant(of: find.byType(EmptyState), matching: find.byType(Column)));
+      // Equal slack above and below is the proof that the scroll view
+      // shrink-wrapped to the content instead of filling the box and pinning
+      // it to the top.
+      expect(content.top - box.top, closeTo(box.bottom - content.bottom, 1));
+      expect(content.height, lessThan(box.height));
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('SearchField caps at 420 and hugs the start edge', (tester) async {
       tabletPortrait(tester);
       await tester.pumpWidget(host(SearchField(onChanged: (_) {}), layout: AppLayout.medium));

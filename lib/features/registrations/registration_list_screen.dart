@@ -96,8 +96,21 @@ class _RegistrationListScreenState extends ConsumerState<RegistrationListScreen>
     final selected = sel == null ? null : ref.watch(recordProvider(sel));
     final selectionMissing = selected != null && selected.hasValue && selected.value == null;
     if (selectionMissing) {
+      // Read HERE, in build() and only while a stale selection exists, not
+      // inside the callback: `ModalRoute.of` also subscribes this element to
+      // `isCurrent`, so the moment a covering route pops this screen rebuilds
+      // and the heal below runs for real. Registering that dependency on
+      // every build would rebuild a 300-row list on every push and pop.
+      final route = ModalRoute.of(context);
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted || widget.selectedUuid != sel) return;
+        // ONLY HEAL WHAT IS ON SCREEN. `replace` acts on the TOP of the stack,
+        // not on this page, so healing while Settings or the edit wizard is
+        // pushed above would destroy that screen and put a second copy of this
+        // list in its place — silently, because `replace` triggers no PopScope
+        // and never consults unsavedWorkProvider, so an in-progress edit would
+        // go with it. A stale `?sel=` is harmless while it is covered.
+        if (route != null && !route.isCurrent) return;
         _clearSelection();
       });
     }

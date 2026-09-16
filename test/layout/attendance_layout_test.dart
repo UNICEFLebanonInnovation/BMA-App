@@ -88,7 +88,7 @@ Future<AppDatabase> _seedDatabase() async {
     ReferenceItem(kind: 'rounds.mscc', id: 7, name: '2025-2026', extra: {'current_year': true}),
   ]);
   await reference.replaceKind('centers', const [
-    ReferenceItem(kind: 'centers', id: 1, name: 'Makani Centre'),
+    ReferenceItem(kind: 'centers', id: 1, name: 'NFE Centre'),
   ]);
   await reference.replaceChoices(const {
     'mscc.attendance.education_program': [

@@ -41,6 +41,18 @@ const _fixtures = 'test/screenshots/fixtures';
 // The two push batches the seed writes, named so they can be routed to.
 const _batchUuid = 'batch-0001';
 const _dupBatchUuid = 'batch-0002';
+
+// A FIXED instant for everything the captures render as an absolute
+// date-time. The sync centre, the push report and the sync history print
+// `startedAt`/`finishedAt` verbatim, so seeding them from DateTime.now() made
+// four PNGs differ on every regeneration for no reason: a review of a real
+// layout change had to pick the meaningful diffs out of the wall clock.
+//
+// The attendance sheet deliberately does NOT use this. AttendanceScreen
+// defaults its date to DateTime.now(), so the seed has to match the real
+// today or the roster opens empty; freezing that needs an injectable clock in
+// lib/, which is a larger change than this harness should make.
+final _seedClock = DateTime.utc(2026, 3, 12, 9, 40);
 const _outDir = 'screenshots';
 final GlobalKey _shotKey = GlobalKey();
 
@@ -380,8 +392,8 @@ Future<
   await batches.put(SyncBatch(
       uuid: _batchUuid,
       serverBatchId: report.batchId,
-      startedAt: today.subtract(const Duration(hours: 3)).toIso8601String(),
-      finishedAt: today.subtract(const Duration(hours: 3)).toIso8601String(),
+      startedAt: _seedClock.subtract(const Duration(hours: 3)).toIso8601String(),
+      finishedAt: _seedClock.subtract(const Duration(hours: 3)).toIso8601String(),
       status: 'completed',
       summary: report.summary,
       itemCount: report.results.length,
@@ -397,8 +409,8 @@ Future<
   await batches.put(SyncBatch(
       uuid: _dupBatchUuid,
       serverBatchId: dupReport.batchId,
-      startedAt: today.subtract(const Duration(minutes: 20)).toIso8601String(),
-      finishedAt: today.subtract(const Duration(minutes: 19)).toIso8601String(),
+      startedAt: _seedClock.subtract(const Duration(minutes: 20)).toIso8601String(),
+      finishedAt: _seedClock.subtract(const Duration(minutes: 19)).toIso8601String(),
       status: 'completed',
       summary: {'total': 1, 'duplicate': 1},
       itemCount: 1,

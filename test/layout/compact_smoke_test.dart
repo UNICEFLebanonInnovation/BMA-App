@@ -34,7 +34,7 @@ class _KitchenSink extends StatelessWidget {
       body: ListView(
         children: [
           const HeroHeader(
-            title: 'Bar Elias Makani Centre',
+            title: 'Bar Elias NFE Centre',
             subtitle: 'Bekaa — Zahle',
             leading: InitialsAvatar('Bar Elias'),
             trailing: Icon(Icons.edit, color: Colors.white),
@@ -132,7 +132,7 @@ void main() {
     expect(tester.getSize(find.ancestor(of: find.text('School'), matching: find.byType(SizedBox)).first).width, 140);
 
     // Hero: 16 px gutter, 20 px title, no content cap.
-    expect(tester.widget<Text>(find.text('Bar Elias Makani Centre')).style!.fontSize, 20);
+    expect(tester.widget<Text>(find.text('Bar Elias NFE Centre')).style!.fontSize, 20);
     expect(tester.getSize(find.byType(HeroHeader)).width, 412);
 
     // SearchField full bleed; StatRow stretched; ActionTile 44/22/12.5.

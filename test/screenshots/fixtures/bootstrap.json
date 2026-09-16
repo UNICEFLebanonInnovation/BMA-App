@@ -19,7 +19,7 @@
   },
   "center": {
    "id": 1,
-   "name": "Makani Centre – Bar Elias",
+   "name": "NFE Centre – Bar Elias",
    "partner_id": 1
   },
   "school": null,
@@ -254,7 +254,7 @@
   "centers": [
    {
     "id": 1,
-    "name": "Makani Centre – Bar Elias",
+    "name": "NFE Centre – Bar Elias",
     "partner_id": 1,
     "governorate_id": 1,
     "caza_id": 2,
@@ -1060,7 +1060,7 @@
    "identity": true,
    "multiple": true,
    "pullable": true,
-   "description": "Child registration at a Makani centre (child + registration).",
+   "description": "Child registration at an NFE centre (child + registration).",
    "fields": [
     {
      "name": "student_old",

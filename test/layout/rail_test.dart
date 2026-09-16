@@ -52,7 +52,7 @@ UserProfile _profile({bool allModules = false}) => UserProfile(
           ? {BmaModule.mscc: caps(), BmaModule.alp: caps()}
           : {BmaModule.mscc: caps()},
       partner: const NamedRef(id: 15, name: 'Test Partner'),
-      center: const NamedRef(id: 1, name: 'Makani Centre'),
+      center: const NamedRef(id: 1, name: 'NFE Centre'),
       school: const NamedRef(id: 7, name: 'Bar Elias Public School'),
     );
 
@@ -338,6 +338,80 @@ void main() {
     });
   });
 
+  // TAB-001 / TAB-002. The rail's own height budget is a GUESS
+  // (`_chromeHeight + destinations * _labelledDestination`) and the guess is
+  // wrong: a collapsed rail is 72 px wide, so `Teacher attendance` wraps to
+  // three lines and a labelled destination measures 64-112 px, not 76 — and
+  // the guess never consulted the text scaler. What makes a wrong guess
+  // harmless is `scrollable: true` (the destination group scrolls) plus
+  // `trailingAtBottom: true` (Sync and Settings live OUTSIDE that group, in
+  // the rail's outer Column). Before those two flags the trailing block was
+  // appended to a `mainAxisSize.min` Column inside one Flexible and the last
+  // children were laid out PAST the bottom edge: unreachable, with overflow
+  // stripes painted on every screen in the app.
+  group('the collapsed rail degrades instead of hiding its actions', () {
+    /// The whole point: an action that is not inside the rail cannot be tapped.
+    void expectOnTheRail(WidgetTester tester, Key key) {
+      expect(find.byKey(key), findsOneWidget, reason: '$key must be in the tree');
+      final rail = tester.getRect(find.byType(NavigationRail));
+      final action = tester.getRect(find.byKey(key));
+      expect(rail.contains(action.topLeft), isTrue, reason: '$key top $action is off the rail $rail');
+      expect(rail.contains(action.bottomRight - const Offset(0.01, 0.01)), isTrue,
+          reason: '$key bottom $action is off the rail $rail');
+    }
+
+    testWidgets('1100x636 — the exact height where the label gate flips on', (tester) async {
+      // 180 + 6 * 76 = 636: one pixel lower the rail lays out icons only, here
+      // it turns labels on. It used to overflow by 78 px and render Settings
+      // entirely below the rail's bottom edge.
+      freeformWindow(tester, 1100, 636);
+      final c = await fixture(tester);
+      await pumpApp(tester, c);
+
+      expect(find.byType(NavigationRail), findsOneWidget);
+      expect(tester.getRect(find.byType(NavigationRail)).width, railCollapsedWidth);
+      expectOnTheRail(tester, sync);
+      expectOnTheRail(tester, settings);
+      expect(tester.takeException(), isNull);
+    });
+
+    for (final lang in ['en', 'ar']) {
+      testWidgets('1100x800 at textScaler 1.3, $lang — every route, not just Home', (tester) async {
+        freeformWindow(tester, 1100, 800);
+        tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        final c = await fixture(tester, lang: lang);
+        await pumpApp(tester, c);
+
+        // The fault was in the persistent shell, so it showed on every screen.
+        for (final key in [beneficiaries, dashboard, settings]) {
+          await tapRail(tester, key);
+          expectOnTheRail(tester, sync);
+          expectOnTheRail(tester, settings);
+          expect(tester.takeException(), isNull, reason: 'after opening $key');
+        }
+      });
+    }
+
+    testWidgets('Sync and Settings sit at the BOTTOM of the extended rail', (tester) async {
+      tabletLandscape(tester);
+      final c = await fixture(tester);
+      await pumpApp(tester, c);
+
+      final rail = tester.getRect(find.byType(NavigationRail));
+      final settingsRect = tester.getRect(find.byKey(settings));
+      // They used to float at y 320..408 of an 800 px rail, directly under the
+      // last destination, with 392 px of empty rail beneath them.
+      expect(settingsRect.bottom, closeTo(rail.bottom, 20));
+      expect(settingsRect.top, greaterThan(rail.top + rail.height / 2));
+      // Sync is immediately above Settings, still in reading order.
+      expect(tester.getRect(find.byKey(sync)).bottom, lessThanOrEqualTo(settingsRect.top + 1));
+      // And the destinations are still at the top, not pushed down with them.
+      expect(tester.getRect(find.byKey(home)).bottom, lessThan(rail.height / 2));
+      expect(tester.takeException(), isNull);
+    });
+  });
+
   // THE RAIL TAKES 212 PX OUT OF THE WINDOW, so every screen it opens is laid
   // out in a 1067 px pane rather than in the full 1280 — and nothing else in
   // the suite pumps a screen with the rail above it (the per-screen layout
@@ -449,6 +523,86 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    // THE CASE THE ORIGINAL THREE NEVER REACHED. Every assertion above only
+    // ever taps the rail, and no rail destination pushes — so the stack never
+    // got deeper than 2 and both bugs below stayed invisible. Six of the app's
+    // screens push a page of their own ("Register new", a child profile below
+    // `expanded`, a sync queue item, a teacher form), and from there the old
+    // `canPop() ? pop() : go()` landed on the MIDDLE route and the old
+    // `replace` swapped that middle route while the stale destination stayed
+    // underneath forever.
+    testWidgets('rail Home returns to Home from a three-deep stack, not to the middle route',
+        (tester) async {
+      tabletLandscape(tester);
+      final c = await fixture(tester);
+      await pumpApp(tester, c);
+
+      await tapRail(tester, beneficiaries);
+      expect(depth(c), 2);
+      // The beneficiaries pane pushes the registration wizard.
+      await tester.tap(find.byKey(const ValueKey('reg-add')));
+      await settle(tester);
+      expect(path(c), '/registrations/mscc/new');
+      expect(depth(c), 3);
+
+      await tapRail(tester, home);
+      // Used to land on /registrations/mscc at depth 2 with HomeShell unmounted,
+      // so the user had to tap Home twice.
+      expect(path(c), Routes.home);
+      expect(depth(c), 1);
+      expect(find.byType(HomeShell), findsOneWidget);
+      expect(c.read(appRouterProvider).canPop(), isFalse);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a rail hop after a drill-down does not leave the old destination underneath',
+        (tester) async {
+      // 1040x800: rail collapsed (72), body 967 px — `medium`, so there is no
+      // master-detail and the list pushes instead of selecting in place. This
+      // is the 1000-1072 band the finding names, and 1280x800 at density 1.25.
+      freeformWindow(tester, 1040, 800);
+      final c = await fixture(tester);
+      await pumpApp(tester, c);
+      expect(tester.getRect(find.byType(NavigationRail)).width, railCollapsedWidth);
+
+      await tapRail(tester, beneficiaries);
+      expect(depth(c), 2);
+      await tester.tap(find.byKey(const ValueKey('reg-add')));
+      await settle(tester);
+      expect(depth(c), 3);
+
+      await tapRail(tester, dashboard);
+      expect(path(c), '/dashboard/mscc');
+      // Used to stay at depth 3: the wizard was replaced but the beneficiaries
+      // entry stayed under it, and every further drill-down added another.
+      expect(depth(c), 2);
+
+      // And the documented contract holds: back is ONE step, to Home.
+      await systemBack(tester);
+      await settle(tester);
+      expect(path(c), Routes.home);
+      expect(find.byType(HomeShell), findsOneWidget);
+      expect(c.read(appRouterProvider).canPop(), isFalse);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('tapping the destination you drilled down FROM just unwinds to it', (tester) async {
+      tabletLandscape(tester);
+      final c = await fixture(tester);
+      await pumpApp(tester, c);
+
+      await tapRail(tester, beneficiaries);
+      await tester.tap(find.byKey(const ValueKey('reg-add')));
+      await settle(tester);
+      expect(depth(c), 3);
+
+      await tapRail(tester, beneficiaries);
+      expect(path(c), '/registrations/mscc');
+      expect(depth(c), 2, reason: 'unwound to it, not re-pushed on top of it');
+      expect(find.byType(RegistrationListScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('the rail is not rebuilt into the page: the page keeps its state across a hop',
         (tester) async {
       tabletLandscape(tester);
@@ -464,6 +618,62 @@ void main() {
       // transition, which is the entire point of installing it above the
       // Navigator.
       expect(find.byType(NavigationRail).evaluate().first, same(railElement));
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  // The rail is installed ABOVE the Navigator, so the app's only Overlay
+  // belongs to the page and starts AFTER the rail and its divider
+  // (Offset(213,0), 1067x800 here). An anchored `showMenu` cannot reach back
+  // over the rail and cannot even be told to try: `_PopupMenuRouteLayout`
+  // clamps the menu 8 px inside the overlay, which put the first item at
+  // Rect(221,56) in English however the anchor was expressed. The switcher
+  // therefore asks in a dialog — the same modality `AppLayout.dialogPickers`
+  // already gives every other picker from `medium` up.
+  group('the programme switcher', () {
+    const menu = ValueKey('nav-module-menu');
+    const optionAlp = ValueKey('nav-module-option-alp');
+
+    testWidgets('opens a chooser inside the content area and switches programme', (tester) async {
+      tabletLandscape(tester);
+      final c = await fixture(tester, allModules: true);
+      await pumpApp(tester, c);
+      expect(c.read(currentModuleProvider), BmaModule.mscc);
+
+      await tester.tap(find.byKey(moduleSwitch));
+      await tester.pumpAndSettle();
+      expect(find.byKey(menu), findsOneWidget);
+      // Whatever the chooser is, it has to be ON SCREEN and clear of the rail
+      // rather than positioned in a coordinate space nothing renders in.
+      final option = tester.getRect(find.byKey(optionAlp));
+      expect(option.left, greaterThanOrEqualTo(railExtendedWidth));
+      expect(option.right, lessThanOrEqualTo(1280));
+      expect(option.top, greaterThanOrEqualTo(0));
+      expect(option.bottom, lessThanOrEqualTo(800));
+
+      await tester.tap(find.byKey(optionAlp));
+      await tester.pumpAndSettle();
+      expect(find.byKey(menu), findsNothing);
+      expect(c.read(currentModuleProvider), BmaModule.alp);
+      await tapRail(tester, beneficiaries);
+      expect(path(c), '/registrations/alp');
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('mirrors under ar and raises nothing (the anchored menu overflowed here)',
+        (tester) async {
+      tabletLandscape(tester);
+      final c = await fixture(tester, allModules: true, lang: 'ar');
+      await pumpApp(tester, c);
+
+      await tester.tap(find.byKey(moduleSwitch));
+      await tester.pumpAndSettle();
+      expect(find.byKey(menu), findsOneWidget);
+      final option = tester.getRect(find.byKey(optionAlp));
+      // The rail is on the trailing side, so the chooser is clear of it on the
+      // other one.
+      expect(option.right, lessThanOrEqualTo(1280 - railExtendedWidth));
+      expect(option.left, greaterThanOrEqualTo(0));
       expect(tester.takeException(), isNull);
     });
   });

@@ -16,6 +16,7 @@
 import 'package:bma_app/core/auth/auth_controller.dart';
 import 'package:bma_app/core/config/app_config.dart';
 import 'package:bma_app/core/db/app_database.dart';
+import 'package:bma_app/core/db/providers.dart';
 import 'package:bma_app/core/db/entity_dao.dart';
 import 'package:bma_app/core/db/reference_dao.dart';
 import 'package:bma_app/core/layout/breakpoints.dart';
@@ -63,7 +64,7 @@ final _partner = ReferenceItem(kind: 'partners', id: 15, name: 'Test Partner');
 final _center = ReferenceItem(
   kind: 'centers',
   id: 1,
-  name: 'Makani Centre',
+  name: 'NFE Centre',
   extra: const {
     'partner_id': 15,
     'governorate_id': 1,
@@ -108,12 +109,12 @@ UserProfile _profile({bool allModules = true}) => UserProfile(
           ? {BmaModule.mscc: caps(), BmaModule.alp: caps(), BmaModule.clm: caps()}
           : {BmaModule.mscc: caps()},
       partner: const NamedRef(id: 15, name: 'Test Partner'),
-      center: const NamedRef(id: 1, name: 'Makani Centre'),
+      center: const NamedRef(id: 1, name: 'NFE Centre'),
       school: const NamedRef(id: 7, name: 'Bar Elias Public School'),
     );
 
 Map<String, dynamic> _registration(String first, String gender) => {
-      'center_label': 'Makani Centre',
+      'center_label': 'NFE Centre',
       'registration_date': '2026-09-01',
       'child': {
         'first_name': first,
@@ -133,7 +134,7 @@ class Fixture {
   final ProviderContainer container;
 }
 
-Future<Fixture> fixture(WidgetTester tester, {bool allModules = true}) async {
+Future<Fixture> fixture(WidgetTester tester, {bool allModules = true, bool bootstrapReady = true}) async {
   final db = await tester.runAsync(AppDatabase.openInMemory);
   await tester.runAsync(() async {
     final reference = ReferenceDao(db!);
@@ -157,6 +158,10 @@ Future<Fixture> fixture(WidgetTester tester, {bool allModules = true}) async {
         profile: _profile(allModules: allModules),
       ),
     ),
+    // tipsOverrides answers `true`; the out-of-box state is the one Home has
+    // an extra card for, and it is replaced rather than added because
+    // ProviderContainer takes the LAST override for a provider.
+    if (!bootstrapReady) bootstrapReadyProvider.overrideWith((ref) async => false),
   ]);
   addTearDown(container.dispose);
   addTearDown(() => db.close());
@@ -293,6 +298,48 @@ void main() {
       // 13.5 px label lines at height 1.2. Nowhere near the ~300x316 the
       // childAspectRatio grid produced at this width.
       expect(tile.height, closeTo(122.4, 0.5));
+      expectClean(tester);
+    });
+
+    // THE OUT-OF-BOX STATE. `bootstrapReadyProvider` is false exactly once in
+    // an install's life, and that is the one moment the app cannot explain
+    // itself without this card. The tablet work put it inside the 400 px
+    // summary pane (342 px of content) under the tablet density theme, where
+    // the `fullRefresh` button — the longest label in the app — took the whole
+    // Row as a non-flexible child and the Expanded sentence was allocated 0 px
+    // and overflowed on top of it.
+    testWidgets('1280x800 first run: the bootstrap warning is readable, not a zero-width column',
+        (tester) async {
+      tabletLandscape(tester);
+      final fx = await fixture(tester, bootstrapReady: false);
+      await open(tester, fx, const HomeShell());
+
+      final warning = find.textContaining('Reference data has not been downloaded');
+      expect(warning, findsOneWidget);
+      final text = tester.getRect(warning);
+      final pane = rectOf(tester, summaryPane);
+      // It used to measure Size(0.0, 1596.0): a one-glyph-per-line column
+      // taller than the window, scrolled out of the pane.
+      expect(text.width, greaterThan(200));
+      expect(text.height, lessThan(pane.height));
+      // Card content is the pane minus 24 of margin, 32 of padding, 2 of border.
+      expect(text.right, lessThanOrEqualTo(pane.right - 28));
+      final button = find.widgetWithText(FilledButton, 'Full refresh (reference data + records)');
+      expect(button, findsOneWidget);
+      expect(tester.getRect(button).right, lessThanOrEqualTo(pane.right - 28));
+      expectClean(tester);
+    });
+
+    testWidgets('1280x800 first run in Arabic at 1.3x still fits', (tester) async {
+      tabletLandscape(tester);
+      final fx = await fixture(tester, bootstrapReady: false);
+      await open(tester, fx, const HomeShell(), lang: 'ar', scale: 1.3);
+
+      final pane = rectOf(tester, summaryPane);
+      // RTL: the summary pane is on the right and the card stays inside it.
+      expect(pane.left, greaterThan(640));
+      expect(find.byIcon(Icons.warning_amber), findsOneWidget);
+      expect(tester.getRect(find.byIcon(Icons.warning_amber)).right, lessThanOrEqualTo(pane.right));
       expectClean(tester);
     });
 
