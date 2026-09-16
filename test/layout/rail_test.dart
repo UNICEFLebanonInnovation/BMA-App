@@ -338,6 +338,55 @@ void main() {
     });
   });
 
+  // THE RAIL TAKES 212 PX OUT OF THE WINDOW, so every screen it opens is laid
+  // out in a 1067 px pane rather than in the full 1280 — and nothing else in
+  // the suite pumps a screen with the rail above it (the per-screen layout
+  // files pump each screen on its own, at the full window width). This group is
+  // the only place that combination is exercised, which makes it the guard
+  // against a screen that only overflows once the rail has taken its width.
+  group('every destination beside the rail', () {
+    const walkKeys = ['facility', 'beneficiaries', 'attendance', 'teachers', 'dashboard', 'sync', 'settings'];
+
+    Future<void> walk(WidgetTester tester, ProviderContainer c) async {
+      for (final key in walkKeys) {
+        await tapRail(tester, ValueKey('nav-dest-$key'));
+        expect(tester.takeException(), isNull, reason: 'opening $key raised');
+        expect(depth(c), 2, reason: '$key must not grow the stack');
+      }
+      await tapRail(tester, home);
+      expect(path(c), Routes.home);
+      expect(depth(c), 1);
+      expect(tester.takeException(), isNull);
+    }
+
+    testWidgets('every destination opens in a 1067 px pane without an exception', (tester) async {
+      tabletLandscape(tester);
+      final c = await fixture(tester, allModules: true);
+      await pumpApp(tester, c);
+      await walk(tester, c);
+
+      // Teacher attendance exists only for ALP, so it is reached by moving the
+      // module rather than by another tap on the same rail.
+      c.read(currentModuleProvider.notifier).select(BmaModule.alp);
+      await tester.pump();
+      await tapRail(tester, const ValueKey('nav-dest-teacher-attendance'));
+      expect(path(c), '/attendance/alp/teachers');
+      expect(depth(c), 2);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the same walk in Arabic at a 1.3x text scale', (tester) async {
+      tabletLandscape(tester);
+      // The harshest case for a pane narrowed by the rail: mirrored, and with
+      // every label a third wider.
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      final c = await fixture(tester, allModules: true, lang: 'ar');
+      await pumpApp(tester, c);
+      await walk(tester, c);
+    });
+  });
+
   group('stack discipline', () {
     testWidgets('three rail taps leave the stack at depth 2 and back returns to Home',
         (tester) async {

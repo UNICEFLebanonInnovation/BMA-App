@@ -9,10 +9,23 @@
         android:label="BMA Mobile"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- TABLET-FIRST. The app targets a 9-inch tablet in BOTH orientations
+             (1280x800 landscape, 800x1280 portrait) and keeps the phone as a
+             fallback, so there is deliberately NO android:screenOrientation,
+             no android:maxAspectRatio and no <supports-screens> anywhere in the
+             project: any of them would silently defeat the layout work.
+             android:resizeableActivity is already the default at minSdk 24 and
+             targetSdk 36 ignores size restrictions above 600dp, so declaring it
+             is documentary — but it states the intent in review and still
+             matters on older OEM 9-inch tablets in the field.
+             The configChanges list below already covers orientation, screenSize
+             and density, so rotating never recreates the activity: Flutter just
+             receives a new view size. See docs/TABLET_LAYOUT.md. -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
+            android:resizeableActivity="true"
             android:taskAffinity=""
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"

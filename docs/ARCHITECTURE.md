@@ -16,6 +16,8 @@
 ## Layers
 
 ```
+        AdaptiveShell + LayoutScope (core/layout)   ← width classes & tokens
+                         │
 UI (features/*)  ──▶  SchemaForm engine (core/forms)  ──▶  EntityDao (core/db)
         │                                                     │
         └── SyncEngine (core/sync) ──▶ BmaApi (core/network) ─┘
@@ -40,6 +42,79 @@ UI (features/*)  ──▶  SchemaForm engine (core/forms)  ──▶  EntityDao
   (server URL, whether it was ever confirmed, language) and `TipsController`
   (which accounts have seen the wizard and which screen tips they closed).
   Both survive logout and *Clear local data*.
+
+## Layout
+
+The app is **tablet-first for a 9-inch Android tablet** (1280x800 landscape,
+800x1280 portrait, dpr 2.0), with the 412x915 phone as a supported fallback.
+Both orientations work and there is no orientation lock.
+
+The full reference is **[docs/TABLET_LAYOUT.md](TABLET_LAYOUT.md)**; the code is
+in [`lib/core/layout/`](../lib/core/layout/). The parts that touch the rest of
+this document:
+
+* **Three width classes** — `compact` (< 600), `medium` (600–999), `expanded`
+  (>= 1000) — derived from the **box a widget is drawing into**, published as an
+  `AppLayout` token bundle through the `LayoutScope` `InheritedWidget`.
+  `LayoutScope.of` falls back to `AppLayout.compact`, whose every token is the
+  literal the codebase already had, so any screen or widget with no scope above
+  it renders exactly as it did before.
+* **The shell reads the WINDOW, everything below reads its PANE.** The
+  navigation rail consumes 212 px, so deciding its existence from a pane-derived
+  class would feed its own width back into the measurement. `adaptive_shell.dart`
+  is the only file that reads `MediaQuery.sizeOf` for a layout decision.
+* **The rail is installed at `MaterialApp.router(builder:)`, above the
+  `Navigator`** — so it never re-animates with a page transition. **There is no
+  `ShellRoute`**: the route table, every navigation string and the redirect
+  logic are untouched, and a `ShellRoute` restructure would have required every
+  route string to be re-checked. The rail navigates with pop/push/replace so the
+  back stack stays `[Home]` or `[Home, destination]` and Android back still
+  means "back to Home".
+* **One router change**: `/registrations/:module` accepts a `?sel=` query
+  parameter (`Routes.registrationsSelected`). It is the only routed
+  master-detail in the app — selecting a child `replace`s the query parameter on
+  the same route, so the list's `State` (search text, scroll offset) survives,
+  the URL is shareable and rotation keeps the selection. `matchedLocation`
+  ignores query strings, so the redirect at the top of the router is unaffected.
+  Every other split (attendance, sync centre, the facility profile) is
+  intra-screen and owns both halves already.
+* **The form engine is width-aware.** `core/forms/field_layout.dart` packs the
+  schema's fields into 1–3 columns at the two lines in `schema_form.dart` that
+  render every server-driven form. **The packer rearranges, it never filters**:
+  `collect()` drops the values of reveal-hidden fields, so changing which fields
+  are *visible* would change what gets saved. `ValueKey('field-<name>')` is
+  load-bearing for the live `TextEditingController`, not just for tests.
+* **The registration wizard's step model is untouched.** Its per-section
+  `validate()` and the duplicate check gated on step 0 are unchanged; the
+  expanded-width step rail is backward-only, so `_next()` remains the single
+  path forwards and the duplicate check cannot be skipped.
+
+Screenshots are captured for all three device classes — see
+[Screenshots](#screenshots) below and §8 of `TABLET_LAYOUT.md`.
+
+## Screenshots
+
+`screenshots/` holds one PNG per screen per device class, rendered by
+`test/screenshots/screenshot_generator_test.dart` from the fixtures in
+`test/screenshots/fixtures/`, plus three contact sheets — one per aspect ratio,
+because the sheet builder resizes thumbnails and would otherwise squash a
+1280x800 capture into phone proportions:
+
+| Sheet | Device | Captures |
+|---|---|---|
+| `screenshots/contact_sheet_tablet_landscape.png` | 1280x800 | `*_tablet_landscape.png` — the primary set |
+| `screenshots/contact_sheet_tablet_portrait.png` | 800x1280 | `*_tablet.png` minus the landscape ones |
+| `screenshots/contact_sheet.png` | 412x915 | everything else — the phone fallback |
+
+```bash
+BMA_SCREENSHOTS=1 flutter test test/screenshots/screenshot_generator_test.dart
+python3 tool/contact_sheet.py                      # all three sheets
+python3 tool/contact_sheet.py --mode tablet-landscape
+```
+
+Regenerating everything is also the cheapest phone-fallback regression check:
+after a layout change, **a 412x915 capture that changes is a regression**, not
+churn. (Four captures show a wall-clock timestamp and always differ.)
 
 ## Sync engine
 
@@ -212,8 +287,10 @@ A screen tip:
 1. Add `tipY` to both ARB files and run `flutter gen-l10n`.
 2. Add a constant to `TipIds`.
 3. Place `TipCard(id: TipIds.y, text: l10n.tipY)` at the point of need.
-4. Regenerate the affected screenshot (`BMA_SCREENSHOTS=1 flutter test
-   test/screenshots/screenshot_generator_test.dart`).
+4. Regenerate the screenshots and rebuild the contact sheets
+   (`BMA_SCREENSHOTS=1 flutter test
+   test/screenshots/screenshot_generator_test.dart`, then
+   `python3 tool/contact_sheet.py`).
 
 ## Adding a new form to the app
 

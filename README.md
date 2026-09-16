@@ -18,6 +18,25 @@ labels (English/Arabic), choices, required flags, lengths and conditional
 sections are downloaded once (`bootstrap`) and cached in SQLite, so the app
 never drifts from the website.
 
+## Target device
+
+The app is **tablet-first for a 9-inch Android tablet**: 1280x800 landscape,
+800x1280 portrait, device pixel ratio 2.0. **Both orientations are supported and
+there is no orientation lock** — rotating never recreates the activity, it just
+hands Flutter a new view size.
+
+The **412x915 phone is a supported fallback**, not an afterthought: every
+control below 600 px renders exactly as it did before the tablet work, and the
+phone screenshot set is regenerated as the proof.
+
+[![Tablet layout](screenshots/contact_sheet_tablet_landscape.png)](screenshots/contact_sheet_tablet_landscape.png)
+
+*Every 1280x800 screen on one page. The phone sheet is
+[`screenshots/contact_sheet.png`](screenshots/contact_sheet.png); see
+[Screenshots](#screenshots) for all three, and
+[docs/TABLET_LAYOUT.md](docs/TABLET_LAYOUT.md) for how the layout decides what
+to show.*
+
 ## How synchronisation works
 
 ```
@@ -64,6 +83,7 @@ lib/
     network/    ApiClient (dio + token), BmaApi (typed endpoints)
     sync/       SyncEngine (bootstrap / pull / push / apply results), connectivity
     forms/      Schema-driven form engine: controller, validation, field widgets, reference pickers
+    layout/     Width classes, layout tokens, LayoutScope, AdaptiveBody/TwoPane, the navigation rail
     widgets/    Shared widgets (sync state chip, offline banner, stat tiles …)
   features/
     auth/ home/ settings/ registrations/ services/ attendance/ teachers/ dashboard/ sync/
@@ -72,6 +92,11 @@ lib/
                                        setup/ = first-run server address page
                                         tips/ = getting-started wizard + dismissible screen tips
 test/                                    unit tests (form engine, DAO, sync engine, name normalisation, tips), tips_wizard_test / tips_redirect_test
+  layout/                                width classes, tokens, the rail and one file per screen group at 412 / 800 / 1280
+  support/viewport.dart                  phone / tabletPortrait / tabletLandscape viewport helpers
+  screenshots/                           the capture harness and its server fixtures
+tool/contact_sheet.py                    builds one contact sheet per device class
+docs/TABLET_LAYOUT.md                    the tablet-first layout reference
 ```
 
 ### Local data model
@@ -188,11 +213,61 @@ The images in `screenshots/` are rendered by a widget test from fixtures that
 were captured from a real BMA-NFE server running the mobile API
 (`test/screenshots/fixtures/`, produced by
 `python -m student_registration.mobile_api.tests.make_fixtures` in BMA-NFE).
-Regenerate them with:
+Regenerate them and rebuild the three contact sheets with:
 
 ```bash
 BMA_SCREENSHOTS=1 flutter test test/screenshots/screenshot_generator_test.dart
+python3 tool/contact_sheet.py                        # all three sheets
+python3 tool/contact_sheet.py --mode tablet-landscape
+python3 tool/contact_sheet.py --mode tablet-portrait
+python3 tool/contact_sheet.py --mode phone
 ```
+
+There is one sheet per device class because the sheet builder resizes every
+thumbnail: mixing aspect ratios does not letterbox them, it squashes them.
+
+### 9-inch tablet, landscape (1280x800) — the primary layout
+
+[`screenshots/contact_sheet_tablet_landscape.png`](screenshots/contact_sheet_tablet_landscape.png)
+shows all nineteen landscape screens on one page.
+
+| | |
+|---|---|
+| ![Home](screenshots/32_home_tablet_landscape.png) | ![Beneficiaries, two pane](screenshots/33_beneficiaries_two_pane_tablet_landscape.png) |
+| ![Child profile](screenshots/34_child_profile_tablet_landscape.png) | ![Attendance](screenshots/35_attendance_tablet_landscape.png) |
+| ![Attendance, a child marked absent](screenshots/36_attendance_absent_tablet_landscape.png) | ![Registration wizard: caregivers](screenshots/37_registration_wizard_caregivers_tablet_landscape.png) |
+| ![Registration wizard: review](screenshots/38_registration_wizard_review_tablet_landscape.png) | ![Health & nutrition service form](screenshots/39_service_form_health_tablet_landscape.png) |
+| ![Teacher form](screenshots/40_teacher_form_tablet_landscape.png) | ![Teacher attendance](screenshots/41_teacher_attendance_tablet_landscape.png) |
+| ![Teachers](screenshots/42_teachers_grid_tablet_landscape.png) | ![Dashboard](screenshots/43_dashboard_tablet_landscape.png) |
+| ![Sync centre, two pane](screenshots/44_sync_center_two_pane_tablet_landscape.png) | ![Duplicate resolution, two pane](screenshots/45_duplicate_resolution_two_pane_tablet_landscape.png) |
+
+Arabic, where the navigation rail and every pane mirror to the other edge:
+
+| | |
+|---|---|
+| ![Home (Arabic)](screenshots/46_home_ar_tablet_landscape.png) | ![Beneficiaries, two pane (Arabic)](screenshots/47_beneficiaries_two_pane_ar_tablet_landscape.png) |
+| ![Attendance (Arabic)](screenshots/48_attendance_ar_tablet_landscape.png) | ![Registration wizard (Arabic)](screenshots/49_registration_wizard_ar_tablet_landscape.png) |
+| ![Sync centre (Arabic)](screenshots/50_sync_center_ar_tablet_landscape.png) | |
+
+### 9-inch tablet, portrait (800x1280) — the registration posture
+
+No navigation rail (the window is below the 1000 px threshold) and no panes:
+the win here is two-column forms and a two-across filter grid.
+[`screenshots/contact_sheet_tablet_portrait.png`](screenshots/contact_sheet_tablet_portrait.png)
+has all seven.
+
+| | | |
+|---|---|---|
+| ![Home on tablet](screenshots/51_home_tablet.png) | ![Beneficiaries on tablet](screenshots/17_beneficiaries_tablet.png) | ![Registration wizard on tablet](screenshots/53_registration_wizard_identity_tablet.png) |
+| ![PSS service form on tablet](screenshots/54_service_form_tablet.png) | ![Attendance on tablet](screenshots/16_attendance_tablet.png) | ![Centre profile on tablet](screenshots/56_center_profile_tablet.png) |
+| ![Getting started on tablet](screenshots/27_tips_welcome_tablet.png) | | |
+
+### Phone (412x915) — the supported fallback
+
+The phone layout is unchanged by the tablet work, and these captures are the
+evidence: after a layout change a 412x915 capture that moves is a regression.
+[`screenshots/contact_sheet.png`](screenshots/contact_sheet.png) shows every
+phone screen on one page.
 
 | | | |
 |---|---|---|
@@ -206,17 +281,6 @@ BMA_SCREENSHOTS=1 flutter test test/screenshots/screenshot_generator_test.dart
 | ![Server setup (Arabic)](screenshots/29_server_setup_arabic.png) | ![Home (Arabic)](screenshots/18_home_arabic.png) | ![Beneficiaries (Arabic)](screenshots/19_beneficiaries_arabic.png) |
 | ![Registration wizard (Arabic)](screenshots/20_registration_wizard_arabic.png) | ![Getting started (Arabic)](screenshots/25_tips_welcome_arabic.png) | ![Tips: push (Arabic)](screenshots/26_tips_push_arabic.png) |
 | ![Sync centre (Arabic)](screenshots/21_sync_center_arabic.png) | ![Centre profile (Arabic)](screenshots/31_center_profile_arabic.png) | |
-
-Tablet layout (attendance sheet, beneficiaries list and the Getting started
-tour):
-
-| | | |
-|---|---|---|
-| ![Attendance on tablet](screenshots/16_attendance_tablet.png) | ![Beneficiaries on tablet](screenshots/17_beneficiaries_tablet.png) | ![Getting started on tablet](screenshots/27_tips_welcome_tablet.png) |
-
-`screenshots/contact_sheet.png` shows every phone screen on one page. Rebuild it
-after regenerating the captures with `python3 tool/contact_sheet.py` (needs
-Pillow).
 
 ## Licence
 
