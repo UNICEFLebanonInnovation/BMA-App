@@ -36,7 +36,8 @@ UI (features/*)  ──▶  SchemaForm engine (core/forms)  ──▶  EntityDao
 * `features/*` holds one folder per screen group: `auth`, `home`, `settings`,
   `registrations`, `services`, `attendance`, `teachers`, `dashboard`, `sync`,
   `profiles` (NFE centre and ALP school), `setup` (first-run server address
-  page) and `tips` (getting-started wizard and the dismissible `TipCard`).
+  page), `tips` (getting-started wizard and the dismissible `TipCard`) and
+  `analytics` (the web platform's five dashboards — see below).
 * UI preferences that must outlive the database live in `SharedPreferences`
   and are loaded in `main()` before the first frame: `SettingsController`
   (server URL, whether it was ever confirmed, language) and `TipsController`
@@ -115,6 +116,112 @@ python3 tool/contact_sheet.py --mode tablet-landscape
 Regenerating everything is also the cheapest phone-fallback regression check:
 after a layout change, **a 412x915 capture that changes is a regression**, not
 churn. (Four captures show a wall-clock timestamp and always differ.)
+
+## Analytics dashboards
+
+`lib/features/analytics/` reproduces the reporting pages of BMA-NFE **from the
+records already on the device**. Nothing here calls the network: the web's
+`/dashboard/api/analytics/*` endpoints and the ALP `*_data` views are ported as
+pure-Dart functions, so a dashboard answers in the field and a filter change
+costs no round trip.
+
+```
+analytics/
+  analytics_models.dart      ChartItem / TrendPoint / Crosstab / HeatCell /
+                             StackedRow / AnalyticsFilters + the tally helpers
+  analytics_catalog.dart     which dashboards a programme has (Home, rail, hub)
+  analytics_hub_screen.dart  /analytics/<module>: the list of a programme's dashboards
+  charts/                    chart_palette, chart_card (+ grid, KPI band),
+                             bar_list, donut, trend_line, heatmap_calendar,
+                             crosstab_table, stacked_bar
+  widgets/filter_bar.dart    the filter band, its dropdowns and date fields
+  nfe/                       nfe_analytics.dart  + nfe_advanced_analytics_screen.dart
+  alp/                       alp_registration_insights, alp_teacher_insights,
+                             alp_attendance_heatmap, alp_school_map_data
+                             (+ one screen each)
+```
+
+**The split is the point.** Every `*_analytics` / `*_insights` / `*_data` file
+is pure Dart with no Flutter widgets, takes records and reference maps in and
+returns value types out, and is unit-tested directly
+(`test/analytics/nfe_analytics_test.dart`, `alp_insights_test.dart`). The
+screens load once per `dataVersion` + language, hold the filter in `State` and
+recompute in memory — the same shape `TeacherListScreen` uses to memoise its
+query.
+
+### Rules the port keeps
+
+The figures have to match the website's, so the server's arithmetic is
+reproduced rather than re-invented. The ones that are easy to get wrong, and
+that the tests pin:
+
+* **Two age bucketings, deliberately.** The analytics API buckets `0-4 / 5-11 /
+  12-14 / 15-17 / 18+` (`_annotate_age`); the ALP registration page buckets
+  `< 5 / 5-9 / 10-14 / 15-17 / 18+` (`DashboardDataView`). Both are here,
+  named after the page they belong to. Age is `current year − birth year`, not
+  a birthday age, and a birth year that is not four digits is `Unknown`.
+* **An age bound drops an unknown age**, exactly as `age_years__gte` drops a
+  null.
+* **"Latest programme"** is the education service with the highest id
+  (`_latest_programme_subquery`); for work typed offline, which has no id yet,
+  the newest local service stands in.
+* **`Avg` ignores nulls**: a teacher who never recorded years of experience
+  must not pull the mean towards zero.
+* **The trend window**: with no date range the series is the last 30 days;
+  with one it runs from the first to the last day that has a count.
+* **Children, not enrolments**: "registrations per round" counts distinct
+  children, and "moved between rounds" is the children with more than one
+  round — in every round they appear in.
+* **Cash support** lists every choice of the form, zero counts included,
+  because the web builds that list from the choices and not from the data.
+* **Attendance**: `total` is every child row of the sheet, `absent` only the
+  rows marked `No`, so an unmarked row counts in the denominator alone.
+* **Learning outcomes**: a grade is a percentage of its definition's range,
+  clamped to 0–100; a child's latest assessment sets the band (≥75 on track,
+  ≥50 developing) and the change since the first sets Improved / Stable /
+  Declined at ±0.5 points.
+* **Scope**: the server forces the account's centre, partner or school onto
+  anything typed offline, so a pending record is counted where it will land.
+
+### Chart rules
+
+Charts follow one system, and it is not "whatever the widget library draws".
+Colour is assigned by the job it does: a **categorical** palette of eight
+fixed-order hues whose adjacent pairs are separated under colour-vision
+deficiency (a ninth series is never invented — `foldTail` folds the tail into
+*Other* first), one-hue **sequential** ramps for the cross-tab and the
+heatmaps, and the app's own status colours only where a colour *means* good or
+bad (the learning-outcome bands). Colour follows the entity, never its rank:
+`genderColor` gives male and female the same slot on every page, so filtering
+one out never repaints the other. Every chart prints its values, every
+multi-series chart carries a legend, and the two charts that would otherwise
+need a hover (the trend line and the heatmaps) answer a **tap** with a caption
+under the plot — a tooltip is not a control on a touch device.
+
+`ChartGrid` lays the cards out one/two/three across by width class, with a
+`wide` tile spanning the row; the heatmap and the map cards are full width
+because their content has a natural size.
+
+### The map
+
+The ALP school dashboard is the only screen that draws a map
+(`flutter_map` + `latlong2`). Markers come from the `latitude`/`longitude` the
+bootstrap already sends for every school, so the map is useful offline; only
+the OpenStreetMap background tiles need a connection, and they are behind
+`mapTilesEnabledProvider` && `isOnlineProvider` — the screen says so in a line
+under the card title when they are off, and the widget tests turn them off so
+no test ever reaches for the network.
+
+### Adding a dashboard
+
+1. Write the compute layer in `nfe/` or `alp/` as pure Dart, with a unit test
+   beside the existing ones.
+2. Write the screen with the shared `ChartCard` / `ChartGrid` / `KpiGrid` /
+   `FilterBar`, giving the page's `ListView` and every panel a `ValueKey`.
+3. Add the route to `lib/router.dart` **above** `/analytics/:module` (a fixed
+   path must never be read as a module segment) and an entry to
+   `analytics_catalog.dart`, which is what Home, the rail and the hub read.
+4. Add a layout test at 412x915, 800x1280, 1280x800 and Arabic at 1.3x.
 
 ## Sync engine
 

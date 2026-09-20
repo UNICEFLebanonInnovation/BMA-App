@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/analytics/analytics_catalog.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 import '../auth/auth_controller.dart';
@@ -57,9 +58,9 @@ class NavDestinationSpec {
 
 /// The main destinations, module-scoped and capability-gated.
 ///
-/// Mirrors `home_shell.dart:293-309`: facility profile first (the "where am I"
-/// of a programme), then beneficiaries, attendance, teacher attendance,
-/// teachers, dashboard.
+/// Mirrors `_ModuleCard` in `home_shell.dart`: facility profile first (the
+/// "where am I" of a programme), then beneficiaries, attendance, teacher
+/// attendance, teachers, dashboard, analytics.
 List<NavDestinationSpec> destinationsFor(
   UserProfile? profile,
   BmaModule module,
@@ -124,6 +125,15 @@ List<NavDestinationSpec> destinationsFor(
       icon: Icons.insights_outlined,
       location: Routes.dashboard(module),
     ),
+    // The analytics hub and every dashboard under it share the
+    // `/analytics/<module>` prefix, so one destination covers them all.
+    if (hasAnalytics(module))
+      NavDestinationSpec(
+        key: 'analytics',
+        label: l10n.analytics,
+        icon: Icons.query_stats_outlined,
+        location: Routes.analytics(module),
+      ),
   ];
 }
 

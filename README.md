@@ -9,8 +9,8 @@ whether to merge, link, create or discard.
 
 | Module | What the app covers |
 |---|---|
-| **Makani / MSCC** | Beneficiary list & search, 3-step registration wizard, child profile, every service form (education, PSS, health & nutrition, youth, inclusion, digital, LEGO, recreational, follow-up, referrals, grading), new round, teachers, daily attendance per programme/section, dashboard |
-| **ALP schools** | Registrations, child profile, grading, teachers, school profile, children attendance, teacher attendance, dashboard |
+| **Makani / MSCC** | Beneficiary list & search, 3-step registration wizard, child profile, every service form (education, PSS, health & nutrition, youth, inclusion, digital, LEGO, recreational, follow-up, referrals, grading), new round, teachers, daily attendance per programme/section, dashboard, advanced analytics |
+| **ALP schools** | Registrations, child profile, grading, teachers, school profile, children attendance, teacher attendance, dashboard, four analytics dashboards |
 | **CLM Bridging** | Bridging registrations (with pre-test), post/mid assessments, follow-up, services, teachers, clubs/meetings/initiatives/health visits, attendance per level, dashboard |
 
 All forms are **generated from the web platform's Django forms** at runtime:
@@ -36,6 +36,30 @@ phone screenshot set is regenerated as the proof.
 [Screenshots](#screenshots) for all three, and
 [docs/TABLET_LAYOUT.md](docs/TABLET_LAYOUT.md) for how the layout decides what
 to show.*
+
+## Analytics
+
+Every programme card carries an **Analytics** action (and the tablet rail an
+Analytics destination) that opens the dashboards of the web platform, computed
+**from the records already on the device** — no extra endpoint, and they work
+in the field with no connection. Figures therefore describe what this account
+has downloaded and typed, which the page says once at the top.
+
+| Dashboard | Mirrors | What it shows |
+|---|---|---|
+| **NFE · Advanced analytics** | `/dashboard/advanced-analytics/` | Registrations, teachers, partners, centres and programmes; the daily registration trend; registrations by centre, gender and nationality; teacher gender, nationality and centre; a programme × age-group cross-tab. Filters: date range, partner, centre, programme, and — behind *More filters* — nationality, gender and an age band. |
+| **ALP · Registration insights** | `alp:dashboard_registration` | Registrations, active schools, partners and programme rounds; the learning-outcome block (children assessed, average achievement, follow-ups, children improving, latest performance, progress since the first assessment, achievement by subject); gender, gender × age group, nationality, source of identification, registrations per round, family status, disability type, cash support, referral to formal education and children moved between rounds. Filters: school, round, programme. |
+| **ALP · Teacher dashboard** | `alp:dashboard_teacher` | Teachers, active schools, teachers trained (with the share), average experience and training, contact coverage; gender, nationality, assignment, teachers by school and round, subjects, grade levels, training topics, teaching hours and extra coaching. Filters: school, round. |
+| **ALP · Attendance dashboard** | `alp:dashboard_attendance` | The month × day attendance heatmap of the selected year, overall and one per programme, with a year selector. |
+| **ALP · School dashboard** | `alp:dashboard_school` | Accessible and mapped schools, ALP students and teachers; the school locations map with a school filter and the operational detail of each school. |
+
+The arithmetic is ported from the Django views rather than re-invented, so a
+figure on the tablet matches the website's: the age buckets, the "latest
+programme" subquery, `Avg` ignoring nulls, the distinct-children-per-round
+count and the ±0.5 point progress thresholds are all reproduced, and the
+`test/analytics/` suites pin them. The map needs a connection only for its
+background tiles; the school markers come from the coordinates the bootstrap
+already downloaded, so an offline map still places every school.
 
 ## How synchronisation works
 
@@ -91,6 +115,8 @@ lib/
                                     profiles/ = NFE centre and ALP school profiles
                                        setup/ = first-run server address page
                                         tips/ = getting-started wizard + dismissible screen tips
+                                   analytics/ = the five web dashboards, computed offline
+                                                (charts/ widgets/ nfe/ alp/)
 test/                                    unit tests (form engine, DAO, sync engine, name normalisation, tips), tips_wizard_test / tips_redirect_test
   layout/                                width classes, tokens, the rail and one file per screen group at 412 / 800 / 1280
   support/viewport.dart                  phone / tabletPortrait / tabletLandscape viewport helpers

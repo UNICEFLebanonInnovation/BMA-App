@@ -16,6 +16,7 @@ import '../../core/widgets/common.dart';
 import '../../core/widgets/ui.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import '../analytics/analytics_catalog.dart';
 import '../tips/tip_card.dart';
 import '../tips/tips_content.dart';
 
@@ -455,6 +456,8 @@ class _ModuleCard extends StatelessWidget {
       if (capabilities.canManageTeachers)
         _Action(l10n.teachers, Icons.badge_outlined, () => context.push(Routes.teachers(module))),
       _Action(l10n.dashboard, Icons.insights_outlined, () => context.push(Routes.dashboard(module))),
+      if (hasAnalytics(module))
+        _Action(l10n.analytics, Icons.query_stats_outlined, () => context.push(Routes.analytics(module))),
     ];
 
     return AppCard(
