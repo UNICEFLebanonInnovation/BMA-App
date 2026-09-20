@@ -3,23 +3,29 @@ name: Release
 # Publishes the Android APK as a GitHub release asset, which gives a permanent
 # download link that needs no GitHub account (this repository is public).
 #
-# Two ways in:
-#   * a version tag, for a real release:  git tag v0.1.0 && git push origin v0.1.0
-#   * a push to the field-test branch, which refreshes the rolling `field-test`
-#     pre-release so partners always have the newest build at the same link.
+# The asset is always called `bma-app.apk`, so the rolling pre-release serves
+# the newest build of `main` at a URL that never changes:
+#
+#   https://github.com/<owner>/<repo>/releases/download/field-test/bma-app.apk
+#
+# Three ways in:
+#   * every push to `main`, which refreshes that rolling `field-test` release
+#   * a version tag, for a numbered release:  git tag v0.1.0 && git push origin v0.1.0
+#   * **Run workflow** by hand: no tag refreshes the rolling release, a tag cuts
+#     a numbered one.
 
 on:
   push:
     tags: ['v*']
-    branches: ['claude/kind-brahmagupta-j47zvz']
+    branches: ['main']
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to create and release, e.g. v0.1.0'
-        required: true
+        description: 'Tag for a numbered release, e.g. v0.1.0. Leave empty to refresh the rolling field-test build.'
+        required: false
         type: string
       prerelease:
-        description: 'Mark as a pre-release (field-test build)'
+        description: 'Mark as a pre-release (the rolling build is always one)'
         default: true
         type: boolean
 
@@ -48,8 +54,8 @@ jobs:
             TAG="$GITHUB_REF_NAME"
             ROLLING=false
           else
-            # Rolling build of the field-test branch: same tag every time, so
-            # the download link stays valid.
+            # Rolling build of `main`: same tag every time, so the download
+            # link stays valid.
             TAG="field-test"
             ROLLING=true
           fi
@@ -57,11 +63,14 @@ jobs:
             echo "::error::Tag '$TAG' must look like v0.1.0"
             exit 1
           fi
-          if [[ "$ROLLING" == "true" ]]; then
-            APK="bma-app-field-test-${GITHUB_SHA::7}.apk"
-          else
-            APK="bma-app-$TAG.apk"
+          # Asking for `field-test` by hand means the rolling build, which
+          # replaces the existing release rather than failing to create it.
+          if [[ "$TAG" == "field-test" ]]; then
+            ROLLING=true
           fi
+          # One filename for every build, so the download URL is the same every
+          # time. The release notes name the commit it was built from.
+          APK="bma-app.apk"
           {
             echo "tag=$TAG"
             echo "apk=$APK"
@@ -115,9 +124,8 @@ jobs:
           if [[ "${{ steps.meta.outputs.rolling }}" == "true" ]]; then
             {
               echo ""
-              echo "This is a rolling field-test build: it is replaced by the"
-              echo "newest commit on the branch, and the download link stays"
-              echo "the same."
+              echo "This is a rolling field-test build: every push to \`main\`"
+              echo "replaces it, and the download link stays the same."
             } >> dist/notes.md
           fi
           {
