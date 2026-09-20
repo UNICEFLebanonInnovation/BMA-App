@@ -97,6 +97,7 @@ test/                                    unit tests (form engine, DAO, sync engi
   screenshots/                           the capture harness and its server fixtures
 tool/contact_sheet.py                    builds one contact sheet per device class
 docs/TABLET_LAYOUT.md                    the tablet-first layout reference
+docs/VALIDATION.md                       how the website's field rules reach the app
 ```
 
 ### Local data model

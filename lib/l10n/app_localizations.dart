@@ -632,17 +632,77 @@ abstract class AppLocalizations {
   /// **'Date cannot be in the future.'**
   String get futureDate;
 
-  /// No description provided for @onlyLetters.
-  ///
-  /// In en, this message translates to:
-  /// **'Only letters are allowed.'**
-  String get onlyLetters;
-
   /// No description provided for @confirmMismatch.
   ///
   /// In en, this message translates to:
   /// **'Values do not match.'**
   String get confirmMismatch;
+
+  /// No description provided for @attendanceRowsNeedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 child still needs a reason for absence.} other{{count} children still need a reason for absence.}}'**
+  String attendanceRowsNeedReason(int count);
+
+  /// No description provided for @tooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum {max} characters.'**
+  String tooLong(String max);
+
+  /// No description provided for @tooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {min} characters.'**
+  String tooShort(String min);
+
+  /// No description provided for @invalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid format.'**
+  String get invalidFormat;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get invalidEmail;
+
+  /// No description provided for @invalidChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one of the listed options.'**
+  String get invalidChoice;
+
+  /// No description provided for @valueTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be {min} or more.'**
+  String valueTooSmall(String min);
+
+  /// No description provided for @valueTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be {max} or less.'**
+  String valueTooLarge(String max);
+
+  /// No description provided for @dateTooEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'The date is too early.'**
+  String get dateTooEarly;
+
+  /// No description provided for @dateTooLate.
+  ///
+  /// In en, this message translates to:
+  /// **'The date is too late.'**
+  String get dateTooLate;
+
+  /// No description provided for @tooManyDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'At most {max} decimal places.'**
+  String tooManyDecimals(String max);
 
   /// No description provided for @stepIdentity.
   ///

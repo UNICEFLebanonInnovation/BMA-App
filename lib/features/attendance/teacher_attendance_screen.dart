@@ -2,15 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/config/app_config.dart';
+import '../../core/config/settings_controller.dart';
 import '../../core/db/entity_dao.dart';
 import '../../core/db/providers.dart';
+import '../../core/db/reference_dao.dart';
+import '../../core/forms/reference_cache.dart';
+import '../../core/forms/validation_messages.dart';
 import '../../core/layout/app_layout.dart';
 import '../../core/models/entity_record.dart';
+import '../../core/models/form_schema.dart';
 import '../../core/sync/sync_engine.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common.dart';
 import '../../core/widgets/ui.dart';
 import '../../l10n/app_localizations.dart';
+import 'attendance_validation.dart';
 
 /// ALP teacher attendance for one date (Present / Absent per teacher).
 ///
@@ -36,6 +42,8 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
   EntityRecord? _existing;
   bool _loading = true;
   bool _saving = false;
+  EntitySchema? _schema;
+  AttendanceErrors _errors = const AttendanceErrors();
 
   static String _iso(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
@@ -50,6 +58,8 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
     setState(() => _loading = true);
     final dao = ref.read(entityDaoProvider);
     _teachers = await dao.list(RecordQuery(entity: Entities.teacherFor(widget.module), limit: 2000));
+    final stored = await ref.read(referenceDaoProvider).schema(Entities.alpTeacherAttendanceDay);
+    _schema = stored == null ? null : attendanceSchemaOrFallback(stored);
     _existing = await dao.byNaturalKey(Entities.alpTeacherAttendanceDay, _date);
     _status.clear();
     for (final t in _teachers) {
@@ -71,7 +81,7 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
 
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
-    setState(() => _saving = true);
+    final language = ref.read(settingsControllerProvider).locale.languageCode;
     final dao = ref.read(entityDaoProvider);
     final data = {
       'attendance_date': _date,
@@ -85,6 +95,26 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           },
       ],
     };
+
+    // This screen used to save whatever it held: a date in the future reached
+    // the server and came back as a push error. It is checked by the same
+    // validator as the child sheet and every other form.
+    final schema = _schema;
+    if (schema != null) {
+      final errors = validateAttendance(
+        schema: schema,
+        header: data,
+        rows: (data['teachers_attendance'] as List).cast<Map<String, dynamic>>(),
+        messages: validationMessages(l10n, language),
+        allowedValues: allowedValuesFrom(ref.read(referenceCacheProvider)),
+      );
+      setState(() => _errors = errors);
+      if (errors.isNotEmpty) {
+        showMessage(context, errors.firstHeaderMessage ?? l10n.requiredField, error: true);
+        return;
+      }
+    }
+    setState(() => _saving = true);
     try {
       if (_existing != null) {
         _existing = await dao.updateLocal(_existing!, data);
@@ -107,7 +137,10 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      setState(() => _date = _iso(picked));
+      setState(() {
+        _date = _iso(picked);
+        _errors = _errors.withoutHeader('attendance_date');
+      });
       await _load();
     }
   }
@@ -162,7 +195,11 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
           key: const ValueKey('tatt-date'),
           onTap: _pickDate,
           child: InputDecorator(
-            decoration: InputDecoration(labelText: l10n.selectDate, suffixIcon: const Icon(Icons.calendar_today)),
+            decoration: InputDecoration(
+              labelText: l10n.selectDate,
+              suffixIcon: const Icon(Icons.calendar_today),
+              errorText: _errors.headerMessage('attendance_date'),
+            ),
             child: Text(_date),
           ),
         ),
@@ -186,7 +223,11 @@ class _TeacherAttendanceScreenState extends ConsumerState<TeacherAttendanceScree
               key: const ValueKey('tatt-date'),
               onTap: _pickDate,
               child: InputDecorator(
-                decoration: InputDecoration(labelText: l10n.selectDate, suffixIcon: const Icon(Icons.calendar_today)),
+                decoration: InputDecoration(
+                  labelText: l10n.selectDate,
+                  suffixIcon: const Icon(Icons.calendar_today),
+                  errorText: _errors.headerMessage('attendance_date'),
+                ),
                 child: Text(_date),
               ),
             ),

@@ -25,6 +25,36 @@ class ChoiceOption {
       };
 }
 
+/// One regex rule copied from a Django field's `validators=[...]`.
+///
+/// Carries its own message because the server's wording ("Only alphabetic
+/// characters are allowed.") tells the worker what to do, where a generic
+/// "Invalid format." leaves them guessing which character the field objects
+/// to. A field may carry several, so this is a list rather than a pair of
+/// scalars on [FieldSpec].
+class PatternRule {
+  const PatternRule({required this.pattern, this.message, this.messageAr});
+
+  final String pattern;
+  final String? message;
+  final String? messageAr;
+
+  String? messageFor(String languageCode) =>
+      languageCode == 'ar' && (messageAr?.isNotEmpty ?? false) ? messageAr : message;
+
+  static PatternRule fromJson(Map<String, dynamic> json) => PatternRule(
+        pattern: (json['pattern'] ?? '').toString(),
+        message: json['message']?.toString(),
+        messageAr: json['message_ar']?.toString(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'pattern': pattern,
+        if (message != null) 'message': message,
+        if (messageAr != null) 'message_ar': messageAr,
+      };
+}
+
 class FieldSpec {
   const FieldSpec({
     required this.name,
@@ -37,10 +67,17 @@ class FieldSpec {
     this.placeholder = '',
     this.placeholderAr,
     this.maxLength,
+    this.minLength,
     this.minValue,
     this.maxValue,
+    this.maxDigits,
+    this.decimalPlaces,
     this.pattern,
+    this.patterns = const [],
+    this.minDate,
+    this.maxDate,
     this.choices = const [],
+    this.choicesRef,
     this.ref,
   });
 
@@ -57,13 +94,50 @@ class FieldSpec {
   final String placeholder;
   final String? placeholderAr;
   final int? maxLength;
+  final int? minLength;
   final num? minValue;
   final num? maxValue;
+  final int? maxDigits;
+  final int? decimalPlaces;
+
+  /// The first entry of [patterns], kept so that an APK already installed in
+  /// the field keeps working against a newer server. Read [effectivePatterns]
+  /// instead: it is the union, and it carries the server's messages.
   final String? pattern;
+  final List<PatternRule> patterns;
+
+  /// `'today'`, or an ISO date. Declarative because the only bound the server
+  /// states today is "not in the future", and an absolute date baked into a
+  /// bootstrap would go stale the next morning.
+  final String? minDate;
+  final String? maxDate;
+
   final List<ChoiceOption> choices;
+
+  /// Reference-list key holding this field's choices, for a `select` whose
+  /// options live in a shared list (the attendance reasons). The picker and
+  /// the validator both read it, so neither can offer or accept a value the
+  /// other rejects.
+  final String? choicesRef;
 
   /// Reference list key (e.g. `nationalities`, `rounds.mscc`, `parent`).
   final String? ref;
+
+  /// [patterns] when the server sent them, else the legacy single [pattern].
+  List<PatternRule> get effectivePatterns {
+    if (patterns.isNotEmpty) return patterns;
+    if (pattern != null && pattern!.isNotEmpty) return [PatternRule(pattern: pattern!)];
+    return const [];
+  }
+
+  /// Resolve [minDate]/[maxDate] against [today]. `null` when unset or
+  /// unparseable: a bound nobody can read must not silently reject every value.
+  static DateTime? resolveDateBound(String? bound, DateTime today) {
+    if (bound == null || bound.isEmpty) return null;
+    if (bound == 'today') return DateTime(today.year, today.month, today.day);
+    final parsed = DateTime.tryParse(bound);
+    return parsed == null ? null : DateTime(parsed.year, parsed.month, parsed.day);
+  }
 
   bool get isHidden => type == 'hidden';
   bool get isMulti => type == 'multiselect' || type == 'multiref';
@@ -122,13 +196,24 @@ class FieldSpec {
         placeholder: (json['placeholder'] ?? '').toString(),
         placeholderAr: json['placeholder_ar']?.toString(),
         maxLength: (json['max_length'] as num?)?.toInt(),
+        minLength: (json['min_length'] as num?)?.toInt(),
         minValue: json['min_value'] as num?,
         maxValue: json['max_value'] as num?,
+        maxDigits: (json['max_digits'] as num?)?.toInt(),
+        decimalPlaces: (json['decimal_places'] as num?)?.toInt(),
         pattern: json['pattern']?.toString(),
+        patterns: ((json['patterns'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((e) => PatternRule.fromJson(Map<String, dynamic>.from(e)))
+            .where((p) => p.pattern.isNotEmpty)
+            .toList(),
+        minDate: json['min_date']?.toString(),
+        maxDate: json['max_date']?.toString(),
         choices: ((json['choices'] as List?) ?? const [])
             .whereType<Map>()
             .map((e) => ChoiceOption.fromJson(Map<String, dynamic>.from(e)))
             .toList(),
+        choicesRef: json['choices_ref']?.toString(),
         ref: json['ref']?.toString(),
       );
 
@@ -143,10 +228,17 @@ class FieldSpec {
         'placeholder': placeholder,
         if (placeholderAr != null) 'placeholder_ar': placeholderAr,
         if (maxLength != null) 'max_length': maxLength,
+        if (minLength != null) 'min_length': minLength,
         if (minValue != null) 'min_value': minValue,
         if (maxValue != null) 'max_value': maxValue,
+        if (maxDigits != null) 'max_digits': maxDigits,
+        if (decimalPlaces != null) 'decimal_places': decimalPlaces,
         if (pattern != null) 'pattern': pattern,
+        if (patterns.isNotEmpty) 'patterns': patterns.map((p) => p.toJson()).toList(),
+        if (minDate != null) 'min_date': minDate,
+        if (maxDate != null) 'max_date': maxDate,
         if (choices.isNotEmpty) 'choices': choices.map((c) => c.toJson()).toList(),
+        if (choicesRef != null) 'choices_ref': choicesRef,
         if (ref != null) 'ref': ref,
       };
 }
@@ -185,10 +277,26 @@ class FormSection {
 /// Conditional visibility rule: `when` describes a condition on one field,
 /// `show` the fields revealed while it holds.
 class RevealRule {
-  const RevealRule({required this.field, required this.show, this.inValues, this.notInValues, this.labelContains});
+  const RevealRule({
+    required this.field,
+    required this.show,
+    this.inValues,
+    this.notInValues,
+    this.labelContains,
+    this.require = false,
+  });
 
   final String field;
   final List<String> show;
+
+  /// Whether the revealed fields are REQUIRED while the rule holds.
+  ///
+  /// A reveal used to mean visibility only, but several rules are really
+  /// conditional requirements: a reason for closing matters only on a day
+  /// off, and a reason for absence only for a child marked absent. Without
+  /// this the two would have to be `required: true` and then hidden, which
+  /// would block every sheet that is not a day off.
+  final bool require;
   final List<String>? inValues;
   final List<String>? notInValues;
   final String? labelContains;
@@ -202,6 +310,7 @@ class RevealRule {
       inValues: list(when['in']),
       notInValues: list(when['not_in']),
       labelContains: when['label_contains']?.toString(),
+      require: json['require'] == true,
     );
   }
 
@@ -213,6 +322,7 @@ class RevealRule {
           if (labelContains != null) 'label_contains': labelContains,
         },
         'show': show,
+        if (require) 'require': true,
       };
 
   /// Evaluate the rule. [value] is the current raw value of [field] and
@@ -244,6 +354,9 @@ class EntitySchema {
     this.reveals = const [],
     this.wizard = false,
     this.confirmFields = const [],
+    this.rowFields = const [],
+    this.rowReveals = const [],
+    this.rowKey,
   });
 
   final String key;
@@ -260,6 +373,30 @@ class EntitySchema {
   final List<RevealRule> reveals;
   final bool wizard;
   final List<String> confirmFields;
+
+  /// Fields of ONE repeated row, for an entity that carries a roster: the
+  /// per-child line of an attendance sheet. [fields] describes the header.
+  final List<FieldSpec> rowFields;
+  final List<RevealRule> rowReveals;
+
+  /// Key under which the rows live in the record: `children_attendance` or
+  /// `teachers_attendance`.
+  final String? rowKey;
+
+  /// The row schema as a schema in its own right, so one validator handles
+  /// both the header and each row rather than growing a second code path.
+  EntitySchema get rowSchema =>
+      _rowSchemas[this] ??= EntitySchema(
+        key: '$key#row',
+        module: module,
+        label: label,
+        kind: kind,
+        fields: rowFields,
+        sections: const [],
+        reveals: rowReveals,
+      );
+
+  static final Expando<EntitySchema> _rowSchemas = Expando<EntitySchema>('rowSchema');
 
   FieldSpec? field(String name) {
     for (final f in fields) {
@@ -322,6 +459,15 @@ class EntitySchema {
             .toList(),
         wizard: json['wizard'] == true,
         confirmFields: ((json['confirm_fields'] as List?) ?? const []).map((e) => e.toString()).toList(),
+        rowFields: ((json['row_fields'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((e) => FieldSpec.fromJson(Map<String, dynamic>.from(e)))
+            .toList(),
+        rowReveals: ((json['row_reveals'] as List?) ?? const [])
+            .whereType<Map>()
+            .map((e) => RevealRule.fromJson(Map<String, dynamic>.from(e)))
+            .toList(),
+        rowKey: json['row_key']?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -339,5 +485,8 @@ class EntitySchema {
         'reveals': reveals.map((r) => r.toJson()).toList(),
         'wizard': wizard,
         'confirm_fields': confirmFields,
+        if (rowFields.isNotEmpty) 'row_fields': rowFields.map((f) => f.toJson()).toList(),
+        if (rowReveals.isNotEmpty) 'row_reveals': rowReveals.map((r) => r.toJson()).toList(),
+        if (rowKey != null) 'row_key': rowKey,
       };
 }

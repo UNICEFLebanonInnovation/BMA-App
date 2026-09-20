@@ -296,10 +296,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String get futureDate => 'لا يمكن أن يكون التاريخ في المستقبل.';
 
   @override
-  String get onlyLetters => 'يُسمح بالأحرف فقط.';
+  String get confirmMismatch => 'القيم غير متطابقة.';
 
   @override
-  String get confirmMismatch => 'القيم غير متطابقة.';
+  String attendanceRowsNeedReason(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أطفال بحاجة إلى سبب غياب.',
+      one: 'طفل واحد بحاجة إلى سبب غياب.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tooLong(String max) {
+    return 'الحد الأقصى $max حرفًا.';
+  }
+
+  @override
+  String tooShort(String min) {
+    return '$min أحرف على الأقل.';
+  }
+
+  @override
+  String get invalidFormat => 'صيغة غير صحيحة.';
+
+  @override
+  String get invalidEmail => 'أدخل بريدًا إلكترونيًا صحيحًا.';
+
+  @override
+  String get invalidChoice => 'اختر أحد الخيارات المتاحة.';
+
+  @override
+  String valueTooSmall(String min) {
+    return 'يجب أن يكون $min أو أكثر.';
+  }
+
+  @override
+  String valueTooLarge(String max) {
+    return 'يجب أن يكون $max أو أقل.';
+  }
+
+  @override
+  String get dateTooEarly => 'التاريخ مبكر جدًا.';
+
+  @override
+  String get dateTooLate => 'التاريخ متأخر جدًا.';
+
+  @override
+  String tooManyDecimals(String max) {
+    return 'بحد أقصى $max منازل عشرية.';
+  }
 
   @override
   String get stepIdentity => 'الهوية';

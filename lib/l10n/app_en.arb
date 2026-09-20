@@ -110,8 +110,60 @@
   "invalidNumber": "Enter a valid number.",
   "invalidDate": "Enter a valid date (YYYY-MM-DD).",
   "futureDate": "Date cannot be in the future.",
-  "onlyLetters": "Only letters are allowed.",
   "confirmMismatch": "Values do not match.",
+  "attendanceRowsNeedReason": "{count, plural, =1{1 child still needs a reason for absence.} other{{count} children still need a reason for absence.}}",
+  "@attendanceRowsNeedReason": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tooLong": "Maximum {max} characters.",
+  "@tooLong": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "tooShort": "At least {min} characters.",
+  "@tooShort": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidFormat": "Invalid format.",
+  "invalidEmail": "Enter a valid email address.",
+  "invalidChoice": "Choose one of the listed options.",
+  "valueTooSmall": "Must be {min} or more.",
+  "@valueTooSmall": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "valueTooLarge": "Must be {max} or less.",
+  "@valueTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "dateTooEarly": "The date is too early.",
+  "dateTooLate": "The date is too late.",
+  "tooManyDecimals": "At most {max} decimal places.",
+  "@tooManyDecimals": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "stepIdentity": "Identity",
   "stepCaregivers": "Caregivers & household",
   "stepReview": "Review & confirm",

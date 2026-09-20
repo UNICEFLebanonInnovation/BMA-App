@@ -618,7 +618,11 @@ Future<EntityRecord> _seedCompleteRegistration(ProviderContainer container) asyn
     'child_have_sibling': 'Yes',
     'child_mother_pregnant_expecting': 'No',
     'child_living_arrangement': 'Living with caregivers',
-    'child_address': 'Bar Elias, Main Road, building 14',
+    // Letters and spaces only: child_address carries only_letters_validator on
+    // the website, so the comma-and-house-number address this used to seed is
+    // a record the server would REJECT. The app enforces the rule now, and the
+    // demo data has to be data that can actually be pushed.
+    'child_address': 'Bar Elias Main Road',
     'source_of_identification': 'Awareness Session',
     'cash_support_programmes': ['None'],
     'main_caregiver': 'Mother',

@@ -9,6 +9,7 @@ import '../../core/db/entity_dao.dart';
 import '../../core/db/providers.dart';
 import '../../core/forms/reference_cache.dart';
 import '../../core/forms/schema_form.dart';
+import '../../core/forms/validation_messages.dart';
 import '../../core/forms/schema_form_controller.dart';
 import '../../core/layout/adaptive.dart';
 import '../../core/layout/app_layout.dart';
@@ -59,9 +60,9 @@ class _TeacherFormScreenState extends ConsumerState<TeacherFormScreen> {
     }
     final cache = ref.read(referenceCacheProvider);
     final language = ref.read(settingsControllerProvider).locale.languageCode;
-    for (final field in schema.fields.where((f) => f.isReference && f.ref != null && f.ref != 'parent')) {
-      await cache.ensure(field.ref!);
-    }
+    // Warms reference lists AND shared choice lists, so the validator can
+    // answer "is this one of the options?" synchronously while the worker types.
+    await cache.warmFor(schema);
     Map<String, dynamic> initial;
     if (_editing != null) {
       initial = Map<String, dynamic>.from(_editing!.data)..removeWhere((k, v) => v == null || k.endsWith('_label'));
@@ -87,12 +88,8 @@ class _TeacherFormScreenState extends ConsumerState<TeacherFormScreen> {
           final id = value is int ? value : int.tryParse(value?.toString() ?? '');
           return cache.cached(field.ref!, id)?.labelFor(language);
         },
-        messages: ValidationMessages(
-          required: l10n.requiredField,
-          invalidNumber: l10n.invalidNumber,
-          invalidDate: l10n.invalidDate,
-          confirmMismatch: l10n.confirmMismatch,
-        ),
+        allowedValues: allowedValuesFrom(cache),
+        messages: validationMessages(l10n, language),
       );
     });
     // A rail tap is a `push`/`replace`, and NEITHER triggers PopScope — so the

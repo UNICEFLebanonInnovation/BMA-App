@@ -296,10 +296,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futureDate => 'Date cannot be in the future.';
 
   @override
-  String get onlyLetters => 'Only letters are allowed.';
+  String get confirmMismatch => 'Values do not match.';
 
   @override
-  String get confirmMismatch => 'Values do not match.';
+  String attendanceRowsNeedReason(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count children still need a reason for absence.',
+      one: '1 child still needs a reason for absence.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tooLong(String max) {
+    return 'Maximum $max characters.';
+  }
+
+  @override
+  String tooShort(String min) {
+    return 'At least $min characters.';
+  }
+
+  @override
+  String get invalidFormat => 'Invalid format.';
+
+  @override
+  String get invalidEmail => 'Enter a valid email address.';
+
+  @override
+  String get invalidChoice => 'Choose one of the listed options.';
+
+  @override
+  String valueTooSmall(String min) {
+    return 'Must be $min or more.';
+  }
+
+  @override
+  String valueTooLarge(String max) {
+    return 'Must be $max or less.';
+  }
+
+  @override
+  String get dateTooEarly => 'The date is too early.';
+
+  @override
+  String get dateTooLate => 'The date is too late.';
+
+  @override
+  String tooManyDecimals(String max) {
+    return 'At most $max decimal places.';
+  }
 
   @override
   String get stepIdentity => 'Identity';

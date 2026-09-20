@@ -10,9 +10,11 @@ import '../../core/db/providers.dart';
 import '../../core/db/reference_dao.dart';
 import '../../core/forms/reference_cache.dart';
 import '../../core/forms/reference_picker.dart';
+import '../../core/forms/validation_messages.dart';
 import '../../core/layout/adaptive.dart';
 import '../../core/layout/app_layout.dart';
 import '../../core/models/entity_record.dart';
+import '../../core/models/form_schema.dart';
 import '../../core/models/reference_item.dart';
 import '../../core/sync/sync_engine.dart';
 import '../../core/theme/app_theme.dart';
@@ -20,6 +22,7 @@ import '../../core/widgets/common.dart';
 import '../../core/widgets/ui.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
+import 'attendance_validation.dart';
 import '../tips/tip_card.dart';
 import '../tips/tips_content.dart';
 import 'attendance_roster.dart';
@@ -74,6 +77,8 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
   List<ChoiceRow> _levels = const [];
   List<ChoiceRow> _absenceReasons = const [];
   List<ChoiceRow> _closeReasons = const [];
+  EntitySchema? _schema;
+  AttendanceErrors _errors = const AttendanceErrors();
   List<ReferenceItem> _rounds = const [];
   List<ReferenceItem> _alpProgrammes = const [];
 
@@ -99,6 +104,21 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     Future.microtask(_loadReference);
   }
 
+  /// Errors are keyed by position in `children_attendance`, which is the order
+  /// of `_rows` and the order the server reports back in
+  /// `children_attendance[i]`, so one index works for the roster, the cards
+  /// and the push report.
+  int _indexOf(RosterRow row) => (_rows ?? const []).indexOf(row);
+
+  List<String> _rowErrors(RosterRow row, String field) => _errors.forRow(_indexOf(row), field);
+
+  /// Editing a row answers its complaint; leaving it red until the next save
+  /// would teach the operator to ignore the colour.
+  void _clearRowError(RosterRow row) {
+    final index = _indexOf(row);
+    if (index >= 0 && _errors.rowHasError(index)) _errors = _errors.withoutRow(index);
+  }
+
   static String _iso(DateTime d) =>
       '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
@@ -114,6 +134,11 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
     _absenceReasons = await reference.choices('$m.attendance.absence_reason');
     _closeReasons = await reference.choices('$m.attendance.close_reason');
     _alpProgrammes = await cache.list('alp_programs');
+    // The sheet is validated by the same engine as every other form, so it
+    // needs the same description. A server that predates `row_fields` sends
+    // an empty one, and the fallback supplies the identical rules.
+    final stored = await reference.schema(_selection.entity);
+    _schema = stored == null ? null : attendanceSchemaOrFallback(stored);
     if (!mounted) return;
     setState(() {
       _selection = _selection.copyWith(roundId: current.isNotEmpty ? current.first.id : (_rounds.isNotEmpty ? _rounds.first.id : null));
@@ -146,23 +171,35 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
   Future<void> _save() async {
     final l10n = AppLocalizations.of(context);
+    final language = ref.read(settingsControllerProvider).locale.languageCode;
     final rows = _rows ?? const [];
-    if (_selection.dayOff && _selection.closeReason.isEmpty) {
-      showMessage(context, l10n.requiredField, error: true);
-      return;
-    }
-    for (final row in rows) {
-      if (row.attended == 'No' && !_selection.dayOff) {
-        if (row.absenceReason.isEmpty || (row.absenceReason == 'Other' && row.absenceReasonOther.trim().isEmpty)) {
-          showMessage(context, '${row.view.fullName}: ${l10n.absenceReason} – ${l10n.requiredField}', error: true);
-          return;
-        }
+    final data = _selection.toHeader()
+      ..['children_attendance'] = _selection.dayOff ? <Map<String, dynamic>>[] : rows.map((r) => r.toJson()).toList();
+
+    // Validate what is about to be STORED, so the check and the push see the
+    // same payload. Every problem is reported at once and shown against the
+    // field that owns it, rather than one snackbar per attempt.
+    final schema = _schema;
+    if (schema != null) {
+      final errors = validateAttendance(
+        schema: schema,
+        header: data,
+        rows: ((data['children_attendance'] as List?) ?? const []).cast<Map<String, dynamic>>(),
+        messages: validationMessages(l10n, language),
+        allowedValues: allowedValuesFrom(ref.read(referenceCacheProvider)),
+      );
+      setState(() => _errors = errors);
+      if (errors.isNotEmpty) {
+        showMessage(
+          context,
+          errors.firstHeaderMessage ?? l10n.attendanceRowsNeedReason(errors.rowCount),
+          error: true,
+        );
+        return;
       }
     }
     setState(() => _saving = true);
     final dao = ref.read(entityDaoProvider);
-    final data = _selection.toHeader()
-      ..['children_attendance'] = _selection.dayOff ? <Map<String, dynamic>>[] : rows.map((r) => r.toJson()).toList();
     try {
       if (_existing != null) {
         _existing = await dao.updateLocal(_existing!, data);
@@ -339,20 +376,32 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                 key: ValueKey('att-reason-$uuid'),
                 // ignore: deprecated_member_use
                 value: _absenceReasons.any((c) => c.value == row.absenceReason && c.value.isNotEmpty) ? row.absenceReason : null,
-                decoration: InputDecoration(labelText: l10n.absenceReason),
+                decoration: InputDecoration(
+                  labelText: l10n.absenceReason,
+                  errorText: _rowErrors(row, 'absence_reason').firstOrNullMessage,
+                ),
                 items: _absenceReasons
                     .where((c) => c.value.isNotEmpty)
                     .map((c) => DropdownMenuItem(value: c.value, child: Text(c.labelFor(language))))
                     .toList(),
-                onChanged: (v) => setState(() => row.absenceReason = v ?? ''),
+                onChanged: (v) => setState(() {
+                  row.absenceReason = v ?? '';
+                  _clearRowError(row);
+                }),
               ),
               if (row.absenceReason == 'Other')
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
                   child: TextFormField(
                     initialValue: row.absenceReasonOther,
-                    decoration: InputDecoration(labelText: l10n.absenceReasonOther),
-                    onChanged: (v) => row.absenceReasonOther = v,
+                    decoration: InputDecoration(
+                      labelText: l10n.absenceReasonOther,
+                      errorText: _rowErrors(row, 'absence_reason_other').firstOrNullMessage,
+                    ),
+                    onChanged: (v) {
+                      row.absenceReasonOther = v;
+                      if (_errors.rowHasError(_indexOf(row))) setState(() => _clearRowError(row));
+                    },
                   ),
                 ),
             ],
@@ -619,7 +668,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               child: _toggle(row, l10n, icons: false, segmentHeight: _rowHeight),
             );
           default:
-            return _reasonCell(row, l10n, language, enabled: absent, other: other);
+            return _reasonCell(row, l10n, language, enabled: absent, other: other, invalid: _errors.rowHasError(index));
         }
       }),
     );
@@ -627,7 +676,7 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
 
   /// Always present, disabled and empty until the child is marked absent.
   Widget _reasonCell(RosterRow row, AppLocalizations l10n, String language,
-      {required bool enabled, required bool other}) {
+      {required bool enabled, required bool other, bool invalid = false}) {
     final options = _absenceReasons.where((c) => c.value.isNotEmpty).toList();
     final value = options.any((c) => c.value == row.absenceReason) ? row.absenceReason : null;
     final field = Container(
@@ -635,7 +684,14 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       padding: const EdgeInsetsDirectional.fromSTEB(10, 0, 6, 0),
       decoration: BoxDecoration(
         color: enabled ? AppColors.surface : null,
-        border: Border.all(color: enabled ? AppColors.border : AppColors.border.withValues(alpha: 0.5)),
+        // A dense roster has no room for a sentence under a 40 px cell, so the
+        // cell itself carries the complaint and the summary line counts them.
+        border: Border.all(
+          color: invalid
+              ? AppColors.danger
+              : (enabled ? AppColors.border : AppColors.border.withValues(alpha: 0.5)),
+          width: invalid ? 2 : 1,
+        ),
         borderRadius: const BorderRadius.all(Radius.circular(8)),
       ),
       child: DropdownButtonHideUnderline(
@@ -654,7 +710,12 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
                   value: c.value,
                   child: Text(c.labelFor(language), maxLines: 1, overflow: TextOverflow.ellipsis)))
               .toList(),
-          onChanged: enabled ? (v) => setState(() => row.absenceReason = v ?? '') : null,
+          onChanged: enabled
+              ? (v) => setState(() {
+                    row.absenceReason = v ?? '';
+                    _clearRowError(row);
+                  })
+              : null,
         ),
       ),
     );
@@ -676,7 +737,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
               hintText: l10n.absenceReasonOther,
               contentPadding: const EdgeInsetsDirectional.fromSTEB(10, 8, 10, 8),
             ),
-            onChanged: (v) => row.absenceReasonOther = v,
+            onChanged: (v) {
+              row.absenceReasonOther = v;
+              if (_errors.rowHasError(_indexOf(row))) setState(() => _clearRowError(row));
+            },
           ),
         ),
         const SizedBox(height: 6),
@@ -706,7 +770,10 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
         minimumSize: segmentHeight == null ? null : WidgetStatePropertyAll(Size(88, segmentHeight)),
         padding: segmentHeight == null ? null : const WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 8)),
       ),
-      onSelectionChanged: (s) => setState(() => row.attended = s.first),
+      onSelectionChanged: (s) => setState(() {
+        row.attended = s.first;
+        _clearRowError(row);
+      }),
     );
   }
 
@@ -916,13 +983,19 @@ class _AttendanceScreenState extends ConsumerState<AttendanceScreen> {
       // ignore: deprecated_member_use
       value: _closeReasons.any((c) => c.value == _selection.closeReason) ? _selection.closeReason : null,
       isExpanded: wide,
-      decoration: InputDecoration(labelText: l10n.closeReason),
+      decoration: InputDecoration(
+        labelText: l10n.closeReason,
+        errorText: _errors.headerMessage('close_reason'),
+      ),
       items: _closeReasons
           .where((c) => c.value.isNotEmpty)
           .map((c) => DropdownMenuItem(
               value: c.value, child: Text(c.labelFor(language), overflow: wide ? TextOverflow.ellipsis : null)))
           .toList(),
-      onChanged: (v) => setState(() => _selection = _selection.copyWith(closeReason: v ?? '')),
+      onChanged: (v) => setState(() {
+        _selection = _selection.copyWith(closeReason: v ?? '');
+        _errors = _errors.withoutHeader('close_reason');
+      }),
     );
   }
 

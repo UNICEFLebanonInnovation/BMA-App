@@ -1078,7 +1078,15 @@
      "placeholder": "مثال: محمد",
      "type": "text",
      "label_ar": "Child's First Name",
-     "placeholder_ar": "مثال: محمد"
+     "placeholder_ar": "مثال: محمد",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "child_father_name",
@@ -1088,7 +1096,15 @@
      "placeholder": "مثال: أحمد",
      "type": "text",
      "label_ar": "Child's Father Name",
-     "placeholder_ar": "مثال: أحمد"
+     "placeholder_ar": "مثال: أحمد",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "child_last_name",
@@ -1098,7 +1114,15 @@
      "placeholder": "مثال: السيد",
      "type": "text",
      "label_ar": "Child's Family Name",
-     "placeholder_ar": "مثال: السيد"
+     "placeholder_ar": "مثال: السيد",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "child_mother_fullname",
@@ -1108,7 +1132,15 @@
      "placeholder": "مثال: الهام",
      "type": "text",
      "label_ar": "Mother Full Name",
-     "placeholder_ar": "مثال: الهام"
+     "placeholder_ar": "مثال: الهام",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "child_gender",
@@ -1154,7 +1186,15 @@
      "placeholder": "Specify other nationality",
      "type": "text",
      "label_ar": "If Other, Please specify",
-     "placeholder_ar": "Specify other nationality"
+     "placeholder_ar": "Specify other nationality",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "child_birthday_year",
@@ -1621,7 +1661,15 @@
      "help_text": "",
      "placeholder": "",
      "type": "text",
-     "label_ar": "If Other, Please specify"
+     "label_ar": "If Other, Please specify",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "child_p_code",
@@ -1643,7 +1691,15 @@
      "placeholder": "e.g. Beirut, Hamra Street, Al Amal Bldg, Floor 2",
      "type": "text",
      "label_ar": "Registered child Home Address (Village, Street, Building/Camp, Cadaster)",
-     "placeholder_ar": "e.g. Beirut, Hamra Street, Al Amal Bldg, Floor 2"
+     "placeholder_ar": "e.g. Beirut, Hamra Street, Al Amal Bldg, Floor 2",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "child_living_arrangement",
@@ -1947,7 +2003,15 @@
      "placeholder": "e.g. Community outreach team",
      "type": "text",
      "label_ar": "If Other, Please specify",
-     "placeholder_ar": "e.g. Community outreach team"
+     "placeholder_ar": "e.g. Community outreach team",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "child_fe_unique_id",
@@ -2170,7 +2234,15 @@
      "help_text": "",
      "placeholder": "",
      "type": "text",
-     "label_ar": "If Other, Please specify"
+     "label_ar": "If Other, Please specify",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "children_number_under18",
@@ -2191,7 +2263,15 @@
      "placeholder": "Caregiver's first name",
      "type": "text",
      "label_ar": "Caregiver First Name",
-     "placeholder_ar": "Caregiver's first name"
+     "placeholder_ar": "Caregiver's first name",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "caregiver_middle_name",
@@ -2201,7 +2281,15 @@
      "placeholder": "Caregiver's father's name",
      "type": "text",
      "label_ar": "Caregiver Middle Name",
-     "placeholder_ar": "Caregiver's father's name"
+     "placeholder_ar": "Caregiver's father's name",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "caregiver_last_name",
@@ -2211,7 +2299,15 @@
      "placeholder": "Caregiver's family name",
      "type": "text",
      "label_ar": "Caregiver Last Name",
-     "placeholder_ar": "Caregiver's family name"
+     "placeholder_ar": "Caregiver's family name",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "caregiver_mother_name",
@@ -2221,7 +2317,15 @@
      "placeholder": "Full name of the caregiver's mother",
      "type": "text",
      "label_ar": "Caregiver Mother Full Name",
-     "placeholder_ar": "Full name of the caregiver's mother"
+     "placeholder_ar": "Full name of the caregiver's mother",
+     "patterns": [
+      {
+       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+       "message": "Only alphabetic characters are allowed."
+      }
+     ],
+     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
+     "pattern_message": "Only alphabetic characters are allowed."
     },
     {
      "name": "have_labour",
