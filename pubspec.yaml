@@ -2,7 +2,7 @@ name: bma_app
 description: "BMA-NFE mobile companion: offline-first registration, services and attendance for the NFE sector, synchronised with the BMA-NFE platform."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.13.3
@@ -34,6 +34,10 @@ dependencies:
 
   # Connectivity awareness for the sync engine
   connectivity_plus: ^6.1.0
+
+  # Map of school / centre locations (ALP school dashboard)
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
 
   # Utilities
   intl: ^0.20.2

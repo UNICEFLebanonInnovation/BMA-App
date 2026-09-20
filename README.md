@@ -9,8 +9,8 @@ whether to merge, link, create or discard.
 
 | Module | What the app covers |
 |---|---|
-| **Makani / MSCC** | Beneficiary list & search, 3-step registration wizard, child profile, every service form (education, PSS, health & nutrition, youth, inclusion, digital, LEGO, recreational, follow-up, referrals, grading), new round, teachers, daily attendance per programme/section, dashboard |
-| **ALP schools** | Registrations, child profile, grading, teachers, school profile, children attendance, teacher attendance, dashboard |
+| **Makani / MSCC** | Beneficiary list & search, 3-step registration wizard, child profile, every service form (education, PSS, health & nutrition, youth, inclusion, digital, LEGO, recreational, follow-up, referrals, grading), new round, teachers, daily attendance per programme/section, dashboard, advanced analytics |
+| **ALP schools** | Registrations, child profile, grading, teachers, school profile, children attendance, teacher attendance, dashboard, four analytics dashboards |
 | **CLM Bridging** | Bridging registrations (with pre-test), post/mid assessments, follow-up, services, teachers, clubs/meetings/initiatives/health visits, attendance per level, dashboard |
 
 All forms are **generated from the web platform's Django forms** at runtime:
@@ -36,6 +36,30 @@ phone screenshot set is regenerated as the proof.
 [Screenshots](#screenshots) for all three, and
 [docs/TABLET_LAYOUT.md](docs/TABLET_LAYOUT.md) for how the layout decides what
 to show.*
+
+## Analytics
+
+Every programme card carries an **Analytics** action (and the tablet rail an
+Analytics destination) that opens the dashboards of the web platform, computed
+**from the records already on the device** — no extra endpoint, and they work
+in the field with no connection. Figures therefore describe what this account
+has downloaded and typed, which the page says once at the top.
+
+| Dashboard | Mirrors | What it shows |
+|---|---|---|
+| **NFE · Advanced analytics** | `/dashboard/advanced-analytics/` | Registrations, teachers, partners, centres and programmes; the daily registration trend; registrations by centre, gender and nationality; teacher gender, nationality and centre; a cross-tab that pairs any two of the six dimensions the analytics API names, opening on programme × age group. Filters: date range, partner, centre, programme, and — behind *More filters* — nationality, gender and an age band. |
+| **ALP · Registration insights** | `alp:dashboard_registration` | Registrations, active schools, partners and programme rounds; the learning-outcome block (children assessed, average achievement, follow-ups, children improving, latest performance, progress since the first assessment, achievement by subject); gender, gender × age group, nationality, source of identification, registrations per round, family status, disability type, cash support, referral to formal education and children moved between rounds. Filters: school, round, programme. |
+| **ALP · Teacher dashboard** | `alp:dashboard_teacher` | Teachers, active schools, teachers trained (with the share), average experience and training, contact coverage; gender, nationality, assignment, teachers by school and round, subjects, grade levels, training topics, teaching hours and extra coaching. Filters: school, round. |
+| **ALP · Attendance dashboard** | `alp:dashboard_attendance` | The month × day attendance heatmap of the selected year, overall and one per programme, with a year selector. |
+| **ALP · School dashboard** | `alp:dashboard_school` | Accessible and mapped schools, ALP students and teachers; the school locations map with a school filter and the operational detail of each school. |
+
+The arithmetic is ported from the Django views rather than re-invented, so a
+figure on the tablet matches the website's: the age buckets, the "latest
+programme" subquery, `Avg` ignoring nulls, the distinct-children-per-round
+count and the ±0.5 point progress thresholds are all reproduced, and the
+`test/analytics/` suites pin them. The map needs a connection only for its
+background tiles; the school markers come from the coordinates the bootstrap
+already downloaded, so an offline map still places every school.
 
 ## How synchronisation works
 
@@ -91,6 +115,8 @@ lib/
                                     profiles/ = NFE centre and ALP school profiles
                                        setup/ = first-run server address page
                                         tips/ = getting-started wizard + dismissible screen tips
+                                   analytics/ = the five web dashboards, computed offline
+                                                (charts/ widgets/ nfe/ alp/)
 test/                                    unit tests (form engine, DAO, sync engine, name normalisation, tips), tips_wizard_test / tips_redirect_test
   layout/                                width classes, tokens, the rail and one file per screen group at 412 / 800 / 1280
   support/viewport.dart                  phone / tabletPortrait / tabletLandscape viewport helpers
@@ -170,15 +196,27 @@ The default server URL and app version live in `lib/core/config/app_config.dart`
 
 `.github/workflows/release.yml` publishes the APK as a GitHub release asset,
 which anyone can download without a GitHub account. It analyses, tests and
-builds the release APK, then attaches `bma-app-<version>.apk` and its `.sha256`
-to the release.
+builds the release APK, then attaches `bma-app.apk` and its `.sha256` to the
+release.
 
-Every push to the field-test branch refreshes the rolling **field-test**
-pre-release, so partners keep one permanent link:
+Every push to `main` refreshes the rolling **field-test** pre-release. The
+asset is called `bma-app.apk` in every build, so this URL always downloads the
+newest one and never changes — it is the link to give partners:
+
+```
+https://github.com/UNICEFLebanonInnovation/BMA-App/releases/download/field-test/bma-app.apk
+```
+
+The release page beside it lists the commit each build came from:
 
 ```
 https://github.com/UNICEFLebanonInnovation/BMA-App/releases/tag/field-test
 ```
+
+The rolling release is deleted and recreated on each run, so the link 404s for
+the couple of minutes a build takes. To refresh it without pushing, run the
+workflow by hand (**Actions → Release → Run workflow**) and leave the tag
+empty.
 
 For a real version, tag the commit; the tag name becomes the release:
 
@@ -230,7 +268,7 @@ thumbnail: mixing aspect ratios does not letterbox them, it squashes them.
 ### 9-inch tablet, landscape (1280x800) — the primary layout
 
 [`screenshots/contact_sheet_tablet_landscape.png`](screenshots/contact_sheet_tablet_landscape.png)
-shows all nineteen landscape screens on one page.
+shows all twenty-one landscape screens on one page.
 
 | | |
 |---|---|
@@ -240,6 +278,7 @@ shows all nineteen landscape screens on one page.
 | ![Registration wizard: review](screenshots/38_registration_wizard_review_tablet_landscape.png) | ![Health & nutrition service form](screenshots/39_service_form_health_tablet_landscape.png) |
 | ![Teacher form](screenshots/40_teacher_form_tablet_landscape.png) | ![Teacher attendance](screenshots/41_teacher_attendance_tablet_landscape.png) |
 | ![Teachers](screenshots/42_teachers_grid_tablet_landscape.png) | ![Dashboard](screenshots/43_dashboard_tablet_landscape.png) |
+| ![Analytics](screenshots/59_analytics_hub_tablet_landscape.png) | ![Advanced analytics](screenshots/60_advanced_analytics_tablet_landscape.png) |
 | ![Sync centre, two pane](screenshots/44_sync_center_two_pane_tablet_landscape.png) | ![Duplicate resolution, two pane](screenshots/45_duplicate_resolution_two_pane_tablet_landscape.png) |
 
 Arabic, where the navigation rail and every pane mirror to the other edge:
@@ -276,6 +315,7 @@ phone screen on one page.
 | ![Beneficiaries](screenshots/03_beneficiaries.png) | ![Child profile](screenshots/04_child_profile.png) | ![Services](screenshots/05_child_services.png) |
 | ![Registration wizard](screenshots/06_registration_wizard_identity.png) | ![Caregivers step](screenshots/07_registration_wizard_caregivers.png) | ![PSS service form](screenshots/08_service_form_pss.png) |
 | ![Teachers](screenshots/09_teachers.png) | ![Dashboard](screenshots/10_dashboard.png) | ![Sync centre](screenshots/11_sync_center.png) |
+| ![Analytics](screenshots/57_analytics_hub.png) | ![Advanced analytics](screenshots/58_advanced_analytics.png) | |
 | ![Push report](screenshots/12_push_report.png) | ![Duplicate resolution](screenshots/13_duplicate_resolution.png) | ![Sync history](screenshots/14_sync_history.png) |
 | ![Settings](screenshots/15_settings.png) | ![NFE centre profile](screenshots/30_center_profile.png) | |
 | ![Getting started](screenshots/22_tips_welcome.png) | ![Tips: registering](screenshots/23_tips_register.png) | ![Tips: push](screenshots/24_tips_push.png) |

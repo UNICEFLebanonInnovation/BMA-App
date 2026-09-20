@@ -1687,6 +1687,864 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Leave this form? Unsaved changes will be lost.'**
   String get unsavedChanges;
+
+  /// No description provided for @analytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get analytics;
+
+  /// No description provided for @analyticsHubIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboards computed from the records downloaded to this device. Filters apply to what is stored locally.'**
+  String get analyticsHubIntro;
+
+  /// No description provided for @advancedAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced analytics'**
+  String get advancedAnalytics;
+
+  /// No description provided for @advancedAnalyticsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Registrations, teachers, centres and programmes: trend, breakdowns and a programme by age-group cross-tab.'**
+  String get advancedAnalyticsDescription;
+
+  /// No description provided for @alpRegistrationInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration insights'**
+  String get alpRegistrationInsights;
+
+  /// No description provided for @alpRegistrationInsightsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Registrations, learning outcomes, household, inclusion and transition figures.'**
+  String get alpRegistrationInsightsDescription;
+
+  /// No description provided for @alpTeacherDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher dashboard'**
+  String get alpTeacherDashboard;
+
+  /// No description provided for @alpTeacherDashboardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Workforce coverage, teaching capacity and professional development.'**
+  String get alpTeacherDashboardDescription;
+
+  /// No description provided for @alpAttendanceDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance dashboard'**
+  String get alpAttendanceDashboard;
+
+  /// No description provided for @alpAttendanceDashboardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance heatmaps by month and day for the selected year, overall and per programme.'**
+  String get alpAttendanceDashboardDescription;
+
+  /// No description provided for @alpSchoolDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'School dashboard'**
+  String get alpSchoolDashboard;
+
+  /// No description provided for @alpSchoolDashboardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'School locations on a map with enrolment, staff and operational details.'**
+  String get alpSchoolDashboardDescription;
+
+  /// No description provided for @noAnalyticsForModule.
+  ///
+  /// In en, this message translates to:
+  /// **'No analytics dashboards are available for this programme yet.'**
+  String get noAnalyticsForModule;
+
+  /// No description provided for @filters.
+  ///
+  /// In en, this message translates to:
+  /// **'Filters'**
+  String get filters;
+
+  /// No description provided for @dateFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get dateFrom;
+
+  /// No description provided for @dateTo.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get dateTo;
+
+  /// No description provided for @anyDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Any date'**
+  String get anyDate;
+
+  /// No description provided for @allPartners.
+  ///
+  /// In en, this message translates to:
+  /// **'All partners'**
+  String get allPartners;
+
+  /// No description provided for @allCenters.
+  ///
+  /// In en, this message translates to:
+  /// **'All centres'**
+  String get allCenters;
+
+  /// No description provided for @allProgrammes.
+  ///
+  /// In en, this message translates to:
+  /// **'All programmes'**
+  String get allProgrammes;
+
+  /// No description provided for @allSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'All schools'**
+  String get allSchools;
+
+  /// No description provided for @allRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'All rounds'**
+  String get allRounds;
+
+  /// No description provided for @allNationalities.
+  ///
+  /// In en, this message translates to:
+  /// **'All nationalities'**
+  String get allNationalities;
+
+  /// No description provided for @allGenders.
+  ///
+  /// In en, this message translates to:
+  /// **'All genders'**
+  String get allGenders;
+
+  /// No description provided for @moreFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'More filters'**
+  String get moreFilters;
+
+  /// No description provided for @ageMin.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum age'**
+  String get ageMin;
+
+  /// No description provided for @ageMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum age'**
+  String get ageMax;
+
+  /// No description provided for @resetFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get resetFilters;
+
+  /// No description provided for @yearLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get yearLabel;
+
+  /// No description provided for @partners.
+  ///
+  /// In en, this message translates to:
+  /// **'Partners'**
+  String get partners;
+
+  /// No description provided for @centers.
+  ///
+  /// In en, this message translates to:
+  /// **'Centres'**
+  String get centers;
+
+  /// No description provided for @programmeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Programme'**
+  String get programmeLabel;
+
+  /// No description provided for @ageGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Age group'**
+  String get ageGroup;
+
+  /// No description provided for @gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// No description provided for @nationality.
+  ///
+  /// In en, this message translates to:
+  /// **'Nationality'**
+  String get nationality;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
+  String get notSpecified;
+
+  /// No description provided for @noDataForFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for the selected filters.'**
+  String get noDataForFilters;
+
+  /// No description provided for @registrationsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 registration} other{{count} registrations}}'**
+  String registrationsCount(int count);
+
+  /// No description provided for @teachersCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 teacher} other{{count} teachers}}'**
+  String teachersCount(int count);
+
+  /// No description provided for @childrenCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 child} other{{count} children}}'**
+  String childrenCount(int count);
+
+  /// No description provided for @percentOfTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of total'**
+  String percentOfTotal(String percent);
+
+  /// No description provided for @showAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Show all'**
+  String get showAll;
+
+  /// No description provided for @showLess.
+  ///
+  /// In en, this message translates to:
+  /// **'Show less'**
+  String get showLess;
+
+  /// No description provided for @offlineFiguresNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Figures are computed from the records on this device; run a download to refresh them.'**
+  String get offlineFiguresNote;
+
+  /// No description provided for @registrationTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration trend'**
+  String get registrationTrend;
+
+  /// No description provided for @dailyRegistrations.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily registrations'**
+  String get dailyRegistrations;
+
+  /// No description provided for @dailyRegistrationsLastDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily registrations, last {count} days'**
+  String dailyRegistrationsLastDays(int count);
+
+  /// No description provided for @registrationsByCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Registrations by centre'**
+  String get registrationsByCenter;
+
+  /// No description provided for @genderDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender distribution'**
+  String get genderDistribution;
+
+  /// No description provided for @nationalityDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Nationality distribution'**
+  String get nationalityDistribution;
+
+  /// No description provided for @teacherGenderDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher gender distribution'**
+  String get teacherGenderDistribution;
+
+  /// No description provided for @teacherNationalityDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher nationality distribution'**
+  String get teacherNationalityDistribution;
+
+  /// No description provided for @teachersByCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers by centre'**
+  String get teachersByCenter;
+
+  /// No description provided for @programmeVsAgeGroup.
+  ///
+  /// In en, this message translates to:
+  /// **'Programme vs age group'**
+  String get programmeVsAgeGroup;
+
+  /// No description provided for @programmeVsAgeGroupHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Registrations by latest programme and age group; darker cells hold more children.'**
+  String get programmeVsAgeGroupHint;
+
+  /// No description provided for @operationalInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Operational insights'**
+  String get operationalInsights;
+
+  /// No description provided for @activeSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'Active schools'**
+  String get activeSchools;
+
+  /// No description provided for @programRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Programme rounds'**
+  String get programRounds;
+
+  /// No description provided for @learningOutcomes.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning outcomes'**
+  String get learningOutcomes;
+
+  /// No description provided for @learningOutcomesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest assessment results and progress for children in the ALP programme.'**
+  String get learningOutcomesHint;
+
+  /// No description provided for @childrenAssessed.
+  ///
+  /// In en, this message translates to:
+  /// **'Children assessed'**
+  String get childrenAssessed;
+
+  /// No description provided for @averageAchievement.
+  ///
+  /// In en, this message translates to:
+  /// **'Average achievement'**
+  String get averageAchievement;
+
+  /// No description provided for @followUpAssessments.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow-up assessments'**
+  String get followUpAssessments;
+
+  /// No description provided for @childrenImproving.
+  ///
+  /// In en, this message translates to:
+  /// **'Children improving'**
+  String get childrenImproving;
+
+  /// No description provided for @latestPerformance.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest performance'**
+  String get latestPerformance;
+
+  /// No description provided for @progressSinceFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress since first assessment'**
+  String get progressSinceFirst;
+
+  /// No description provided for @achievementBySubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Achievement by subject'**
+  String get achievementBySubject;
+
+  /// No description provided for @bandOnTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'On track'**
+  String get bandOnTrack;
+
+  /// No description provided for @bandDeveloping.
+  ///
+  /// In en, this message translates to:
+  /// **'Developing'**
+  String get bandDeveloping;
+
+  /// No description provided for @bandNeedsSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs support'**
+  String get bandNeedsSupport;
+
+  /// No description provided for @progressImproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Improved'**
+  String get progressImproved;
+
+  /// No description provided for @progressStable.
+  ///
+  /// In en, this message translates to:
+  /// **'Stable'**
+  String get progressStable;
+
+  /// No description provided for @progressDeclined.
+  ///
+  /// In en, this message translates to:
+  /// **'Declined'**
+  String get progressDeclined;
+
+  /// No description provided for @noAssessments.
+  ///
+  /// In en, this message translates to:
+  /// **'No learning assessments are available for the selected filters.'**
+  String get noAssessments;
+
+  /// No description provided for @registrationsAndBeneficiaries.
+  ///
+  /// In en, this message translates to:
+  /// **'Registrations and beneficiaries'**
+  String get registrationsAndBeneficiaries;
+
+  /// No description provided for @householdInclusionTransition.
+  ///
+  /// In en, this message translates to:
+  /// **'Household, inclusion and transition'**
+  String get householdInclusionTransition;
+
+  /// No description provided for @genderAgeGroupDistribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender and age group distribution'**
+  String get genderAgeGroupDistribution;
+
+  /// No description provided for @nationalityBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Nationality breakdown'**
+  String get nationalityBreakdown;
+
+  /// No description provided for @sourceOfIdentification.
+  ///
+  /// In en, this message translates to:
+  /// **'Source of identification'**
+  String get sourceOfIdentification;
+
+  /// No description provided for @registrationsPerRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Registrations per round'**
+  String get registrationsPerRound;
+
+  /// No description provided for @familyStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Family status'**
+  String get familyStatus;
+
+  /// No description provided for @disabilityType.
+  ///
+  /// In en, this message translates to:
+  /// **'Disability type'**
+  String get disabilityType;
+
+  /// No description provided for @cashSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash support'**
+  String get cashSupport;
+
+  /// No description provided for @referredToFormalEducation.
+  ///
+  /// In en, this message translates to:
+  /// **'Referred to formal education'**
+  String get referredToFormalEducation;
+
+  /// No description provided for @noReferralRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'No referral records are stored on this device for these children.'**
+  String get noReferralRecords;
+
+  /// No description provided for @childrenMovedBetweenRounds.
+  ///
+  /// In en, this message translates to:
+  /// **'Children moved between rounds'**
+  String get childrenMovedBetweenRounds;
+
+  /// No description provided for @movedFromEarlierRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved from an earlier round'**
+  String get movedFromEarlierRound;
+
+  /// No description provided for @newInRound.
+  ///
+  /// In en, this message translates to:
+  /// **'New in this round'**
+  String get newInRound;
+
+  /// No description provided for @male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get male;
+
+  /// No description provided for @female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get female;
+
+  /// No description provided for @teacherWorkforceInsights.
+  ///
+  /// In en, this message translates to:
+  /// **'Teacher workforce insights'**
+  String get teacherWorkforceInsights;
+
+  /// No description provided for @totalTeachers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total teachers'**
+  String get totalTeachers;
+
+  /// No description provided for @teachersTrained.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers trained'**
+  String get teachersTrained;
+
+  /// No description provided for @averageExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Average experience'**
+  String get averageExperience;
+
+  /// No description provided for @yearsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'years'**
+  String get yearsUnit;
+
+  /// No description provided for @averageTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Average training'**
+  String get averageTraining;
+
+  /// No description provided for @sessionsUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'sessions'**
+  String get sessionsUnit;
+
+  /// No description provided for @contactCoverage.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact coverage'**
+  String get contactCoverage;
+
+  /// No description provided for @coverageAndDemographics.
+  ///
+  /// In en, this message translates to:
+  /// **'Coverage and demographics'**
+  String get coverageAndDemographics;
+
+  /// No description provided for @teachingCapacityDevelopment.
+  ///
+  /// In en, this message translates to:
+  /// **'Teaching capacity and development'**
+  String get teachingCapacityDevelopment;
+
+  /// No description provided for @assignment.
+  ///
+  /// In en, this message translates to:
+  /// **'Assignment'**
+  String get assignment;
+
+  /// No description provided for @teachersBySchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers by school'**
+  String get teachersBySchool;
+
+  /// No description provided for @teachersByRound.
+  ///
+  /// In en, this message translates to:
+  /// **'Teachers by round'**
+  String get teachersByRound;
+
+  /// No description provided for @subjectsProvided.
+  ///
+  /// In en, this message translates to:
+  /// **'Subjects provided'**
+  String get subjectsProvided;
+
+  /// No description provided for @gradeLevelsSupported.
+  ///
+  /// In en, this message translates to:
+  /// **'Grade levels supported'**
+  String get gradeLevelsSupported;
+
+  /// No description provided for @trainingTopics.
+  ///
+  /// In en, this message translates to:
+  /// **'Training topics'**
+  String get trainingTopics;
+
+  /// No description provided for @teachingHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Teaching hours'**
+  String get teachingHours;
+
+  /// No description provided for @extraCoaching.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra coaching'**
+  String get extraCoaching;
+
+  /// No description provided for @alpHours.
+  ///
+  /// In en, this message translates to:
+  /// **'ALP'**
+  String get alpHours;
+
+  /// No description provided for @privateSchoolHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Private school'**
+  String get privateSchoolHours;
+
+  /// No description provided for @hoursUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'hours'**
+  String get hoursUnit;
+
+  /// No description provided for @teachersTrainedShare.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% of teachers'**
+  String teachersTrainedShare(String percent);
+
+  /// No description provided for @noTeachersForFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'No teachers match the selected filters.'**
+  String get noTeachersForFilters;
+
+  /// No description provided for @overallAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall attendance'**
+  String get overallAttendance;
+
+  /// No description provided for @attendanceHeatmapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance rate per day of each month; darker cells are higher. Tap a cell for the figures.'**
+  String get attendanceHeatmapHint;
+
+  /// No description provided for @attendanceByProgramme.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance by programme'**
+  String get attendanceByProgramme;
+
+  /// No description provided for @attendanceRateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance rate'**
+  String get attendanceRateLabel;
+
+  /// No description provided for @noAttendanceForYear.
+  ///
+  /// In en, this message translates to:
+  /// **'No attendance recorded for this year.'**
+  String get noAttendanceForYear;
+
+  /// No description provided for @heatmapCellDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {present} present of {total} ({percent}%)'**
+  String heatmapCellDetail(String date, int present, int total, String percent);
+
+  /// No description provided for @accessibleSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'Accessible schools'**
+  String get accessibleSchools;
+
+  /// No description provided for @inReportingScope.
+  ///
+  /// In en, this message translates to:
+  /// **'In your reporting scope'**
+  String get inReportingScope;
+
+  /// No description provided for @mappedSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'Mapped schools'**
+  String get mappedSchools;
+
+  /// No description provided for @withGpsCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'With GPS coordinates'**
+  String get withGpsCoordinates;
+
+  /// No description provided for @alpStudents.
+  ///
+  /// In en, this message translates to:
+  /// **'ALP students'**
+  String get alpStudents;
+
+  /// No description provided for @activeRegistrations.
+  ///
+  /// In en, this message translates to:
+  /// **'Active registrations'**
+  String get activeRegistrations;
+
+  /// No description provided for @alpTeachers.
+  ///
+  /// In en, this message translates to:
+  /// **'ALP teachers'**
+  String get alpTeachers;
+
+  /// No description provided for @acrossMappedSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'Across mapped schools'**
+  String get acrossMappedSchools;
+
+  /// No description provided for @schoolLocations.
+  ///
+  /// In en, this message translates to:
+  /// **'ALP school locations'**
+  String get schoolLocations;
+
+  /// No description provided for @schoolsMapped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 school mapped} other{{count} schools mapped}}'**
+  String schoolsMapped(int count);
+
+  /// No description provided for @noMappedSchools.
+  ///
+  /// In en, this message translates to:
+  /// **'No schools with GPS coordinates are available for this selection.'**
+  String get noMappedSchools;
+
+  /// No description provided for @mapTilesOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Map tiles need an internet connection; school markers are still placed by their coordinates.'**
+  String get mapTilesOffline;
+
+  /// No description provided for @mapAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'© OpenStreetMap contributors'**
+  String get mapAttribution;
+
+  /// No description provided for @cerdNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'CERD number'**
+  String get cerdNumber;
+
+  /// No description provided for @students.
+  ///
+  /// In en, this message translates to:
+  /// **'Students'**
+  String get students;
+
+  /// No description provided for @schoolStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get schoolStatus;
+
+  /// No description provided for @schoolClosed.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get schoolClosed;
+
+  /// No description provided for @schoolOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get schoolOpen;
+
+  /// No description provided for @operatingShift.
+  ///
+  /// In en, this message translates to:
+  /// **'Operating shift'**
+  String get operatingShift;
+
+  /// No description provided for @directorName.
+  ///
+  /// In en, this message translates to:
+  /// **'Director'**
+  String get directorName;
+
+  /// No description provided for @phoneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get phoneLabel;
+
+  /// No description provided for @digitalHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Digital hub'**
+  String get digitalHub;
+
+  /// No description provided for @adminStaff.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrative staff'**
+  String get adminStaff;
+
+  /// No description provided for @showOnMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Show on map'**
+  String get showOnMap;
 }
 
 class _AppLocalizationsDelegate

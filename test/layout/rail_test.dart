@@ -172,7 +172,7 @@ void main() {
     test('mirror home_shell capability gating', () {
       final full = destinationsFor(_profile(), BmaModule.mscc, l10n);
       expect(full.map((d) => d.key).toList(),
-          ['home', 'facility', 'beneficiaries', 'attendance', 'teachers', 'dashboard']);
+          ['home', 'facility', 'beneficiaries', 'attendance', 'teachers', 'dashboard', 'analytics']);
 
       // ALP adds teacher attendance and swaps the facility profile.
       final alp = destinationsFor(_profile(allModules: true), BmaModule.alp, l10n);
@@ -184,12 +184,18 @@ void main() {
         'teacher-attendance',
         'teachers',
         'dashboard',
+        'analytics',
       ]);
       expect(alp[1].location, Routes.schoolProfile);
+      expect(alp.last.location, '/analytics/alp');
 
-      // No capabilities: only the two ungated places, and no facility card.
+      // No capabilities: only the ungated places, and no facility card.
       final none = destinationsFor(null, BmaModule.mscc, l10n);
-      expect(none.map((d) => d.key).toList(), ['home', 'beneficiaries', 'dashboard']);
+      expect(none.map((d) => d.key).toList(), ['home', 'beneficiaries', 'dashboard', 'analytics']);
+
+      // CLM has no analytics dashboards on the web either.
+      final clm = destinationsFor(_profile(allModules: true), BmaModule.clm, l10n);
+      expect(clm.any((d) => d.key == 'analytics'), isFalse);
 
       // "Register new" is an action, not a destination.
       expect(full.any((d) => d.location.endsWith('/new')), isFalse);
@@ -213,6 +219,10 @@ void main() {
       // THE LONGEST-PREFIX CASE: /attendance/alp/teachers extends /attendance/alp.
       expect(keys[index('/attendance/alp')!], 'attendance');
       expect(keys[index('/attendance/alp/teachers')!], 'teacher-attendance');
+      // The hub and every dashboard under it keep Analytics highlighted.
+      expect(keys[index('/analytics/alp')!], 'analytics');
+      expect(keys[index(Routes.alpTeacherDashboard)!], 'analytics');
+      expect(keys[index(Routes.alpSchoolDashboard)!], 'analytics');
       // A child's attendance sheet is reached from the profile, not the module
       // attendance screen.
       expect(keys[index('/record/abc/attendance')!], 'beneficiaries');
@@ -231,6 +241,9 @@ void main() {
       expect(moduleOfLocation('/attendance/alp/teachers'), BmaModule.alp);
       expect(moduleOfLocation('/dashboard/mscc'), BmaModule.mscc);
       expect(moduleOfLocation('/teachers/alp/new'), BmaModule.alp);
+      expect(moduleOfLocation('/analytics/alp'), BmaModule.alp);
+      expect(moduleOfLocation(Routes.nfeAdvancedAnalytics), BmaModule.mscc);
+      expect(moduleOfLocation(Routes.alpAttendanceDashboard), BmaModule.alp);
       expect(moduleOfLocation(Routes.home), isNull);
       expect(moduleOfLocation(Routes.sync), isNull);
       expect(moduleOfLocation('/record/abc'), isNull);

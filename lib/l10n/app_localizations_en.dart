@@ -889,4 +889,495 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unsavedChanges => 'Leave this form? Unsaved changes will be lost.';
+
+  @override
+  String get analytics => 'Analytics';
+
+  @override
+  String get analyticsHubIntro =>
+      'Dashboards computed from the records downloaded to this device. Filters apply to what is stored locally.';
+
+  @override
+  String get advancedAnalytics => 'Advanced analytics';
+
+  @override
+  String get advancedAnalyticsDescription =>
+      'Registrations, teachers, centres and programmes: trend, breakdowns and a programme by age-group cross-tab.';
+
+  @override
+  String get alpRegistrationInsights => 'Registration insights';
+
+  @override
+  String get alpRegistrationInsightsDescription =>
+      'Registrations, learning outcomes, household, inclusion and transition figures.';
+
+  @override
+  String get alpTeacherDashboard => 'Teacher dashboard';
+
+  @override
+  String get alpTeacherDashboardDescription =>
+      'Workforce coverage, teaching capacity and professional development.';
+
+  @override
+  String get alpAttendanceDashboard => 'Attendance dashboard';
+
+  @override
+  String get alpAttendanceDashboardDescription =>
+      'Attendance heatmaps by month and day for the selected year, overall and per programme.';
+
+  @override
+  String get alpSchoolDashboard => 'School dashboard';
+
+  @override
+  String get alpSchoolDashboardDescription =>
+      'School locations on a map with enrolment, staff and operational details.';
+
+  @override
+  String get noAnalyticsForModule =>
+      'No analytics dashboards are available for this programme yet.';
+
+  @override
+  String get filters => 'Filters';
+
+  @override
+  String get dateFrom => 'From';
+
+  @override
+  String get dateTo => 'To';
+
+  @override
+  String get anyDate => 'Any date';
+
+  @override
+  String get allPartners => 'All partners';
+
+  @override
+  String get allCenters => 'All centres';
+
+  @override
+  String get allProgrammes => 'All programmes';
+
+  @override
+  String get allSchools => 'All schools';
+
+  @override
+  String get allRounds => 'All rounds';
+
+  @override
+  String get allNationalities => 'All nationalities';
+
+  @override
+  String get allGenders => 'All genders';
+
+  @override
+  String get moreFilters => 'More filters';
+
+  @override
+  String get ageMin => 'Minimum age';
+
+  @override
+  String get ageMax => 'Maximum age';
+
+  @override
+  String get resetFilters => 'Reset';
+
+  @override
+  String get yearLabel => 'Year';
+
+  @override
+  String get partners => 'Partners';
+
+  @override
+  String get centers => 'Centres';
+
+  @override
+  String get programmeLabel => 'Programme';
+
+  @override
+  String get ageGroup => 'Age group';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get nationality => 'Nationality';
+
+  @override
+  String get notSpecified => 'Not specified';
+
+  @override
+  String get noDataForFilters => 'No data for the selected filters.';
+
+  @override
+  String registrationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count registrations',
+      one: '1 registration',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teachersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count teachers',
+      one: '1 teacher',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String childrenCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count children',
+      one: '1 child',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String percentOfTotal(String percent) {
+    return '$percent% of total';
+  }
+
+  @override
+  String get showAll => 'Show all';
+
+  @override
+  String get showLess => 'Show less';
+
+  @override
+  String get offlineFiguresNote =>
+      'Figures are computed from the records on this device; run a download to refresh them.';
+
+  @override
+  String get registrationTrend => 'Registration trend';
+
+  @override
+  String get dailyRegistrations => 'Daily registrations';
+
+  @override
+  String dailyRegistrationsLastDays(int count) {
+    return 'Daily registrations, last $count days';
+  }
+
+  @override
+  String get registrationsByCenter => 'Registrations by centre';
+
+  @override
+  String get genderDistribution => 'Gender distribution';
+
+  @override
+  String get nationalityDistribution => 'Nationality distribution';
+
+  @override
+  String get teacherGenderDistribution => 'Teacher gender distribution';
+
+  @override
+  String get teacherNationalityDistribution =>
+      'Teacher nationality distribution';
+
+  @override
+  String get teachersByCenter => 'Teachers by centre';
+
+  @override
+  String get programmeVsAgeGroup => 'Programme vs age group';
+
+  @override
+  String get programmeVsAgeGroupHint =>
+      'Registrations by latest programme and age group; darker cells hold more children.';
+
+  @override
+  String get operationalInsights => 'Operational insights';
+
+  @override
+  String get activeSchools => 'Active schools';
+
+  @override
+  String get programRounds => 'Programme rounds';
+
+  @override
+  String get learningOutcomes => 'Learning outcomes';
+
+  @override
+  String get learningOutcomesHint =>
+      'Latest assessment results and progress for children in the ALP programme.';
+
+  @override
+  String get childrenAssessed => 'Children assessed';
+
+  @override
+  String get averageAchievement => 'Average achievement';
+
+  @override
+  String get followUpAssessments => 'Follow-up assessments';
+
+  @override
+  String get childrenImproving => 'Children improving';
+
+  @override
+  String get latestPerformance => 'Latest performance';
+
+  @override
+  String get progressSinceFirst => 'Progress since first assessment';
+
+  @override
+  String get achievementBySubject => 'Achievement by subject';
+
+  @override
+  String get bandOnTrack => 'On track';
+
+  @override
+  String get bandDeveloping => 'Developing';
+
+  @override
+  String get bandNeedsSupport => 'Needs support';
+
+  @override
+  String get progressImproved => 'Improved';
+
+  @override
+  String get progressStable => 'Stable';
+
+  @override
+  String get progressDeclined => 'Declined';
+
+  @override
+  String get noAssessments =>
+      'No learning assessments are available for the selected filters.';
+
+  @override
+  String get registrationsAndBeneficiaries => 'Registrations and beneficiaries';
+
+  @override
+  String get householdInclusionTransition =>
+      'Household, inclusion and transition';
+
+  @override
+  String get genderAgeGroupDistribution => 'Gender and age group distribution';
+
+  @override
+  String get nationalityBreakdown => 'Nationality breakdown';
+
+  @override
+  String get sourceOfIdentification => 'Source of identification';
+
+  @override
+  String get registrationsPerRound => 'Registrations per round';
+
+  @override
+  String get familyStatus => 'Family status';
+
+  @override
+  String get disabilityType => 'Disability type';
+
+  @override
+  String get cashSupport => 'Cash support';
+
+  @override
+  String get referredToFormalEducation => 'Referred to formal education';
+
+  @override
+  String get noReferralRecords =>
+      'No referral records are stored on this device for these children.';
+
+  @override
+  String get childrenMovedBetweenRounds => 'Children moved between rounds';
+
+  @override
+  String get movedFromEarlierRound => 'Moved from an earlier round';
+
+  @override
+  String get newInRound => 'New in this round';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get teacherWorkforceInsights => 'Teacher workforce insights';
+
+  @override
+  String get totalTeachers => 'Total teachers';
+
+  @override
+  String get teachersTrained => 'Teachers trained';
+
+  @override
+  String get averageExperience => 'Average experience';
+
+  @override
+  String get yearsUnit => 'years';
+
+  @override
+  String get averageTraining => 'Average training';
+
+  @override
+  String get sessionsUnit => 'sessions';
+
+  @override
+  String get contactCoverage => 'Contact coverage';
+
+  @override
+  String get coverageAndDemographics => 'Coverage and demographics';
+
+  @override
+  String get teachingCapacityDevelopment => 'Teaching capacity and development';
+
+  @override
+  String get assignment => 'Assignment';
+
+  @override
+  String get teachersBySchool => 'Teachers by school';
+
+  @override
+  String get teachersByRound => 'Teachers by round';
+
+  @override
+  String get subjectsProvided => 'Subjects provided';
+
+  @override
+  String get gradeLevelsSupported => 'Grade levels supported';
+
+  @override
+  String get trainingTopics => 'Training topics';
+
+  @override
+  String get teachingHours => 'Teaching hours';
+
+  @override
+  String get extraCoaching => 'Extra coaching';
+
+  @override
+  String get alpHours => 'ALP';
+
+  @override
+  String get privateSchoolHours => 'Private school';
+
+  @override
+  String get hoursUnit => 'hours';
+
+  @override
+  String teachersTrainedShare(String percent) {
+    return '$percent% of teachers';
+  }
+
+  @override
+  String get noTeachersForFilters => 'No teachers match the selected filters.';
+
+  @override
+  String get overallAttendance => 'Overall attendance';
+
+  @override
+  String get attendanceHeatmapHint =>
+      'Attendance rate per day of each month; darker cells are higher. Tap a cell for the figures.';
+
+  @override
+  String get attendanceByProgramme => 'Attendance by programme';
+
+  @override
+  String get attendanceRateLabel => 'Attendance rate';
+
+  @override
+  String get noAttendanceForYear => 'No attendance recorded for this year.';
+
+  @override
+  String heatmapCellDetail(
+    String date,
+    int present,
+    int total,
+    String percent,
+  ) {
+    return '$date: $present present of $total ($percent%)';
+  }
+
+  @override
+  String get accessibleSchools => 'Accessible schools';
+
+  @override
+  String get inReportingScope => 'In your reporting scope';
+
+  @override
+  String get mappedSchools => 'Mapped schools';
+
+  @override
+  String get withGpsCoordinates => 'With GPS coordinates';
+
+  @override
+  String get alpStudents => 'ALP students';
+
+  @override
+  String get activeRegistrations => 'Active registrations';
+
+  @override
+  String get alpTeachers => 'ALP teachers';
+
+  @override
+  String get acrossMappedSchools => 'Across mapped schools';
+
+  @override
+  String get schoolLocations => 'ALP school locations';
+
+  @override
+  String schoolsMapped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count schools mapped',
+      one: '1 school mapped',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noMappedSchools =>
+      'No schools with GPS coordinates are available for this selection.';
+
+  @override
+  String get mapTilesOffline =>
+      'Map tiles need an internet connection; school markers are still placed by their coordinates.';
+
+  @override
+  String get mapAttribution => '© OpenStreetMap contributors';
+
+  @override
+  String get cerdNumber => 'CERD number';
+
+  @override
+  String get students => 'Students';
+
+  @override
+  String get schoolStatus => 'Status';
+
+  @override
+  String get schoolClosed => 'Closed';
+
+  @override
+  String get schoolOpen => 'Open';
+
+  @override
+  String get operatingShift => 'Operating shift';
+
+  @override
+  String get directorName => 'Director';
+
+  @override
+  String get phoneLabel => 'Phone';
+
+  @override
+  String get digitalHub => 'Digital hub';
+
+  @override
+  String get adminStaff => 'Administrative staff';
+
+  @override
+  String get showOnMap => 'Show on map';
 }

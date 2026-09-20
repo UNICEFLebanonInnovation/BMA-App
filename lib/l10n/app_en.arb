@@ -396,5 +396,213 @@
   "viewProfile": "View profile",
   "selectBeneficiary": "Select a beneficiary to see their profile.",
   "switchModule": "Switch programme",
-  "unsavedChanges": "Leave this form? Unsaved changes will be lost."
+  "unsavedChanges": "Leave this form? Unsaved changes will be lost.",
+  "analytics": "Analytics",
+  "analyticsHubIntro": "Dashboards computed from the records downloaded to this device. Filters apply to what is stored locally.",
+  "advancedAnalytics": "Advanced analytics",
+  "advancedAnalyticsDescription": "Registrations, teachers, centres and programmes: trend, breakdowns and a programme by age-group cross-tab.",
+  "alpRegistrationInsights": "Registration insights",
+  "alpRegistrationInsightsDescription": "Registrations, learning outcomes, household, inclusion and transition figures.",
+  "alpTeacherDashboard": "Teacher dashboard",
+  "alpTeacherDashboardDescription": "Workforce coverage, teaching capacity and professional development.",
+  "alpAttendanceDashboard": "Attendance dashboard",
+  "alpAttendanceDashboardDescription": "Attendance heatmaps by month and day for the selected year, overall and per programme.",
+  "alpSchoolDashboard": "School dashboard",
+  "alpSchoolDashboardDescription": "School locations on a map with enrolment, staff and operational details.",
+  "noAnalyticsForModule": "No analytics dashboards are available for this programme yet.",
+  "filters": "Filters",
+  "dateFrom": "From",
+  "dateTo": "To",
+  "anyDate": "Any date",
+  "allPartners": "All partners",
+  "allCenters": "All centres",
+  "allProgrammes": "All programmes",
+  "allSchools": "All schools",
+  "allRounds": "All rounds",
+  "allNationalities": "All nationalities",
+  "allGenders": "All genders",
+  "moreFilters": "More filters",
+  "ageMin": "Minimum age",
+  "ageMax": "Maximum age",
+  "resetFilters": "Reset",
+  "yearLabel": "Year",
+  "partners": "Partners",
+  "centers": "Centres",
+  "programmeLabel": "Programme",
+  "ageGroup": "Age group",
+  "gender": "Gender",
+  "nationality": "Nationality",
+  "notSpecified": "Not specified",
+  "noDataForFilters": "No data for the selected filters.",
+  "registrationsCount": "{count, plural, =1{1 registration} other{{count} registrations}}",
+  "@registrationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teachersCount": "{count, plural, =1{1 teacher} other{{count} teachers}}",
+  "@teachersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "childrenCount": "{count, plural, =1{1 child} other{{count} children}}",
+  "@childrenCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "percentOfTotal": "{percent}% of total",
+  "@percentOfTotal": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "showAll": "Show all",
+  "showLess": "Show less",
+  "offlineFiguresNote": "Figures are computed from the records on this device; run a download to refresh them.",
+  "registrationTrend": "Registration trend",
+  "dailyRegistrations": "Daily registrations",
+  "dailyRegistrationsLastDays": "Daily registrations, last {count} days",
+  "@dailyRegistrationsLastDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "registrationsByCenter": "Registrations by centre",
+  "genderDistribution": "Gender distribution",
+  "nationalityDistribution": "Nationality distribution",
+  "teacherGenderDistribution": "Teacher gender distribution",
+  "teacherNationalityDistribution": "Teacher nationality distribution",
+  "teachersByCenter": "Teachers by centre",
+  "programmeVsAgeGroup": "Programme vs age group",
+  "programmeVsAgeGroupHint": "Registrations by latest programme and age group; darker cells hold more children.",
+  "operationalInsights": "Operational insights",
+  "activeSchools": "Active schools",
+  "programRounds": "Programme rounds",
+  "learningOutcomes": "Learning outcomes",
+  "learningOutcomesHint": "Latest assessment results and progress for children in the ALP programme.",
+  "childrenAssessed": "Children assessed",
+  "averageAchievement": "Average achievement",
+  "followUpAssessments": "Follow-up assessments",
+  "childrenImproving": "Children improving",
+  "latestPerformance": "Latest performance",
+  "progressSinceFirst": "Progress since first assessment",
+  "achievementBySubject": "Achievement by subject",
+  "bandOnTrack": "On track",
+  "bandDeveloping": "Developing",
+  "bandNeedsSupport": "Needs support",
+  "progressImproved": "Improved",
+  "progressStable": "Stable",
+  "progressDeclined": "Declined",
+  "noAssessments": "No learning assessments are available for the selected filters.",
+  "registrationsAndBeneficiaries": "Registrations and beneficiaries",
+  "householdInclusionTransition": "Household, inclusion and transition",
+  "genderAgeGroupDistribution": "Gender and age group distribution",
+  "nationalityBreakdown": "Nationality breakdown",
+  "sourceOfIdentification": "Source of identification",
+  "registrationsPerRound": "Registrations per round",
+  "familyStatus": "Family status",
+  "disabilityType": "Disability type",
+  "cashSupport": "Cash support",
+  "referredToFormalEducation": "Referred to formal education",
+  "noReferralRecords": "No referral records are stored on this device for these children.",
+  "childrenMovedBetweenRounds": "Children moved between rounds",
+  "movedFromEarlierRound": "Moved from an earlier round",
+  "newInRound": "New in this round",
+  "male": "Male",
+  "female": "Female",
+  "teacherWorkforceInsights": "Teacher workforce insights",
+  "totalTeachers": "Total teachers",
+  "teachersTrained": "Teachers trained",
+  "averageExperience": "Average experience",
+  "yearsUnit": "years",
+  "averageTraining": "Average training",
+  "sessionsUnit": "sessions",
+  "contactCoverage": "Contact coverage",
+  "coverageAndDemographics": "Coverage and demographics",
+  "teachingCapacityDevelopment": "Teaching capacity and development",
+  "assignment": "Assignment",
+  "teachersBySchool": "Teachers by school",
+  "teachersByRound": "Teachers by round",
+  "subjectsProvided": "Subjects provided",
+  "gradeLevelsSupported": "Grade levels supported",
+  "trainingTopics": "Training topics",
+  "teachingHours": "Teaching hours",
+  "extraCoaching": "Extra coaching",
+  "alpHours": "ALP",
+  "privateSchoolHours": "Private school",
+  "hoursUnit": "hours",
+  "teachersTrainedShare": "{percent}% of teachers",
+  "@teachersTrainedShare": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "noTeachersForFilters": "No teachers match the selected filters.",
+  "overallAttendance": "Overall attendance",
+  "attendanceHeatmapHint": "Attendance rate per day of each month; darker cells are higher. Tap a cell for the figures.",
+  "attendanceByProgramme": "Attendance by programme",
+  "attendanceRateLabel": "Attendance rate",
+  "noAttendanceForYear": "No attendance recorded for this year.",
+  "heatmapCellDetail": "{date}: {present} present of {total} ({percent}%)",
+  "@heatmapCellDetail": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "present": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "accessibleSchools": "Accessible schools",
+  "inReportingScope": "In your reporting scope",
+  "mappedSchools": "Mapped schools",
+  "withGpsCoordinates": "With GPS coordinates",
+  "alpStudents": "ALP students",
+  "activeRegistrations": "Active registrations",
+  "alpTeachers": "ALP teachers",
+  "acrossMappedSchools": "Across mapped schools",
+  "schoolLocations": "ALP school locations",
+  "schoolsMapped": "{count, plural, =1{1 school mapped} other{{count} schools mapped}}",
+  "@schoolsMapped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noMappedSchools": "No schools with GPS coordinates are available for this selection.",
+  "mapTilesOffline": "Map tiles need an internet connection; school markers are still placed by their coordinates.",
+  "mapAttribution": "© OpenStreetMap contributors",
+  "cerdNumber": "CERD number",
+  "students": "Students",
+  "schoolStatus": "Status",
+  "schoolClosed": "Closed",
+  "schoolOpen": "Open",
+  "operatingShift": "Operating shift",
+  "directorName": "Director",
+  "phoneLabel": "Phone",
+  "digitalHub": "Digital hub",
+  "adminStaff": "Administrative staff",
+  "showOnMap": "Show on map"
 }

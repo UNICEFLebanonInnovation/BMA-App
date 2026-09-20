@@ -887,4 +887,492 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get unsavedChanges => 'مغادرة النموذج؟ ستفقد التغييرات غير المحفوظة.';
+
+  @override
+  String get analytics => 'التحليلات';
+
+  @override
+  String get analyticsHubIntro =>
+      'لوحات محسوبة من السجلات المنزّلة على هذا الجهاز. تنطبق عوامل التصفية على ما هو مخزّن محلياً.';
+
+  @override
+  String get advancedAnalytics => 'التحليلات المتقدمة';
+
+  @override
+  String get advancedAnalyticsDescription =>
+      'التسجيلات والمعلمون والمراكز والبرامج: الاتجاه والتوزيعات وجدول متقاطع للبرنامج حسب الفئة العمرية.';
+
+  @override
+  String get alpRegistrationInsights => 'مؤشرات التسجيل';
+
+  @override
+  String get alpRegistrationInsightsDescription =>
+      'التسجيلات ونتائج التعلم وأرقام الأسرة والدمج والانتقال.';
+
+  @override
+  String get alpTeacherDashboard => 'لوحة المعلمين';
+
+  @override
+  String get alpTeacherDashboardDescription =>
+      'تغطية الكادر التعليمي والقدرة التدريسية والتطوير المهني.';
+
+  @override
+  String get alpAttendanceDashboard => 'لوحة الحضور';
+
+  @override
+  String get alpAttendanceDashboardDescription =>
+      'خرائط حرارية للحضور حسب الشهر واليوم للسنة المختارة، إجمالاً ولكل برنامج.';
+
+  @override
+  String get alpSchoolDashboard => 'لوحة المدارس';
+
+  @override
+  String get alpSchoolDashboardDescription =>
+      'مواقع المدارس على الخريطة مع أعداد الطلاب والمعلمين والتفاصيل التشغيلية.';
+
+  @override
+  String get noAnalyticsForModule =>
+      'لا تتوفر لوحات تحليلية لهذا البرنامج بعد.';
+
+  @override
+  String get filters => 'عوامل التصفية';
+
+  @override
+  String get dateFrom => 'من';
+
+  @override
+  String get dateTo => 'إلى';
+
+  @override
+  String get anyDate => 'أي تاريخ';
+
+  @override
+  String get allPartners => 'كل الشركاء';
+
+  @override
+  String get allCenters => 'كل المراكز';
+
+  @override
+  String get allProgrammes => 'كل البرامج';
+
+  @override
+  String get allSchools => 'كل المدارس';
+
+  @override
+  String get allRounds => 'كل الجولات';
+
+  @override
+  String get allNationalities => 'كل الجنسيات';
+
+  @override
+  String get allGenders => 'كل الأجناس';
+
+  @override
+  String get moreFilters => 'المزيد من عوامل التصفية';
+
+  @override
+  String get ageMin => 'الحد الأدنى للعمر';
+
+  @override
+  String get ageMax => 'الحد الأقصى للعمر';
+
+  @override
+  String get resetFilters => 'إعادة ضبط';
+
+  @override
+  String get yearLabel => 'السنة';
+
+  @override
+  String get partners => 'الشركاء';
+
+  @override
+  String get centers => 'المراكز';
+
+  @override
+  String get programmeLabel => 'البرنامج';
+
+  @override
+  String get ageGroup => 'الفئة العمرية';
+
+  @override
+  String get gender => 'الجنس';
+
+  @override
+  String get nationality => 'الجنسية';
+
+  @override
+  String get notSpecified => 'غير محدد';
+
+  @override
+  String get noDataForFilters => 'لا توجد بيانات لعوامل التصفية المختارة.';
+
+  @override
+  String registrationsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count تسجيلاً',
+      one: 'تسجيل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String teachersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count معلماً',
+      one: 'معلم واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String childrenCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count طفلاً',
+      one: 'طفل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String percentOfTotal(String percent) {
+    return '$percent٪ من الإجمالي';
+  }
+
+  @override
+  String get showAll => 'عرض الكل';
+
+  @override
+  String get showLess => 'عرض أقل';
+
+  @override
+  String get offlineFiguresNote =>
+      'الأرقام محسوبة من السجلات الموجودة على هذا الجهاز؛ نزّل التحديثات لتحديثها.';
+
+  @override
+  String get registrationTrend => 'اتجاه التسجيل';
+
+  @override
+  String get dailyRegistrations => 'التسجيلات اليومية';
+
+  @override
+  String dailyRegistrationsLastDays(int count) {
+    return 'التسجيلات اليومية، آخر $count يوماً';
+  }
+
+  @override
+  String get registrationsByCenter => 'التسجيلات حسب المركز';
+
+  @override
+  String get genderDistribution => 'التوزيع حسب الجنس';
+
+  @override
+  String get nationalityDistribution => 'التوزيع حسب الجنسية';
+
+  @override
+  String get teacherGenderDistribution => 'توزيع المعلمين حسب الجنس';
+
+  @override
+  String get teacherNationalityDistribution => 'توزيع المعلمين حسب الجنسية';
+
+  @override
+  String get teachersByCenter => 'المعلمون حسب المركز';
+
+  @override
+  String get programmeVsAgeGroup => 'البرنامج مقابل الفئة العمرية';
+
+  @override
+  String get programmeVsAgeGroupHint =>
+      'التسجيلات حسب آخر برنامج والفئة العمرية؛ الخلايا الأغمق تضم أطفالاً أكثر.';
+
+  @override
+  String get operationalInsights => 'المؤشرات التشغيلية';
+
+  @override
+  String get activeSchools => 'المدارس النشطة';
+
+  @override
+  String get programRounds => 'جولات البرنامج';
+
+  @override
+  String get learningOutcomes => 'نتائج التعلم';
+
+  @override
+  String get learningOutcomesHint =>
+      'أحدث نتائج التقييم والتقدم للأطفال في برنامج التعلم المسرّع.';
+
+  @override
+  String get childrenAssessed => 'الأطفال المقيَّمون';
+
+  @override
+  String get averageAchievement => 'متوسط التحصيل';
+
+  @override
+  String get followUpAssessments => 'تقييمات المتابعة';
+
+  @override
+  String get childrenImproving => 'الأطفال المتحسنون';
+
+  @override
+  String get latestPerformance => 'أحدث أداء';
+
+  @override
+  String get progressSinceFirst => 'التقدم منذ أول تقييم';
+
+  @override
+  String get achievementBySubject => 'التحصيل حسب المادة';
+
+  @override
+  String get bandOnTrack => 'على المسار';
+
+  @override
+  String get bandDeveloping => 'قيد التطور';
+
+  @override
+  String get bandNeedsSupport => 'بحاجة إلى دعم';
+
+  @override
+  String get progressImproved => 'تحسّن';
+
+  @override
+  String get progressStable => 'مستقر';
+
+  @override
+  String get progressDeclined => 'تراجع';
+
+  @override
+  String get noAssessments => 'لا تتوفر تقييمات تعلم لعوامل التصفية المختارة.';
+
+  @override
+  String get registrationsAndBeneficiaries => 'التسجيلات والمستفيدون';
+
+  @override
+  String get householdInclusionTransition => 'الأسرة والدمج والانتقال';
+
+  @override
+  String get genderAgeGroupDistribution => 'التوزيع حسب الجنس والفئة العمرية';
+
+  @override
+  String get nationalityBreakdown => 'التوزيع حسب الجنسية';
+
+  @override
+  String get sourceOfIdentification => 'مصدر التعريف';
+
+  @override
+  String get registrationsPerRound => 'التسجيلات لكل جولة';
+
+  @override
+  String get familyStatus => 'الحالة الأسرية';
+
+  @override
+  String get disabilityType => 'نوع الإعاقة';
+
+  @override
+  String get cashSupport => 'الدعم النقدي';
+
+  @override
+  String get referredToFormalEducation => 'المحالون إلى التعليم النظامي';
+
+  @override
+  String get noReferralRecords =>
+      'لا توجد سجلات إحالة مخزّنة على هذا الجهاز لهؤلاء الأطفال.';
+
+  @override
+  String get childrenMovedBetweenRounds => 'الأطفال المنتقلون بين الجولات';
+
+  @override
+  String get movedFromEarlierRound => 'منتقلون من جولة سابقة';
+
+  @override
+  String get newInRound => 'جدد في هذه الجولة';
+
+  @override
+  String get male => 'ذكر';
+
+  @override
+  String get female => 'أنثى';
+
+  @override
+  String get teacherWorkforceInsights => 'مؤشرات الكادر التعليمي';
+
+  @override
+  String get totalTeachers => 'إجمالي المعلمين';
+
+  @override
+  String get teachersTrained => 'المعلمون المدرَّبون';
+
+  @override
+  String get averageExperience => 'متوسط الخبرة';
+
+  @override
+  String get yearsUnit => 'سنوات';
+
+  @override
+  String get averageTraining => 'متوسط التدريب';
+
+  @override
+  String get sessionsUnit => 'جلسات';
+
+  @override
+  String get contactCoverage => 'تغطية بيانات الاتصال';
+
+  @override
+  String get coverageAndDemographics => 'التغطية والخصائص الديموغرافية';
+
+  @override
+  String get teachingCapacityDevelopment => 'القدرة التدريسية والتطوير';
+
+  @override
+  String get assignment => 'التكليف';
+
+  @override
+  String get teachersBySchool => 'المعلمون حسب المدرسة';
+
+  @override
+  String get teachersByRound => 'المعلمون حسب الجولة';
+
+  @override
+  String get subjectsProvided => 'المواد المقدَّمة';
+
+  @override
+  String get gradeLevelsSupported => 'المستويات الدراسية المدعومة';
+
+  @override
+  String get trainingTopics => 'مواضيع التدريب';
+
+  @override
+  String get teachingHours => 'ساعات التدريس';
+
+  @override
+  String get extraCoaching => 'تدريب إضافي';
+
+  @override
+  String get alpHours => 'التعلم المسرّع';
+
+  @override
+  String get privateSchoolHours => 'مدرسة خاصة';
+
+  @override
+  String get hoursUnit => 'ساعات';
+
+  @override
+  String teachersTrainedShare(String percent) {
+    return '$percent٪ من المعلمين';
+  }
+
+  @override
+  String get noTeachersForFilters =>
+      'لا يوجد معلمون يطابقون عوامل التصفية المختارة.';
+
+  @override
+  String get overallAttendance => 'الحضور الإجمالي';
+
+  @override
+  String get attendanceHeatmapHint =>
+      'نسبة الحضور لكل يوم من كل شهر؛ الخلايا الأغمق أعلى. اضغط على خلية لعرض الأرقام.';
+
+  @override
+  String get attendanceByProgramme => 'الحضور حسب البرنامج';
+
+  @override
+  String get attendanceRateLabel => 'نسبة الحضور';
+
+  @override
+  String get noAttendanceForYear => 'لم يُسجَّل حضور لهذه السنة.';
+
+  @override
+  String heatmapCellDetail(
+    String date,
+    int present,
+    int total,
+    String percent,
+  ) {
+    return '$date: $present حاضر من $total ($percent٪)';
+  }
+
+  @override
+  String get accessibleSchools => 'المدارس المتاحة';
+
+  @override
+  String get inReportingScope => 'ضمن نطاق تقاريرك';
+
+  @override
+  String get mappedSchools => 'المدارس على الخريطة';
+
+  @override
+  String get withGpsCoordinates => 'ذات إحداثيات GPS';
+
+  @override
+  String get alpStudents => 'طلاب التعلم المسرّع';
+
+  @override
+  String get activeRegistrations => 'التسجيلات النشطة';
+
+  @override
+  String get alpTeachers => 'معلمو التعلم المسرّع';
+
+  @override
+  String get acrossMappedSchools => 'في المدارس الموجودة على الخريطة';
+
+  @override
+  String get schoolLocations => 'مواقع مدارس التعلم المسرّع';
+
+  @override
+  String schoolsMapped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count مدرسة على الخريطة',
+      one: 'مدرسة واحدة على الخريطة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get noMappedSchools => 'لا توجد مدارس ذات إحداثيات GPS لهذا الاختيار.';
+
+  @override
+  String get mapTilesOffline =>
+      'تحتاج خلفية الخريطة إلى اتصال بالإنترنت؛ تبقى علامات المدارس في مواقعها حسب إحداثياتها.';
+
+  @override
+  String get mapAttribution => '© مساهمو OpenStreetMap';
+
+  @override
+  String get cerdNumber => 'رقم المركز التربوي';
+
+  @override
+  String get students => 'الطلاب';
+
+  @override
+  String get schoolStatus => 'الحالة';
+
+  @override
+  String get schoolClosed => 'مغلقة';
+
+  @override
+  String get schoolOpen => 'مفتوحة';
+
+  @override
+  String get operatingShift => 'الدوام';
+
+  @override
+  String get directorName => 'المدير';
+
+  @override
+  String get phoneLabel => 'الهاتف';
+
+  @override
+  String get digitalHub => 'مركز رقمي';
+
+  @override
+  String get adminStaff => 'الموظفون الإداريون';
+
+  @override
+  String get showOnMap => 'عرض على الخريطة';
 }

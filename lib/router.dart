@@ -8,6 +8,12 @@ import 'core/config/settings_controller.dart';
 import 'features/attendance/attendance_screen.dart';
 import 'features/attendance/child_attendance_screen.dart';
 import 'features/attendance/teacher_attendance_screen.dart';
+import 'features/analytics/alp/alp_attendance_dashboard_screen.dart';
+import 'features/analytics/alp/alp_registration_insights_screen.dart';
+import 'features/analytics/alp/alp_school_dashboard_screen.dart';
+import 'features/analytics/alp/alp_teacher_dashboard_screen.dart';
+import 'features/analytics/analytics_hub_screen.dart';
+import 'features/analytics/nfe/nfe_advanced_analytics_screen.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/splash_screen.dart';
 import 'features/dashboard/dashboard_screen.dart';
@@ -49,6 +55,17 @@ class Routes {
   static String resolveDuplicate(String uuid) => '/sync/duplicate/$uuid';
   static String resolveConflict(String uuid) => '/sync/conflict/$uuid';
   static String dashboard(BmaModule m) => '/dashboard/${m.key}';
+
+  /// The hub listing a programme's analytics dashboards, and the dashboards
+  /// themselves. They live under the same `/analytics/<module>` prefix so the
+  /// rail keeps the Analytics destination highlighted while one is open and
+  /// `moduleOfLocation` can read the programme back from any of them.
+  static String analytics(BmaModule m) => '/analytics/${m.key}';
+  static const nfeAdvancedAnalytics = '/analytics/mscc/advanced';
+  static const alpRegistrationInsights = '/analytics/alp/registration';
+  static const alpTeacherDashboard = '/analytics/alp/teachers';
+  static const alpAttendanceDashboard = '/analytics/alp/attendance';
+  static const alpSchoolDashboard = '/analytics/alp/schools';
   static String registrations(BmaModule m) => '/registrations/${m.key}';
 
   /// The beneficiaries list with one child selected. The selection is a query
@@ -137,6 +154,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/dashboard/:module',
         builder: (_, state) => DashboardScreen(module: _module(state)),
+      ),
+      // The five dashboards are registered BEFORE the hub's `/analytics/:module`
+      // so a fixed path is never read as a module segment.
+      GoRoute(path: Routes.nfeAdvancedAnalytics, builder: (_, _) => const NfeAdvancedAnalyticsScreen()),
+      GoRoute(path: Routes.alpRegistrationInsights, builder: (_, _) => const AlpRegistrationInsightsScreen()),
+      GoRoute(path: Routes.alpTeacherDashboard, builder: (_, _) => const AlpTeacherDashboardScreen()),
+      GoRoute(path: Routes.alpAttendanceDashboard, builder: (_, _) => const AlpAttendanceDashboardScreen()),
+      GoRoute(path: Routes.alpSchoolDashboard, builder: (_, _) => const AlpSchoolDashboardScreen()),
+      GoRoute(
+        path: '/analytics/:module',
+        builder: (_, state) => AnalyticsHubScreen(module: _module(state)),
       ),
       GoRoute(
         path: '/registrations/:module',

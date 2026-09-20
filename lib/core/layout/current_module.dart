@@ -48,7 +48,7 @@ final currentModuleProvider = NotifierProvider<CurrentModule, BmaModule>(Current
 /// Only the two shapes the route table actually uses are parsed:
 /// `/<screen>/<module>` and `/<screen>/<module>/<rest>`.
 BmaModule? moduleOfLocation(String location) {
-  const moduleScoped = {'dashboard', 'registrations', 'attendance', 'teachers'};
+  const moduleScoped = {'dashboard', 'analytics', 'registrations', 'attendance', 'teachers'};
   final parts = location.split('/').where((s) => s.isNotEmpty).toList();
   if (parts.length < 2 || !moduleScoped.contains(parts.first)) return null;
   return BmaModuleKey.fromKey(parts[1]);
