@@ -339,6 +339,32 @@ void main() {
       expectClean(tester);
     });
 
+    testWidgets('the cross-tab re-pairs its axes without re-reading the records', (tester) async {
+      tabletLandscape(tester);
+      final fx = await fixture(tester);
+      await open(tester, fx, const NfeAdvancedAnalyticsScreen());
+
+      await reveal(tester, crosstab);
+      // It opens on the pairing the website draws.
+      expect(find.text('Programme ↓ · Age group →'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('crosstab-y')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Gender').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Programme ↓ · Gender →'), findsOneWidget);
+      expect(find.text('Female'), findsWidgets);
+
+      // Choosing the dimension that is already on the other axis swaps them
+      // rather than crossing a table with itself.
+      await tester.tap(find.byKey(const ValueKey('crosstab-x')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Gender').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Gender ↓ · Programme →'), findsOneWidget);
+      expectClean(tester);
+    });
+
     testWidgets('tapping the trend plot prints the day under it', (tester) async {
       tabletLandscape(tester);
       final fx = await fixture(tester);

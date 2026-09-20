@@ -21,39 +21,54 @@ class ChartCard extends StatelessWidget {
   final Widget child;
   final Widget? trailing;
 
+  /// Below this the header's controls take a line of their own: a title and
+  /// a pair of pickers do not both fit across a phone card, and a Row there
+  /// overflows rather than giving way.
+  static const double _inlineTrailing = 420;
+
   @override
   Widget build(BuildContext context) {
+    final titleBlock = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title, style: Theme.of(context).textTheme.titleSmall),
+        if (subtitle != null && subtitle!.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              subtitle!,
+              style: const TextStyle(color: AppColors.muted, fontSize: 12, height: 1.3),
+            ),
+          ),
+      ],
+    );
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final stacked = trailing != null && constraints.maxWidth < _inlineTrailing;
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
+                if (stacked) ...[
+                  titleBlock,
+                  const SizedBox(height: 6),
+                  Align(alignment: AlignmentDirectional.centerStart, child: trailing),
+                ] else
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: Theme.of(context).textTheme.titleSmall),
-                      if (subtitle != null && subtitle!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2),
-                          child: Text(
-                            subtitle!,
-                            style: const TextStyle(color: AppColors.muted, fontSize: 12, height: 1.3),
-                          ),
-                        ),
+                      Expanded(child: titleBlock),
+                      if (trailing != null) ...[const SizedBox(width: 8), trailing!],
                     ],
                   ),
-                ),
-                if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+                const SizedBox(height: 10),
+                child,
               ],
-            ),
-            const SizedBox(height: 10),
-            child,
-          ],
+            );
+          },
         ),
       ),
     );

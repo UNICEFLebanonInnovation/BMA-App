@@ -39,6 +39,23 @@ class AnalyticsLabels {
   static const english = AnalyticsLabels(unknown: 'Unknown', male: 'Male', female: 'Female', other: 'Other');
 }
 
+/// The dimensions `breakdown` and `crosstab` accept — the keys of the
+/// server's `DIMENSION_MAP`, in the order the picker offers them.
+enum NfeDimension { gender, nationality, partner, center, programme, ageGroup }
+
+extension NfeDimensionKey on NfeDimension {
+  /// The name the endpoint uses, so a query written against the website
+  /// reads the same here.
+  String get key => switch (this) {
+        NfeDimension.gender => 'gender',
+        NfeDimension.nationality => 'nationality',
+        NfeDimension.partner => 'partner',
+        NfeDimension.center => 'center',
+        NfeDimension.programme => 'programme',
+        NfeDimension.ageGroup => 'age_group',
+      };
+}
+
 /// The age buckets of `_annotate_age`, in display order. `Unknown` is the
 /// server's own key for a missing or malformed birth year.
 const nfeAgeGroups = ['0-4', '5-11', '12-14', '15-17', '18+', 'Unknown'];
@@ -192,6 +209,7 @@ class NfeAnalytics {
     required this.teachersByNationality,
     required this.teachersByCenter,
     required this.programmeByAgeGroup,
+    required this.rows,
   });
 
   final NfeSummary summary;
@@ -210,7 +228,15 @@ class NfeAnalytics {
   final List<ChartItem> teachersBySex;
   final List<ChartItem> teachersByNationality;
   final List<ChartItem> teachersByCenter;
+
+  /// Programme x age group, the pairing the dashboard opens on.
   final Crosstab programmeByAgeGroup;
+
+  /// The filtered rows, so the cross-tab card can re-pair its axes without
+  /// another pass over the records: `analytics_crosstab` takes `x` and `y`
+  /// from the query string, and the page that fixes them to one pairing is
+  /// using a fraction of what the endpoint offers.
+  final List<NfeRegistrationRow> rows;
 
   bool get isEmpty => summary.totalRegistrations == 0 && summary.totalTeachers == 0;
 }
@@ -413,15 +439,21 @@ NfeAnalytics computeNfeAnalytics(
   }
 
   // --- breakdowns, `order_by('-count', field)`.
-  List<ChartItem> breakdown(String Function(NfeRegistrationRow) key, String Function(NfeRegistrationRow) label) {
+  List<ChartItem> breakdown(NfeDimension dimension) {
     final tally = <String, int>{};
     final labelOf = <String, String>{};
     for (final r in rows) {
-      final k = key(r);
-      tally.update(k, (v) => v + 1, ifAbsent: () => 1);
-      labelOf[k] = label(r);
+      final (key, label) = nfeDimensionOf(r, dimension, labels);
+      tally.update(key, (v) => v + 1, ifAbsent: () => 1);
+      labelOf[key] = label;
     }
-    return itemsFromTally(tally, (k) => labelOf[k] ?? k);
+    final items = itemsFromTally(tally, (k) => labelOf[k] ?? k);
+    // An age band reads in bucket order whatever the counts are; every other
+    // dimension is only useful largest-first.
+    if (dimension == NfeDimension.ageGroup) {
+      items.sort((a, b) => nfeAgeGroups.indexOf(a.key).compareTo(nfeAgeGroups.indexOf(b.key)));
+    }
+    return items;
   }
 
   List<ChartItem> teacherBreakdown(String Function(NfeTeacherRow) key, String Function(NfeTeacherRow) label) {
@@ -435,59 +467,100 @@ NfeAnalytics computeNfeAnalytics(
     return itemsFromTally(tally, (k) => labelOf[k] ?? k);
   }
 
-  String genderKey(String raw) => raw.isEmpty ? 'Unknown' : raw;
-
-  // --- cross-tab, programme rows by size, age groups in bucket order.
-  final counts = <String, Map<String, int>>{};
-  final programmeLabelOf = <String, String>{};
-  for (final r in rows) {
-    programmeLabelOf[r.programme] = r.programmeLabel;
-    counts.putIfAbsent(r.programme, () => {}).update(r.ageGroup, (v) => v + 1, ifAbsent: () => 1);
-  }
-  final programmeOrder = counts.keys.toList()
-    ..sort((a, b) {
-      final ta = counts[a]!.values.fold(0, (x, y) => x + y);
-      final tb = counts[b]!.values.fold(0, (x, y) => x + y);
-      return tb != ta ? tb.compareTo(ta) : a.compareTo(b);
-    });
-  final presentGroups = {for (final c in counts.values) ...c.keys};
-  final ageLabel = {for (final g in nfeAgeGroups) g: g == 'Unknown' ? labels.unknown : g};
-  // A Crosstab addresses its cells by LABEL, so two raw programme values that
-  // translate to the same words have to become one row: a map literal would
-  // otherwise keep the last of them while `rows` listed the label twice, and
-  // the grand total would count that programme's children twice over.
-  final rowLabels = <String>[];
-  final byLabel = <String, Map<String, int>>{};
-  for (final p in programmeOrder) {
-    final label = programmeLabelOf[p]!;
-    if (!byLabel.containsKey(label)) rowLabels.add(label);
-    final row = byLabel.putIfAbsent(label, () => {});
-    for (final e in counts[p]!.entries) {
-      row.update(ageLabel[e.key]!, (v) => v + e.value, ifAbsent: () => e.value);
-    }
-  }
-  final crosstab = Crosstab(
-    rows: rowLabels,
-    columns: [for (final g in nfeAgeGroups) if (presentGroups.contains(g)) ageLabel[g]!],
-    counts: byLabel,
-  );
+  final crosstab = nfeCrosstab(rows, NfeDimension.programme, NfeDimension.ageGroup, labels);
 
   return NfeAnalytics(
     summary: summary,
     trend: trend,
     trendIsWindow: windowed,
     trendDays: trendDays,
-    byCenter: breakdown((r) => '${r.centerId ?? ''}', (r) => r.centerLabel),
-    byGender: breakdown((r) => genderKey(r.gender), (r) => labels.gender(r.gender)),
-    byNationality: breakdown((r) => '${r.nationalityId ?? ''}', (r) => r.nationalityLabel),
-    byPartner: breakdown((r) => '${r.partnerId ?? ''}', (r) => r.partnerLabel),
-    byProgramme: breakdown((r) => r.programme, (r) => r.programmeLabel),
-    byAgeGroup: breakdown((r) => r.ageGroup, (r) => ageLabel[r.ageGroup]!),
-    teachersBySex: teacherBreakdown((t) => genderKey(t.sex), (t) => labels.gender(t.sex)),
+    // Each breakdown names its dimension once, so the six the endpoint
+    // supports and the six the cross-tab offers cannot drift apart.
+    byCenter: breakdown(NfeDimension.center),
+    byGender: breakdown(NfeDimension.gender),
+    byNationality: breakdown(NfeDimension.nationality),
+    byPartner: breakdown(NfeDimension.partner),
+    byProgramme: breakdown(NfeDimension.programme),
+    byAgeGroup: breakdown(NfeDimension.ageGroup),
+    teachersBySex: teacherBreakdown((t) => t.sex.isEmpty ? 'Unknown' : t.sex, (t) => labels.gender(t.sex)),
     teachersByNationality: teacherBreakdown((t) => '${t.nationalityId ?? ''}', (t) => t.nationalityLabel),
     teachersByCenter: teacherBreakdown((t) => '${t.centerId ?? ''}', (t) => t.centerLabel),
     programmeByAgeGroup: crosstab,
+    rows: rows,
   );
+}
+
+/// `(stable key, label)` of [row] along [dimension].
+(String, String) nfeDimensionOf(NfeRegistrationRow row, NfeDimension dimension, AnalyticsLabels labels) =>
+    switch (dimension) {
+      NfeDimension.gender => (row.gender.isEmpty ? 'Unknown' : row.gender, labels.gender(row.gender)),
+      NfeDimension.nationality => ('${row.nationalityId ?? ''}', row.nationalityLabel),
+      NfeDimension.partner => ('${row.partnerId ?? ''}', row.partnerLabel),
+      NfeDimension.center => ('${row.centerId ?? ''}', row.centerLabel),
+      NfeDimension.programme => (row.programme, row.programmeLabel),
+      NfeDimension.ageGroup => (
+          row.ageGroup,
+          row.ageGroup == 'Unknown' ? labels.unknown : row.ageGroup,
+        ),
+    };
+
+/// `analytics_crosstab`: counts of [rows] by [x] down and [y] across.
+///
+/// Rows come out largest first and columns keep the dimension's own order —
+/// an age band reads 0-4, 5-11, 12-14 whatever the counts are, while a list
+/// of centres is only useful sorted by size. Two values that share a LABEL
+/// become one row or column: a [Crosstab] addresses its cells by label, so
+/// leaving them apart would print the same name twice over the same counts.
+Crosstab nfeCrosstab(
+  List<NfeRegistrationRow> rows,
+  NfeDimension x,
+  NfeDimension y,
+  AnalyticsLabels labels,
+) {
+  /// Age groups have a natural order; everything else is ordered by size.
+  bool ordered(NfeDimension d) => d == NfeDimension.ageGroup;
+
+  final counts = <String, Map<String, int>>{};
+  final rowOrder = <String>[];
+  final columnTotals = <String, int>{};
+  final columnOrder = <String>[];
+  for (final row in rows) {
+    final (_, rowLabel) = nfeDimensionOf(row, x, labels);
+    final (_, columnLabel) = nfeDimensionOf(row, y, labels);
+    if (!counts.containsKey(rowLabel)) rowOrder.add(rowLabel);
+    final cells = counts.putIfAbsent(rowLabel, () => {});
+    cells.update(columnLabel, (v) => v + 1, ifAbsent: () => 1);
+    if (!columnTotals.containsKey(columnLabel)) columnOrder.add(columnLabel);
+    columnTotals.update(columnLabel, (v) => v + 1, ifAbsent: () => 1);
+  }
+  if (counts.isEmpty) return Crosstab.empty;
+
+  int totalOfRow(String label) => counts[label]!.values.fold(0, (a, b) => a + b);
+  if (!ordered(x)) {
+    rowOrder.sort((a, b) {
+      final byCount = totalOfRow(b).compareTo(totalOfRow(a));
+      return byCount != 0 ? byCount : a.toLowerCase().compareTo(b.toLowerCase());
+    });
+  } else {
+    rowOrder.sort((a, b) => _ageRank(a, labels).compareTo(_ageRank(b, labels)));
+  }
+  if (!ordered(y)) {
+    columnOrder.sort((a, b) {
+      final byCount = columnTotals[b]!.compareTo(columnTotals[a]!);
+      return byCount != 0 ? byCount : a.toLowerCase().compareTo(b.toLowerCase());
+    });
+  } else {
+    columnOrder.sort((a, b) => _ageRank(a, labels).compareTo(_ageRank(b, labels)));
+  }
+
+  return Crosstab(rows: rowOrder, columns: columnOrder, counts: counts);
+}
+
+/// Position of an age-bucket LABEL in the bucket order; unknown labels last.
+int _ageRank(String label, AnalyticsLabels labels) {
+  final raw = label == labels.unknown ? 'Unknown' : label;
+  final index = nfeAgeGroups.indexOf(raw);
+  return index < 0 ? nfeAgeGroups.length : index;
 }
 
 /// The entity keys this dashboard reads, for the loader.

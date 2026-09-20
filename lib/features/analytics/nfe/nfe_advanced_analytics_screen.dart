@@ -359,16 +359,26 @@ class _Kpis extends StatelessWidget {
   }
 }
 
-class _Charts extends StatelessWidget {
+class _Charts extends StatefulWidget {
   const _Charts({required this.analytics, required this.labels});
 
   final NfeAnalytics analytics;
   final AnalyticsLabels labels;
 
   @override
+  State<_Charts> createState() => _ChartsState();
+}
+
+class _ChartsState extends State<_Charts> {
+  // The pairing the dashboard opens on, which is the one the website draws.
+  NfeDimension _x = NfeDimension.programme;
+  NfeDimension _y = NfeDimension.ageGroup;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final a = analytics;
+    final a = widget.analytics;
+    final labels = widget.labels;
     Widget orEmpty(List<ChartItem> items, Widget chart) =>
         totalOf(items) == 0 ? EmptyChart(message: l10n.noDataForFilters) : chart;
     Widget bars(List<ChartItem> items, {bool share = true}) => orEmpty(
@@ -448,14 +458,33 @@ class _Charts extends StatelessWidget {
             key: const ValueKey('chart-crosstab'),
             title: l10n.programmeVsAgeGroup,
             subtitle: l10n.programmeVsAgeGroupHint,
-            child: a.programmeByAgeGroup.isEmpty
-                ? EmptyChart(message: l10n.noDataForFilters, icon: Icons.grid_on_outlined)
-                : CrosstabTable(
-                    crosstab: a.programmeByAgeGroup,
-                    rowHeader: l10n.programmeLabel,
-                    columnHeader: l10n.ageGroup,
-                    totalLabel: l10n.total,
-                  ),
+            trailing: _AxisPickers(
+              x: _x,
+              y: _y,
+              onChanged: (x, y) => setState(() {
+                _x = x;
+                _y = y;
+              }),
+            ),
+            child: Builder(builder: (context) {
+              // `analytics_crosstab` takes its two dimensions from the query
+              // string; fixing them to one pairing would use a fraction of
+              // what the endpoint offers. The default pairing is the one the
+              // website draws, and re-pairing is one pass over the rows
+              // already in hand, not another read of the database.
+              final crosstab = _x == NfeDimension.programme && _y == NfeDimension.ageGroup
+                  ? a.programmeByAgeGroup
+                  : nfeCrosstab(a.rows, _x, _y, labels);
+              if (crosstab.isEmpty) {
+                return EmptyChart(message: l10n.noDataForFilters, icon: Icons.grid_on_outlined);
+              }
+              return CrosstabTable(
+                crosstab: crosstab,
+                rowHeader: _name(l10n, _x),
+                columnHeader: _name(l10n, _y),
+                totalLabel: l10n.total,
+              );
+            }),
           ),
         ),
       ],
@@ -464,4 +493,70 @@ class _Charts extends StatelessWidget {
 
   static String _date(BuildContext context, DateTime day) =>
       MaterialLocalizations.of(context).formatMediumDate(day);
+}
+
+/// What a dimension is called on screen.
+String _name(AppLocalizations l10n, NfeDimension dimension) => switch (dimension) {
+      NfeDimension.gender => l10n.gender,
+      NfeDimension.nationality => l10n.nationality,
+      NfeDimension.partner => l10n.partner,
+      NfeDimension.center => l10n.selectCenter,
+      NfeDimension.programme => l10n.programmeLabel,
+      NfeDimension.ageGroup => l10n.ageGroup,
+    };
+
+/// The two axis pickers, in the cross-tab card's header.
+///
+/// Compact: a Wrap, so on a phone they drop under the title instead of
+/// squeezing it. Picking the dimension that is already on the other axis
+/// SWAPS them rather than producing a table crossed with itself.
+class _AxisPickers extends StatelessWidget {
+  const _AxisPickers({required this.x, required this.y, required this.onChanged});
+
+  final NfeDimension x;
+  final NfeDimension y;
+  final void Function(NfeDimension x, NfeDimension y) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    Widget picker(String key, NfeDimension value, IconData icon, void Function(NfeDimension) pick) =>
+        DropdownButtonHideUnderline(
+          child: DropdownButton<NfeDimension>(
+            key: ValueKey(key),
+            value: value,
+            isDense: true,
+            icon: const Icon(Icons.arrow_drop_down, size: 18),
+            borderRadius: AppRadius.controlRadius,
+            style: const TextStyle(fontSize: 12, color: AppColors.primary, fontWeight: FontWeight.w600),
+            items: [
+              for (final d in NfeDimension.values)
+                DropdownMenuItem(
+                  value: d,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(icon, size: 14, color: AppColors.muted),
+                      const SizedBox(width: 6),
+                      Text(_name(l10n, d), style: const TextStyle(fontSize: 12)),
+                    ],
+                  ),
+                ),
+            ],
+            onChanged: (picked) {
+              if (picked != null) pick(picked);
+            },
+          ),
+        );
+
+    return Wrap(
+      spacing: 8,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        picker('crosstab-x', x, Icons.table_rows_outlined, (picked) => onChanged(picked, picked == y ? x : y)),
+        const Text('x', style: TextStyle(fontSize: 12, color: AppColors.muted)),
+        picker('crosstab-y', y, Icons.view_column_outlined, (picked) => onChanged(picked == x ? y : x, picked)),
+      ],
+    );
+  }
 }

@@ -369,6 +369,8 @@ void main() {
     });
   });
 
+  _crosstabDimensionTests();
+
   _programmeSourceTests();
 
   _reviewRegressions();
@@ -729,6 +731,85 @@ void _programmeSourceTests() {
       );
       expect(rows.single.programme, 'Unknown');
       expect(rows.single.programmeLabel, 'Unknown');
+    });
+  });
+}
+
+void _crosstabDimensionTests() {
+  group('the cross-tab pairs any two dimensions', () {
+    final rows = nfeRegistrationRows(
+      source(registrations: [
+        serverRegistration(1, gender: 'Male', nationality: 1, birthYear: '2015', center: 1, partner: 10),
+        serverRegistration(2, gender: 'Female', nationality: 1, birthYear: '2015', center: 1, partner: 10),
+        // 2010 rather than 2020, so the three rows span two age buckets.
+        serverRegistration(3, gender: 'Female', nationality: 2, birthYear: '2010', center: 2, partner: 11),
+      ]),
+      AnalyticsLabels.english,
+    );
+
+    test('the endpoint\'s six dimension keys are all offered', () {
+      expect(
+        NfeDimension.values.map((d) => d.key).toList(),
+        ['gender', 'nationality', 'partner', 'center', 'programme', 'age_group'],
+      );
+    });
+
+    test('gender x nationality counts what it says', () {
+      final ct = nfeCrosstab(rows, NfeDimension.gender, NfeDimension.nationality, AnalyticsLabels.english);
+      expect(ct.rows, ['Female', 'Male']);
+      expect(ct.at('Female', 'Syrian'), 1);
+      expect(ct.at('Female', 'Lebanese'), 1);
+      expect(ct.at('Male', 'Syrian'), 1);
+      expect(ct.at('Male', 'Lebanese'), 0);
+      expect(ct.total, 3);
+      expect(ct.columnTotal('Syrian'), 2);
+    });
+
+    test('centre x gender, with the rows largest first', () {
+      final ct = nfeCrosstab(rows, NfeDimension.center, NfeDimension.gender, AnalyticsLabels.english);
+      expect(ct.rows, ['Centre One', 'Centre Two']);
+      expect(ct.rowTotal('Centre One'), 2);
+      expect(ct.at('Centre Two', 'Female'), 1);
+    });
+
+    test('an age axis keeps bucket order, whichever side it is on', () {
+      final down = nfeCrosstab(rows, NfeDimension.ageGroup, NfeDimension.gender, AnalyticsLabels.english);
+      // Two children are 11 and one is 16: the smaller bucket must not lead
+      // just because it has fewer children in it.
+      expect(down.rows, ['5-11', '15-17']);
+      final across = nfeCrosstab(rows, NfeDimension.gender, NfeDimension.ageGroup, AnalyticsLabels.english);
+      expect(across.columns, ['5-11', '15-17']);
+      // ...and the unknown bucket sorts last rather than alphabetically.
+      final withUnknown = nfeRegistrationRows(
+        source(registrations: [serverRegistration(4, birthYear: 'zz'), serverRegistration(5, birthYear: '2015')]),
+        AnalyticsLabels.english,
+      );
+      final ct = nfeCrosstab(withUnknown, NfeDimension.ageGroup, NfeDimension.gender, AnalyticsLabels.english);
+      expect(ct.rows.last, 'Unknown');
+    });
+
+    test('the same dimension on both axes is a diagonal, not a crash', () {
+      final ct = nfeCrosstab(rows, NfeDimension.gender, NfeDimension.gender, AnalyticsLabels.english);
+      expect(ct.at('Female', 'Female'), 2);
+      expect(ct.at('Female', 'Male'), 0);
+      expect(ct.total, 3);
+    });
+
+    test('no rows is an empty table, not an exception', () {
+      expect(nfeCrosstab(const [], NfeDimension.gender, NfeDimension.ageGroup, AnalyticsLabels.english).isEmpty, isTrue);
+    });
+
+    test('the default pairing is the one the dashboard opens on', () {
+      final a = computeNfeAnalytics(
+        source(registrations: [serverRegistration(1, birthYear: '2015')]),
+        AnalyticsFilters.none,
+      );
+      final same = nfeCrosstab(a.rows, NfeDimension.programme, NfeDimension.ageGroup, AnalyticsLabels.english);
+      expect(a.programmeByAgeGroup.rows, same.rows);
+      expect(a.programmeByAgeGroup.columns, same.columns);
+      expect(a.programmeByAgeGroup.total, same.total);
+      // The rows travel with the answer so the card can re-pair its axes.
+      expect(a.rows, hasLength(1));
     });
   });
 }

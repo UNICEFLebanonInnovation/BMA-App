@@ -181,7 +181,15 @@ that the tests pin:
   ≥50 developing) and the change since the first sets Improved / Stable /
   Declined at ±0.5 points.
 * **Scope**: the server forces the account's centre, partner or school onto
-  anything typed offline, so a pending record is counted where it will land.
+  anything typed offline, so a pending record is counted where it will land —
+  and only then. A record the server has already seen keeps the centre it
+  has, even when that is none, because inventing one would move rows into a
+  scope the website's own counts leave out.
+* **The cross-tab pairs any two of the six dimensions** the endpoint's
+  `DIMENSION_MAP` names (gender, nationality, partner, centre, programme, age
+  group), from two pickers in the card header; it opens on programme × age
+  group, which is the pairing the website draws. An age axis keeps bucket
+  order whichever side it is on; every other axis is ordered by size.
 
 Two figures deliberately do **not** copy the website, because the website
 renders them from its template context instead of from the data: the ALP
