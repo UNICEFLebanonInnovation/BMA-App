@@ -256,7 +256,7 @@ thumbnail: mixing aspect ratios does not letterbox them, it squashes them.
 ### 9-inch tablet, landscape (1280x800) — the primary layout
 
 [`screenshots/contact_sheet_tablet_landscape.png`](screenshots/contact_sheet_tablet_landscape.png)
-shows all nineteen landscape screens on one page.
+shows all twenty-one landscape screens on one page.
 
 | | |
 |---|---|
@@ -266,6 +266,7 @@ shows all nineteen landscape screens on one page.
 | ![Registration wizard: review](screenshots/38_registration_wizard_review_tablet_landscape.png) | ![Health & nutrition service form](screenshots/39_service_form_health_tablet_landscape.png) |
 | ![Teacher form](screenshots/40_teacher_form_tablet_landscape.png) | ![Teacher attendance](screenshots/41_teacher_attendance_tablet_landscape.png) |
 | ![Teachers](screenshots/42_teachers_grid_tablet_landscape.png) | ![Dashboard](screenshots/43_dashboard_tablet_landscape.png) |
+| ![Analytics](screenshots/59_analytics_hub_tablet_landscape.png) | ![Advanced analytics](screenshots/60_advanced_analytics_tablet_landscape.png) |
 | ![Sync centre, two pane](screenshots/44_sync_center_two_pane_tablet_landscape.png) | ![Duplicate resolution, two pane](screenshots/45_duplicate_resolution_two_pane_tablet_landscape.png) |
 
 Arabic, where the navigation rail and every pane mirror to the other edge:
@@ -302,6 +303,7 @@ phone screen on one page.
 | ![Beneficiaries](screenshots/03_beneficiaries.png) | ![Child profile](screenshots/04_child_profile.png) | ![Services](screenshots/05_child_services.png) |
 | ![Registration wizard](screenshots/06_registration_wizard_identity.png) | ![Caregivers step](screenshots/07_registration_wizard_caregivers.png) | ![PSS service form](screenshots/08_service_form_pss.png) |
 | ![Teachers](screenshots/09_teachers.png) | ![Dashboard](screenshots/10_dashboard.png) | ![Sync centre](screenshots/11_sync_center.png) |
+| ![Analytics](screenshots/57_analytics_hub.png) | ![Advanced analytics](screenshots/58_advanced_analytics.png) | |
 | ![Push report](screenshots/12_push_report.png) | ![Duplicate resolution](screenshots/13_duplicate_resolution.png) | ![Sync history](screenshots/14_sync_history.png) |
 | ![Settings](screenshots/15_settings.png) | ![NFE centre profile](screenshots/30_center_profile.png) | |
 | ![Getting started](screenshots/22_tips_welcome.png) | ![Tips: registering](screenshots/23_tips_register.png) | ![Tips: push](screenshots/24_tips_push.png) |
