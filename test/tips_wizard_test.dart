@@ -89,7 +89,7 @@ void main() {
       expect(find.text('Getting started'), findsOneWidget);
       expect(find.text('Step 1 of 7'), findsOneWidget);
       expect(find.text('Welcome, Rima Haddad'), findsOneWidget);
-      expect(find.text('Partner NGO · Makani Centre'), findsOneWidget);
+      expect(find.text('Partner NGO · NFE Centre'), findsOneWidget);
       expect(find.text('Works without internet'), findsOneWidget);
       expect(find.byKey(_skip), findsOneWidget);
       expect(find.byKey(_back), findsNothing);

@@ -9,7 +9,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 Map<String, dynamic> serverRegistration(int id, {String first = 'Mohamad', String modified = '2026-09-10T10:00:00'}) => {
       'id': id,
       'center': 41,
-      'center_label': 'Makani',
+      'center_label': 'NFE',
       'round': 5,
       'registration_date': '2026-09-01',
       'have_labour': 'No',

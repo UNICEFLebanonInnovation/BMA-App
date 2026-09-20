@@ -88,7 +88,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get arabic => 'Arabic';
 
   @override
-  String get mscc => 'Makani (MSCC)';
+  String get mscc => 'NFE';
 
   @override
   String get alp => 'ALP schools';
@@ -296,10 +296,58 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futureDate => 'Date cannot be in the future.';
 
   @override
-  String get onlyLetters => 'Only letters are allowed.';
+  String get confirmMismatch => 'Values do not match.';
 
   @override
-  String get confirmMismatch => 'Values do not match.';
+  String attendanceRowsNeedReason(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count children still need a reason for absence.',
+      one: '1 child still needs a reason for absence.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tooLong(String max) {
+    return 'Maximum $max characters.';
+  }
+
+  @override
+  String tooShort(String min) {
+    return 'At least $min characters.';
+  }
+
+  @override
+  String get invalidFormat => 'Invalid format.';
+
+  @override
+  String get invalidEmail => 'Enter a valid email address.';
+
+  @override
+  String get invalidChoice => 'Choose one of the listed options.';
+
+  @override
+  String valueTooSmall(String min) {
+    return 'Must be $min or more.';
+  }
+
+  @override
+  String valueTooLarge(String max) {
+    return 'Must be $max or less.';
+  }
+
+  @override
+  String get dateTooEarly => 'The date is too early.';
+
+  @override
+  String get dateTooLate => 'The date is too late.';
+
+  @override
+  String tooManyDecimals(String max) {
+    return 'At most $max decimal places.';
+  }
 
   @override
   String get stepIdentity => 'Identity';
@@ -396,6 +444,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get childMonth => 'Monthly attendance';
+
+  @override
+  String get colName => 'Name';
+
+  @override
+  String get colMother => 'Mother';
+
+  @override
+  String get colBirthday => 'Birth date';
+
+  @override
+  String get colAttendance => 'Attendance';
+
+  @override
+  String get colReason => 'Reason';
+
+  @override
+  String get notMarked => 'Not marked';
+
+  @override
+  String get sessionLabel => 'Session';
+
+  @override
+  String get rosterLabel => 'Roster';
+
+  @override
+  String get noSheetForDay => 'No sheet';
 
   @override
   String get attended => 'Attended';
@@ -685,4 +760,130 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get tipSyncCenter =>
       'Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it.';
+
+  @override
+  String get setupTitle => 'Set up the server';
+
+  @override
+  String get setupIntro =>
+      'Tell this device which BMA-NFE server it should talk to. Ask your programme focal point if you are not sure.';
+
+  @override
+  String get setupTestConnection => 'Test connection';
+
+  @override
+  String get setupConnectionOk =>
+      'Connected. This server runs the BMA-NFE mobile API.';
+
+  @override
+  String get setupConnectionNotBma =>
+      'The address answered, but the BMA-NFE mobile API is not installed there. Check the address.';
+
+  @override
+  String get setupConnectionFailed =>
+      'Could not reach this address. Check the spelling and your internet connection.';
+
+  @override
+  String get setupInvalidUrl =>
+      'Enter a web address, for example https://bma-nfe.example.org';
+
+  @override
+  String get setupContinue => 'Continue';
+
+  @override
+  String get setupChangeLater => 'You can change the server later in Settings.';
+
+  @override
+  String get centerProfile => 'Centre profile';
+
+  @override
+  String get profileNoCenter => 'Your account is not linked to a centre.';
+
+  @override
+  String get profileNoSchool => 'Your account is not linked to a school.';
+
+  @override
+  String get profileNotDownloaded =>
+      'The details arrive with the reference data. Connect and run a full refresh.';
+
+  @override
+  String get partner => 'Partner';
+
+  @override
+  String get governorate => 'Governorate';
+
+  @override
+  String get district => 'District';
+
+  @override
+  String get cadaster => 'Cadaster';
+
+  @override
+  String get facilityType => 'Type';
+
+  @override
+  String get programmes => 'Programmes';
+
+  @override
+  String get packagesOffered => 'Services offered';
+
+  @override
+  String get statusLabel => 'Status';
+
+  @override
+  String get activeLabel => 'Active';
+
+  @override
+  String get inactiveLabel => 'Inactive';
+
+  @override
+  String get schoolNumber => 'School number';
+
+  @override
+  String get bmaSchool => 'BMA school';
+
+  @override
+  String get closedLabel => 'Closed';
+
+  @override
+  String get openLabel => 'Open';
+
+  @override
+  String get workingDays => 'Working days';
+
+  @override
+  String get weekendLabel => 'Weekend';
+
+  @override
+  String get coordinates => 'Coordinates';
+
+  @override
+  String get locationLabel => 'Location';
+
+  @override
+  String get atAGlance => 'At a glance';
+
+  @override
+  String get quickActions => 'Quick actions';
+
+  @override
+  String get yourProgrammes => 'Your programmes';
+
+  @override
+  String get registeredChildren => 'Registered children';
+
+  @override
+  String get notRecorded => 'Not recorded';
+
+  @override
+  String get viewProfile => 'View profile';
+
+  @override
+  String get selectBeneficiary => 'Select a beneficiary to see their profile.';
+
+  @override
+  String get switchModule => 'Switch programme';
+
+  @override
+  String get unsavedChanges => 'Leave this form? Unsaved changes will be lost.';
 }

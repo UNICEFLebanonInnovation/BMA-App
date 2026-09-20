@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/db/providers.dart';
 import '../../core/db/sync_dao.dart';
+import '../../core/layout/adaptive.dart';
+import '../../core/layout/app_layout.dart';
 import '../../core/models/sync_models.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/widgets/common.dart';
@@ -25,13 +27,14 @@ class SyncHistoryScreen extends ConsumerWidget {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final batches = snapshot.data!;
           if (batches.isEmpty) return EmptyState(message: l10n.noHistory, icon: Icons.history);
-          return ListView.builder(
+          return _capped(ListView.builder(
             itemCount: batches.length,
             itemBuilder: (context, index) {
               final b = batches[index];
               final ok = b.status == 'completed';
               final problems = (b.summary['duplicate'] ?? 0) + (b.summary['conflict'] ?? 0) + (b.summary['error'] ?? 0);
               return ListTile(
+                key: ValueKey('history-${b.uuid}'),
                 leading: Icon(ok ? (problems > 0 ? Icons.warning_amber : Icons.check_circle) : Icons.error,
                     color: ok ? (problems > 0 ? AppColors.warning : AppColors.success) : AppColors.danger),
                 title: Text((b.finishedAt ?? b.startedAt).split('.').first.replaceFirst('T', ' ')),
@@ -40,9 +43,21 @@ class SyncHistoryScreen extends ConsumerWidget {
                 onTap: () => context.push(Routes.pushReport(b.uuid)),
               );
             },
-          );
+          ));
         },
       ),
     );
   }
+
+  /// A width cap is the whole change here: a 1256 px row whose content is a
+  /// timestamp and a summary line is unreadable, and nothing on this screen
+  /// benefits from the extra width. Compact is returned unwrapped.
+  static Widget _capped(Widget child) => LayoutBuilder(
+        builder: (context, constraints) {
+          final layout = AppLayout.forWidth(constraints.maxWidth);
+          return layout.width.atLeastMedium
+              ? AdaptiveBody(maxWidth: layout.readingMaxWidth, child: child)
+              : child;
+        },
+      );
 }

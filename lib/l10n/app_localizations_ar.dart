@@ -88,7 +88,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get arabic => 'العربية';
 
   @override
-  String get mscc => 'مكاني (MSCC)';
+  String get mscc => 'التعليم غير النظامي';
 
   @override
   String get alp => 'مدارس ALP';
@@ -296,10 +296,58 @@ class AppLocalizationsAr extends AppLocalizations {
   String get futureDate => 'لا يمكن أن يكون التاريخ في المستقبل.';
 
   @override
-  String get onlyLetters => 'يُسمح بالأحرف فقط.';
+  String get confirmMismatch => 'القيم غير متطابقة.';
 
   @override
-  String get confirmMismatch => 'القيم غير متطابقة.';
+  String attendanceRowsNeedReason(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count أطفال بحاجة إلى سبب غياب.',
+      one: 'طفل واحد بحاجة إلى سبب غياب.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String tooLong(String max) {
+    return 'الحد الأقصى $max حرفًا.';
+  }
+
+  @override
+  String tooShort(String min) {
+    return '$min أحرف على الأقل.';
+  }
+
+  @override
+  String get invalidFormat => 'صيغة غير صحيحة.';
+
+  @override
+  String get invalidEmail => 'أدخل بريدًا إلكترونيًا صحيحًا.';
+
+  @override
+  String get invalidChoice => 'اختر أحد الخيارات المتاحة.';
+
+  @override
+  String valueTooSmall(String min) {
+    return 'يجب أن يكون $min أو أكثر.';
+  }
+
+  @override
+  String valueTooLarge(String max) {
+    return 'يجب أن يكون $max أو أقل.';
+  }
+
+  @override
+  String get dateTooEarly => 'التاريخ مبكر جدًا.';
+
+  @override
+  String get dateTooLate => 'التاريخ متأخر جدًا.';
+
+  @override
+  String tooManyDecimals(String max) {
+    return 'بحد أقصى $max منازل عشرية.';
+  }
 
   @override
   String get stepIdentity => 'الهوية';
@@ -395,6 +443,33 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get childMonth => 'الحضور الشهري';
+
+  @override
+  String get colName => 'الاسم';
+
+  @override
+  String get colMother => 'الأم';
+
+  @override
+  String get colBirthday => 'الميلاد';
+
+  @override
+  String get colAttendance => 'الحضور';
+
+  @override
+  String get colReason => 'السبب';
+
+  @override
+  String get notMarked => 'غير محدد';
+
+  @override
+  String get sessionLabel => 'الجلسة';
+
+  @override
+  String get rosterLabel => 'القائمة';
+
+  @override
+  String get noSheetForDay => 'لا يوجد سجل';
 
   @override
   String get attended => 'حضر';
@@ -683,4 +758,130 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get tipSyncCenter =>
       'يتطلب «إرسال التغييرات» و«تنزيل التحديثات» اتصالاً بالإنترنت؛ ولا يستبدل التنزيل عملك غير المرسل أبداً. السجلات التي تحتاج إلى قرارك مدرجة أدناه؛ اضغط على أحدها لمعالجته.';
+
+  @override
+  String get setupTitle => 'إعداد الخادم';
+
+  @override
+  String get setupIntro =>
+      'حدّد لهذا الجهاز خادم BMA-NFE الذي سيتصل به. راجع منسّق البرنامج إذا لم تكن متأكداً.';
+
+  @override
+  String get setupTestConnection => 'اختبار الاتصال';
+
+  @override
+  String get setupConnectionOk =>
+      'تم الاتصال. يعمل على هذا الخادم واجهة BMA-NFE للتطبيق.';
+
+  @override
+  String get setupConnectionNotBma =>
+      'استجاب العنوان، لكن واجهة BMA-NFE للتطبيق غير مثبّتة عليه. تحقق من العنوان.';
+
+  @override
+  String get setupConnectionFailed =>
+      'تعذّر الوصول إلى هذا العنوان. تحقق من كتابته ومن اتصالك بالإنترنت.';
+
+  @override
+  String get setupInvalidUrl =>
+      'أدخل عنوان موقع، مثل https://bma-nfe.example.org';
+
+  @override
+  String get setupContinue => 'متابعة';
+
+  @override
+  String get setupChangeLater => 'يمكنك تغيير الخادم لاحقاً من «الإعدادات».';
+
+  @override
+  String get centerProfile => 'ملف المركز';
+
+  @override
+  String get profileNoCenter => 'حسابك غير مرتبط بمركز.';
+
+  @override
+  String get profileNoSchool => 'حسابك غير مرتبط بمدرسة.';
+
+  @override
+  String get profileNotDownloaded =>
+      'تصل التفاصيل مع البيانات المرجعية. اتصل بالإنترنت وقم بتحديث كامل.';
+
+  @override
+  String get partner => 'الشريك';
+
+  @override
+  String get governorate => 'المحافظة';
+
+  @override
+  String get district => 'القضاء';
+
+  @override
+  String get cadaster => 'المنطقة العقارية';
+
+  @override
+  String get facilityType => 'النوع';
+
+  @override
+  String get programmes => 'البرامج';
+
+  @override
+  String get packagesOffered => 'الخدمات المتاحة';
+
+  @override
+  String get statusLabel => 'الحالة';
+
+  @override
+  String get activeLabel => 'نشط';
+
+  @override
+  String get inactiveLabel => 'غير نشط';
+
+  @override
+  String get schoolNumber => 'رقم المدرسة';
+
+  @override
+  String get bmaSchool => 'مدرسة BMA';
+
+  @override
+  String get closedLabel => 'مغلقة';
+
+  @override
+  String get openLabel => 'مفتوحة';
+
+  @override
+  String get workingDays => 'أيام الدوام';
+
+  @override
+  String get weekendLabel => 'العطلة الأسبوعية';
+
+  @override
+  String get coordinates => 'الإحداثيات';
+
+  @override
+  String get locationLabel => 'الموقع';
+
+  @override
+  String get atAGlance => 'نظرة سريعة';
+
+  @override
+  String get quickActions => 'إجراءات سريعة';
+
+  @override
+  String get yourProgrammes => 'برامجك';
+
+  @override
+  String get registeredChildren => 'الأطفال المسجلون';
+
+  @override
+  String get notRecorded => 'غير مسجل';
+
+  @override
+  String get viewProfile => 'عرض الملف';
+
+  @override
+  String get selectBeneficiary => 'اختر مستفيدًا لعرض ملفه.';
+
+  @override
+  String get switchModule => 'تبديل البرنامج';
+
+  @override
+  String get unsavedChanges => 'مغادرة النموذج؟ ستفقد التغييرات غير المحفوظة.';
 }

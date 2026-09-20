@@ -32,7 +32,7 @@
   "language": "Language",
   "english": "English",
   "arabic": "Arabic",
-  "mscc": "Makani (MSCC)",
+  "mscc": "NFE",
   "alp": "ALP schools",
   "clm": "CLM Bridging",
   "registerNew": "Register new",
@@ -110,8 +110,60 @@
   "invalidNumber": "Enter a valid number.",
   "invalidDate": "Enter a valid date (YYYY-MM-DD).",
   "futureDate": "Date cannot be in the future.",
-  "onlyLetters": "Only letters are allowed.",
   "confirmMismatch": "Values do not match.",
+  "attendanceRowsNeedReason": "{count, plural, =1{1 child still needs a reason for absence.} other{{count} children still need a reason for absence.}}",
+  "@attendanceRowsNeedReason": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "tooLong": "Maximum {max} characters.",
+  "@tooLong": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "tooShort": "At least {min} characters.",
+  "@tooShort": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidFormat": "Invalid format.",
+  "invalidEmail": "Enter a valid email address.",
+  "invalidChoice": "Choose one of the listed options.",
+  "valueTooSmall": "Must be {min} or more.",
+  "@valueTooSmall": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "valueTooLarge": "Must be {max} or less.",
+  "@valueTooLarge": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "dateTooEarly": "The date is too early.",
+  "dateTooLate": "The date is too late.",
+  "tooManyDecimals": "At most {max} decimal places.",
+  "@tooManyDecimals": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
   "stepIdentity": "Identity",
   "stepCaregivers": "Caregivers & household",
   "stepReview": "Review & confirm",
@@ -143,6 +195,15 @@
   "noChildrenForSelection": "No enrolled children for this selection.",
   "attendanceSaved": "Attendance saved on this device.",
   "childMonth": "Monthly attendance",
+  "colName": "Name",
+  "colMother": "Mother",
+  "colBirthday": "Birth date",
+  "colAttendance": "Attendance",
+  "colReason": "Reason",
+  "notMarked": "Not marked",
+  "sessionLabel": "Session",
+  "rosterLabel": "Roster",
+  "noSheetForDay": "No sheet",
   "attended": "Attended",
   "totalRegistrations": "Registrations",
   "byGender": "By gender",
@@ -294,5 +355,45 @@
   "tipHomeSync": "Push changes whenever you have a connection. The number on the cloud icon counts work waiting to push or needing your decision; tap it to open Sync centre.",
   "tipRegistrationsSearch": "Search by name, ID number or record number before registering. The icon on each row shows its sync state: Pending, Synced, Duplicate, Conflict.",
   "tipAttendanceFlow": "Choose the centre or school, round, programme and date, then tap Load children. Mark all present, switch anyone absent to Absent with a reason, then Save. Use Day off to close a day.",
-  "tipSyncCenter": "Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it."
+  "tipSyncCenter": "Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it.",
+  "setupTitle": "Set up the server",
+  "setupIntro": "Tell this device which BMA-NFE server it should talk to. Ask your programme focal point if you are not sure.",
+  "setupTestConnection": "Test connection",
+  "setupConnectionOk": "Connected. This server runs the BMA-NFE mobile API.",
+  "setupConnectionNotBma": "The address answered, but the BMA-NFE mobile API is not installed there. Check the address.",
+  "setupConnectionFailed": "Could not reach this address. Check the spelling and your internet connection.",
+  "setupInvalidUrl": "Enter a web address, for example https://bma-nfe.example.org",
+  "setupContinue": "Continue",
+  "setupChangeLater": "You can change the server later in Settings.",
+  "centerProfile": "Centre profile",
+  "profileNoCenter": "Your account is not linked to a centre.",
+  "profileNoSchool": "Your account is not linked to a school.",
+  "profileNotDownloaded": "The details arrive with the reference data. Connect and run a full refresh.",
+  "partner": "Partner",
+  "governorate": "Governorate",
+  "district": "District",
+  "cadaster": "Cadaster",
+  "facilityType": "Type",
+  "programmes": "Programmes",
+  "packagesOffered": "Services offered",
+  "statusLabel": "Status",
+  "activeLabel": "Active",
+  "inactiveLabel": "Inactive",
+  "schoolNumber": "School number",
+  "bmaSchool": "BMA school",
+  "closedLabel": "Closed",
+  "openLabel": "Open",
+  "workingDays": "Working days",
+  "weekendLabel": "Weekend",
+  "coordinates": "Coordinates",
+  "locationLabel": "Location",
+  "atAGlance": "At a glance",
+  "quickActions": "Quick actions",
+  "yourProgrammes": "Your programmes",
+  "registeredChildren": "Registered children",
+  "notRecorded": "Not recorded",
+  "viewProfile": "View profile",
+  "selectBeneficiary": "Select a beneficiary to see their profile.",
+  "switchModule": "Switch programme",
+  "unsavedChanges": "Leave this form? Unsaved changes will be lost."
 }

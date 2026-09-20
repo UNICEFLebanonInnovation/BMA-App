@@ -251,7 +251,7 @@ abstract class AppLocalizations {
   /// No description provided for @mscc.
   ///
   /// In en, this message translates to:
-  /// **'Makani (MSCC)'**
+  /// **'NFE'**
   String get mscc;
 
   /// No description provided for @alp.
@@ -632,17 +632,77 @@ abstract class AppLocalizations {
   /// **'Date cannot be in the future.'**
   String get futureDate;
 
-  /// No description provided for @onlyLetters.
-  ///
-  /// In en, this message translates to:
-  /// **'Only letters are allowed.'**
-  String get onlyLetters;
-
   /// No description provided for @confirmMismatch.
   ///
   /// In en, this message translates to:
   /// **'Values do not match.'**
   String get confirmMismatch;
+
+  /// No description provided for @attendanceRowsNeedReason.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 child still needs a reason for absence.} other{{count} children still need a reason for absence.}}'**
+  String attendanceRowsNeedReason(int count);
+
+  /// No description provided for @tooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximum {max} characters.'**
+  String tooLong(String max);
+
+  /// No description provided for @tooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'At least {min} characters.'**
+  String tooShort(String min);
+
+  /// No description provided for @invalidFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid format.'**
+  String get invalidFormat;
+
+  /// No description provided for @invalidEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get invalidEmail;
+
+  /// No description provided for @invalidChoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose one of the listed options.'**
+  String get invalidChoice;
+
+  /// No description provided for @valueTooSmall.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be {min} or more.'**
+  String valueTooSmall(String min);
+
+  /// No description provided for @valueTooLarge.
+  ///
+  /// In en, this message translates to:
+  /// **'Must be {max} or less.'**
+  String valueTooLarge(String max);
+
+  /// No description provided for @dateTooEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'The date is too early.'**
+  String get dateTooEarly;
+
+  /// No description provided for @dateTooLate.
+  ///
+  /// In en, this message translates to:
+  /// **'The date is too late.'**
+  String get dateTooLate;
+
+  /// No description provided for @tooManyDecimals.
+  ///
+  /// In en, this message translates to:
+  /// **'At most {max} decimal places.'**
+  String tooManyDecimals(String max);
 
   /// No description provided for @stepIdentity.
   ///
@@ -829,6 +889,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Monthly attendance'**
   String get childMonth;
+
+  /// No description provided for @colName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get colName;
+
+  /// No description provided for @colMother.
+  ///
+  /// In en, this message translates to:
+  /// **'Mother'**
+  String get colMother;
+
+  /// No description provided for @colBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Birth date'**
+  String get colBirthday;
+
+  /// No description provided for @colAttendance.
+  ///
+  /// In en, this message translates to:
+  /// **'Attendance'**
+  String get colAttendance;
+
+  /// No description provided for @colReason.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get colReason;
+
+  /// No description provided for @notMarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Not marked'**
+  String get notMarked;
+
+  /// No description provided for @sessionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get sessionLabel;
+
+  /// No description provided for @rosterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Roster'**
+  String get rosterLabel;
+
+  /// No description provided for @noSheetForDay.
+  ///
+  /// In en, this message translates to:
+  /// **'No sheet'**
+  String get noSheetForDay;
 
   /// No description provided for @attended.
   ///
@@ -1327,6 +1441,246 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Push changes and Download updates need a connection; downloading never overwrites unsent work. Records needing your decision are listed below; tap one to resolve it.'**
   String get tipSyncCenter;
+
+  /// No description provided for @setupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up the server'**
+  String get setupTitle;
+
+  /// No description provided for @setupIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Tell this device which BMA-NFE server it should talk to. Ask your programme focal point if you are not sure.'**
+  String get setupIntro;
+
+  /// No description provided for @setupTestConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Test connection'**
+  String get setupTestConnection;
+
+  /// No description provided for @setupConnectionOk.
+  ///
+  /// In en, this message translates to:
+  /// **'Connected. This server runs the BMA-NFE mobile API.'**
+  String get setupConnectionOk;
+
+  /// No description provided for @setupConnectionNotBma.
+  ///
+  /// In en, this message translates to:
+  /// **'The address answered, but the BMA-NFE mobile API is not installed there. Check the address.'**
+  String get setupConnectionNotBma;
+
+  /// No description provided for @setupConnectionFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reach this address. Check the spelling and your internet connection.'**
+  String get setupConnectionFailed;
+
+  /// No description provided for @setupInvalidUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a web address, for example https://bma-nfe.example.org'**
+  String get setupInvalidUrl;
+
+  /// No description provided for @setupContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get setupContinue;
+
+  /// No description provided for @setupChangeLater.
+  ///
+  /// In en, this message translates to:
+  /// **'You can change the server later in Settings.'**
+  String get setupChangeLater;
+
+  /// No description provided for @centerProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Centre profile'**
+  String get centerProfile;
+
+  /// No description provided for @profileNoCenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not linked to a centre.'**
+  String get profileNoCenter;
+
+  /// No description provided for @profileNoSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is not linked to a school.'**
+  String get profileNoSchool;
+
+  /// No description provided for @profileNotDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'The details arrive with the reference data. Connect and run a full refresh.'**
+  String get profileNotDownloaded;
+
+  /// No description provided for @partner.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get partner;
+
+  /// No description provided for @governorate.
+  ///
+  /// In en, this message translates to:
+  /// **'Governorate'**
+  String get governorate;
+
+  /// No description provided for @district.
+  ///
+  /// In en, this message translates to:
+  /// **'District'**
+  String get district;
+
+  /// No description provided for @cadaster.
+  ///
+  /// In en, this message translates to:
+  /// **'Cadaster'**
+  String get cadaster;
+
+  /// No description provided for @facilityType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get facilityType;
+
+  /// No description provided for @programmes.
+  ///
+  /// In en, this message translates to:
+  /// **'Programmes'**
+  String get programmes;
+
+  /// No description provided for @packagesOffered.
+  ///
+  /// In en, this message translates to:
+  /// **'Services offered'**
+  String get packagesOffered;
+
+  /// No description provided for @statusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get statusLabel;
+
+  /// No description provided for @activeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeLabel;
+
+  /// No description provided for @inactiveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Inactive'**
+  String get inactiveLabel;
+
+  /// No description provided for @schoolNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'School number'**
+  String get schoolNumber;
+
+  /// No description provided for @bmaSchool.
+  ///
+  /// In en, this message translates to:
+  /// **'BMA school'**
+  String get bmaSchool;
+
+  /// No description provided for @closedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get closedLabel;
+
+  /// No description provided for @openLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get openLabel;
+
+  /// No description provided for @workingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Working days'**
+  String get workingDays;
+
+  /// No description provided for @weekendLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekend'**
+  String get weekendLabel;
+
+  /// No description provided for @coordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'Coordinates'**
+  String get coordinates;
+
+  /// No description provided for @locationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get locationLabel;
+
+  /// No description provided for @atAGlance.
+  ///
+  /// In en, this message translates to:
+  /// **'At a glance'**
+  String get atAGlance;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get quickActions;
+
+  /// No description provided for @yourProgrammes.
+  ///
+  /// In en, this message translates to:
+  /// **'Your programmes'**
+  String get yourProgrammes;
+
+  /// No description provided for @registeredChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered children'**
+  String get registeredChildren;
+
+  /// No description provided for @notRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded'**
+  String get notRecorded;
+
+  /// No description provided for @viewProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'View profile'**
+  String get viewProfile;
+
+  /// No description provided for @selectBeneficiary.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a beneficiary to see their profile.'**
+  String get selectBeneficiary;
+
+  /// No description provided for @switchModule.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch programme'**
+  String get switchModule;
+
+  /// No description provided for @unsavedChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave this form? Unsaved changes will be lost.'**
+  String get unsavedChanges;
 }
 
 class _AppLocalizationsDelegate

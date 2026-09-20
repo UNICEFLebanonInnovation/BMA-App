@@ -5,6 +5,7 @@ import '../../core/auth/auth_controller.dart';
 import '../../core/config/settings_controller.dart';
 import '../../core/db/providers.dart';
 import '../../core/db/reference_dao.dart';
+import '../../core/layout/app_layout.dart';
 import '../../core/network/api_exception.dart';
 import '../../core/sync/connectivity_service.dart';
 import '../../core/sync/sync_engine.dart';
@@ -81,82 +82,88 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final l10n = AppLocalizations.of(context);
     final online = ref.watch(isOnlineProvider);
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 440),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const Icon(Icons.school, size: 56, color: AppColors.primary),
-                      const SizedBox(height: 8),
-                      Text(l10n.appTitle,
-                          textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall),
-                      const SizedBox(height: 4),
-                      Text('BMA-NFE', textAlign: TextAlign.center,
-                          style: const TextStyle(color: AppColors.muted)),
-                      const SizedBox(height: 24),
-                      TextFormField(
-                        controller: _server,
-                        decoration: InputDecoration(labelText: l10n.serverUrl, hintText: l10n.serverUrlHint),
-                        keyboardType: TextInputType.url,
-                        autocorrect: false,
-                        validator: (v) => (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _username,
-                        decoration: InputDecoration(labelText: l10n.username),
-                        autocorrect: false,
-                        textInputAction: TextInputAction.next,
-                        validator: (v) => (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _password,
-                        decoration: InputDecoration(labelText: l10n.password),
-                        obscureText: true,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (_) => _busy ? null : _submit(),
-                        validator: (v) => (v == null || v.isEmpty) ? l10n.requiredField : null,
-                      ),
-                      const SizedBox(height: 16),
-                      if (!online)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(l10n.offlineLoginHint,
-                              style: const TextStyle(color: AppColors.warning), textAlign: TextAlign.center),
+      // The cap and the glyph follow the BOX this screen was handed; at
+      // compact both resolve to today's literals (440 / 56), so the phone
+      // tree is unchanged.
+      body: LayoutBuilder(builder: (context, constraints) {
+        final wide = AppLayout.forWidth(constraints.maxWidth).width.atLeastMedium;
+        return Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: wide ? 520 : 440),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Icon(Icons.school, size: wide ? 72 : 56, color: AppColors.primary),
+                        const SizedBox(height: 8),
+                        Text(l10n.appTitle,
+                            textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall),
+                        const SizedBox(height: 4),
+                        Text('BMA-NFE', textAlign: TextAlign.center,
+                            style: const TextStyle(color: AppColors.muted)),
+                        const SizedBox(height: 24),
+                        TextFormField(
+                          controller: _server,
+                          decoration: InputDecoration(labelText: l10n.serverUrl, hintText: l10n.serverUrlHint),
+                          keyboardType: TextInputType.url,
+                          autocorrect: false,
+                          validator: (v) => (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
                         ),
-                      if (_error != null)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: Text(_error!, style: const TextStyle(color: AppColors.danger)),
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _username,
+                          decoration: InputDecoration(labelText: l10n.username),
+                          autocorrect: false,
+                          textInputAction: TextInputAction.next,
+                          validator: (v) => (v == null || v.trim().isEmpty) ? l10n.requiredField : null,
                         ),
-                      FilledButton(
-                        onPressed: _busy ? null : _submit,
-                        child: _busy
-                            ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                                const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-                                const SizedBox(width: 12),
-                                Text(_status ?? l10n.signingIn),
-                              ])
-                            : Text(l10n.signIn),
-                      ),
-                    ],
+                        const SizedBox(height: 12),
+                        TextFormField(
+                          controller: _password,
+                          decoration: InputDecoration(labelText: l10n.password),
+                          obscureText: true,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) => _busy ? null : _submit(),
+                          validator: (v) => (v == null || v.isEmpty) ? l10n.requiredField : null,
+                        ),
+                        const SizedBox(height: 16),
+                        if (!online)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(l10n.offlineLoginHint,
+                                style: const TextStyle(color: AppColors.warning), textAlign: TextAlign.center),
+                          ),
+                        if (_error != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(_error!, style: const TextStyle(color: AppColors.danger)),
+                          ),
+                        FilledButton(
+                          onPressed: _busy ? null : _submit,
+                          child: _busy
+                              ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                  const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                                  const SizedBox(width: 12),
+                                  Text(_status ?? l10n.signingIn),
+                                ])
+                              : Text(l10n.signIn),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

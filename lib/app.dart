@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/config/settings_controller.dart';
+import 'core/layout/adaptive_shell.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/app_localizations.dart';
 import 'router.dart';
@@ -30,6 +31,11 @@ class BmaApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       routerConfig: router,
+      // The rail lives ABOVE the Navigator, so it is painted once and stays
+      // put while pages push and pop underneath it. On any window too small
+      // for a rail — every phone — AdaptiveShell returns the page child with
+      // only the theme around it, exactly as this builder did before.
+      builder: (context, child) => AdaptiveShell(child: child!),
     );
   }
 }

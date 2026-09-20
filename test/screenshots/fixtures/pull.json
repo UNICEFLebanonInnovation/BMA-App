@@ -13,7 +13,7 @@
     "created": "2026-09-12T21:43:26.028938",
     "modified": "2026-09-12T21:43:26.218661",
     "center": 1,
-    "center_label": "Makani Centre – Bar Elias",
+    "center_label": "NFE Centre – Bar Elias",
     "child": {
      "id": 4,
      "created": "2026-09-12T21:43:26.025720",
@@ -150,7 +150,7 @@
     "created": "2026-09-12T21:43:26.062250",
     "modified": "2026-09-12T21:43:26.237039",
     "center": 1,
-    "center_label": "Makani Centre – Bar Elias",
+    "center_label": "NFE Centre – Bar Elias",
     "child": {
      "id": 5,
      "created": "2026-09-12T21:43:26.059418",
@@ -287,7 +287,7 @@
     "created": "2026-09-12T21:43:26.090651",
     "modified": "2026-09-12T21:43:26.254760",
     "center": 1,
-    "center_label": "Makani Centre – Bar Elias",
+    "center_label": "NFE Centre – Bar Elias",
     "child": {
      "id": 6,
      "created": "2026-09-12T21:43:26.088218",
@@ -424,7 +424,7 @@
     "created": "2026-09-12T21:43:26.116728",
     "modified": "2026-09-12T21:43:26.272061",
     "center": 1,
-    "center_label": "Makani Centre – Bar Elias",
+    "center_label": "NFE Centre – Bar Elias",
     "child": {
      "id": 7,
      "created": "2026-09-12T21:43:26.113890",
@@ -561,7 +561,7 @@
     "created": "2026-09-12T21:43:26.141884",
     "modified": "2026-09-12T21:43:26.289241",
     "center": 1,
-    "center_label": "Makani Centre – Bar Elias",
+    "center_label": "NFE Centre – Bar Elias",
     "child": {
      "id": 8,
      "created": "2026-09-12T21:43:26.139487",
@@ -698,7 +698,7 @@
     "created": "2026-09-12T21:43:26.168508",
     "modified": "2026-09-12T21:43:26.306592",
     "center": 1,
-    "center_label": "Makani Centre – Bar Elias",
+    "center_label": "NFE Centre – Bar Elias",
     "child": {
      "id": 9,
      "created": "2026-09-12T21:43:26.166065",
@@ -1002,7 +1002,7 @@
     "round": 1,
     "round_label": "2025-2026",
     "center": 1,
-    "center_label": "Makani Centre – Bar Elias",
+    "center_label": "NFE Centre – Bar Elias",
     "email": "hala@example.org",
     "primary_phone_number": "03-999888",
     "subjects_provided": [

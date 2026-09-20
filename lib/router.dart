@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'core/auth/auth_controller.dart';
 import 'core/config/app_config.dart';
+import 'core/config/settings_controller.dart';
 import 'features/attendance/attendance_screen.dart';
 import 'features/attendance/child_attendance_screen.dart';
 import 'features/attendance/teacher_attendance_screen.dart';
@@ -16,6 +17,8 @@ import 'features/registrations/registration_list_screen.dart';
 import 'features/registrations/registration_wizard_screen.dart';
 import 'features/services/service_form_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'features/profiles/facility_profile_screen.dart';
+import 'features/setup/server_setup_screen.dart';
 import 'features/sync/conflict_resolution_screen.dart';
 import 'features/sync/duplicate_resolution_screen.dart';
 import 'features/sync/push_report_screen.dart';
@@ -32,16 +35,27 @@ class Routes {
 
   static const splash = '/';
   static const login = '/login';
+  static const setup = '/setup';
   static const home = '/home';
   static const settings = '/settings';
   static const sync = '/sync';
   static const tips = '/tips';
+  static const centerProfile = '/profile/center';
+  static const schoolProfile = '/profile/school';
+  /// Form of an entity that has no parent record (the ALP school profile).
+  static String standaloneForm(String entity) => '/form/$entity';
   static const syncHistory = '/sync/history';
   static String pushReport(String batchUuid) => '/sync/report/$batchUuid';
   static String resolveDuplicate(String uuid) => '/sync/duplicate/$uuid';
   static String resolveConflict(String uuid) => '/sync/conflict/$uuid';
   static String dashboard(BmaModule m) => '/dashboard/${m.key}';
   static String registrations(BmaModule m) => '/registrations/${m.key}';
+
+  /// The beneficiaries list with one child selected. The selection is a query
+  /// parameter on the SAME route, so `replace` keeps the page (and its State)
+  /// and the link is shareable. `matchedLocation` ignores query strings, so the
+  /// redirect at the top of the router is unaffected.
+  static String registrationsSelected(BmaModule m, String uuid) => '/registrations/${m.key}?sel=$uuid';
   static String newRegistration(BmaModule m) => '/registrations/${m.key}/new';
   static String profile(String uuid) => '/record/$uuid';
   static String editRegistration(String uuid) => '/record/$uuid/edit';
@@ -77,21 +91,35 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return location == Routes.splash ? null : Routes.splash;
       }
       if (auth.status == AuthStatus.signedOut) {
+        // A device where nobody confirmed a server address yet lands on the
+        // first-run setup page instead of the sign-in form.
+        if (!ref.read(settingsControllerProvider).serverConfigured) {
+          return location == Routes.setup ? null : Routes.setup;
+        }
         return location == Routes.login ? null : Routes.login;
       }
       // Signed in from here on. The wizard route itself never redirects (seen or not): loop-free
       // and re-openable from Home/Settings. A first-run account is gated to /tips from anywhere.
       if (location == Routes.tips) return null;
       if (ref.read(tipsPendingProvider)) return Routes.tips;
-      if (location == Routes.splash || location == Routes.login) return Routes.home;
+      if (location == Routes.splash || location == Routes.login || location == Routes.setup) {
+        return Routes.home;
+      }
       return null;
     },
     routes: [
       GoRoute(path: Routes.splash, builder: (_, _) => const SplashScreen()),
       GoRoute(path: Routes.login, builder: (_, _) => const LoginScreen()),
+      GoRoute(path: Routes.setup, builder: (_, _) => const ServerSetupScreen()),
       GoRoute(path: Routes.home, builder: (_, _) => const HomeShell()),
       GoRoute(path: Routes.settings, builder: (_, _) => const SettingsScreen()),
       GoRoute(path: Routes.tips, builder: (_, _) => const TipsWizardScreen()),
+      GoRoute(path: Routes.centerProfile, builder: (_, _) => const CenterProfileScreen()),
+      GoRoute(path: Routes.schoolProfile, builder: (_, _) => const SchoolProfileScreen()),
+      GoRoute(
+        path: '/form/:entity',
+        builder: (_, state) => ServiceFormScreen(entity: state.pathParameters['entity']),
+      ),
       GoRoute(path: Routes.sync, builder: (_, _) => const SyncCenterScreen()),
       GoRoute(path: Routes.syncHistory, builder: (_, _) => const SyncHistoryScreen()),
       GoRoute(
@@ -112,7 +140,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/registrations/:module',
-        builder: (_, state) => RegistrationListScreen(module: _module(state)),
+        builder: (_, state) => RegistrationListScreen(
+          module: _module(state),
+          selectedUuid: state.uri.queryParameters['sel'],
+        ),
       ),
       GoRoute(
         path: '/registrations/:module/new',

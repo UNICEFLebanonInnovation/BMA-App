@@ -29,7 +29,7 @@ class FakeBmaApi extends BmaApi {
             {'id': 1, 'name': 'سوري', 'name_en': 'Syrian', 'code': 'SY'}
           ],
           'centers': [
-            {'id': 41, 'name': 'Makani', 'partner_id': 3}
+            {'id': 41, 'name': 'NFE', 'partner_id': 3}
           ],
           'rounds': {
             'mscc': [
