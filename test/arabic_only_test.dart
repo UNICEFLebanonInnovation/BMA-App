@@ -72,6 +72,68 @@ void main() {
     });
   });
 
+  group('a name already in the field is never rewritten', () {
+    // Twelve of the twenty-eight names in a real pull are Latin, and the
+    // validator accepts an untouched one on purpose so a worker can correct a
+    // birth date without retyping a name they never touched. A formatter that
+    // re-filtered the whole value would undo that by blanking the field on the
+    // first keystroke -- Backspace included -- which offline is lost data.
+    // Only what the edit ADDS is filtered.
+    const f = ArabicOnlyFormatter();
+    const omar = 'Omar';
+    TextEditingValue v(String text, [int? at]) =>
+        TextEditingValue(text: text, selection: TextSelection.collapsed(offset: at ?? text.length));
+
+    test('a rejected Latin keystroke leaves the pulled name intact', () {
+      final out = f.formatEditUpdate(v(omar), v('${omar}s'));
+      expect(out.text, omar, reason: 'the name the worker never touched survives');
+      expect(out.selection.baseOffset, omar.length, reason: 'the caret stays put');
+    });
+
+    test('a rejected digit leaves it intact too', () {
+      expect(f.formatEditUpdate(v(omar), v('${omar}9')).text, omar);
+    });
+
+    test('Backspace deletes one character rather than the whole name', () {
+      expect(f.formatEditUpdate(v(omar), v('Oma')).text, 'Oma');
+      expect(f.formatEditUpdate(v('O'), v('')).text, '');
+    });
+
+    test('a rejected keystroke in the middle leaves it intact', () {
+      expect(f.formatEditUpdate(v(omar), v('Omxar', 3)).text, omar);
+    });
+
+    test('deleting from the middle works', () {
+      expect(f.formatEditUpdate(v(omar), v('Omr', 2)).text, 'Omr');
+    });
+
+    test('Arabic typed onto the end is kept, and the validator takes it from there', () {
+      // Mixed is not stored: the value has changed, so the script rule applies
+      // again and validate() asks for Arabic. See the validator group below.
+      expect(f.formatEditUpdate(v(omar), v('$omar$muhammad')).text, '$omar$muhammad');
+    });
+
+    test('pasting Latin over a Latin name changes nothing', () {
+      expect(f.formatEditUpdate(v(omar), v('${omar}Ali')).text, omar);
+    });
+
+    test('pasting a mix keeps only the Arabic that was added', () {
+      expect(f.formatEditUpdate(v(omar), v('$omar${ali}7')).text, '$omar$ali');
+    });
+
+    test('replacing the whole selection is still the worker deleting it', () {
+      // Select-all then type: the deletion is deliberate, the Latin key is not
+      // honoured, and the field is left empty for them to write the name in
+      // Arabic. Nothing is lost that they did not ask to lose.
+      expect(f.formatEditUpdate(v(omar), v('x')).text, '');
+      expect(f.formatEditUpdate(v(omar), v(muhammad)).text, muhammad);
+    });
+
+    test('an edit that changes nothing passes straight through', () {
+      expect(f.formatEditUpdate(v(omar), v(omar, 2)).selection.baseOffset, 2);
+    });
+  });
+
   group('the validator enforces it on values the formatter never saw', () {
     // A pulled record, a merge or a restored draft all bypass the keyboard.
     SchemaFormController controllerFor(String value) => SchemaFormController(
