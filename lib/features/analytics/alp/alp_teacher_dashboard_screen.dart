@@ -349,21 +349,25 @@ class _CapacityCharts extends StatelessWidget {
           child: ChartCard(
             key: const ValueKey('chart-subjects'),
             title: l10n.subjectsProvided,
-            child: _bars(context, insights.subjects),
+            // The rows count teacher-SUBJECT pairs, so a share of their sum
+            // would answer a question nobody asked ("what fraction of the
+            // subjects taught is Arabic?"). The teacher count is the
+            // denominator a workforce page means.
+            child: _bars(context, insights.subjects, total: insights.total),
           ),
         ),
         ChartTile(
           child: ChartCard(
             key: const ValueKey('chart-levels'),
             title: l10n.gradeLevelsSupported,
-            child: _bars(context, insights.levels),
+            child: _bars(context, insights.levels, total: insights.total),
           ),
         ),
         ChartTile(
           child: ChartCard(
             key: const ValueKey('chart-trainings'),
             title: l10n.trainingTopics,
-            child: _bars(context, insights.trainings),
+            child: _bars(context, insights.trainings, total: insights.total),
           ),
         ),
         ChartTile(
@@ -397,6 +401,7 @@ Widget _bars(
   BuildContext context,
   List<ChartItem> items, {
   bool share = true,
+  int? total,
   String Function(ChartItem)? valueText,
   double? valueWidth,
 }) {
@@ -404,6 +409,7 @@ Widget _bars(
   if (totalOf(items) == 0) return EmptyChart(message: l10n.noDataForFilters);
   return BarListChart(
     items: items,
+    total: total,
     showShare: share,
     valueText: valueText,
     valueWidth: valueWidth,

@@ -279,10 +279,26 @@ List<ChartItem> itemsFromTally(Map<String, int> tally, String Function(String ke
 /// The data-viz rule behind it: a categorical palette has eight slots and a
 /// ninth hue is never generated, so a donut or a legend past that folds its
 /// tail. Bars are not folded — a long bar list is scrollable and reads fine.
+///
+/// It SELECTS the largest rather than taking the head, because not every
+/// caller hands it a list sorted by size: the teacher groupings are ordered
+/// by value, the way the server's `order_by(field)` orders them, and taking
+/// the head there folded the two biggest nationalities into "Other" while
+/// keeping seven one-teacher slices. The survivors keep the order they came
+/// in, so a caller's deliberate ordering is not silently re-sorted.
 List<ChartItem> foldTail(List<ChartItem> items, {int keep = 7, required String otherLabel}) {
   if (items.length <= keep + 1) return items;
-  final head = items.take(keep).toList();
-  final rest = items.skip(keep).fold(0, (sum, i) => sum + i.count);
+  // Ties break on the incoming position, not on whatever the sort happens to
+  // do: `List.sort` is not stable, so without it the five survivors among
+  // seven one-teacher nationalities would differ between runs.
+  final order = [for (var i = 0; i < items.length; i++) i]
+    ..sort((a, b) {
+      final byCount = items[b].count.compareTo(items[a].count);
+      return byCount != 0 ? byCount : a.compareTo(b);
+    });
+  final kept = {for (final i in order.take(keep)) items[i].key};
+  final head = [for (final item in items) if (kept.contains(item.key)) item];
+  final rest = items.where((i) => !kept.contains(i.key)).fold(0, (sum, i) => sum + i.count);
   return [...head, ChartItem(key: '__other__', label: otherLabel, count: rest)];
 }
 

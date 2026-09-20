@@ -375,14 +375,81 @@ void main() {
 
   _memoTests();
 
+  test('two programmes that share a label are ONE cross-tab row', () {
+    // A Crosstab addresses its cells by label. Two raw values translating to
+    // the same words used to list that label twice, each row reading the same
+    // map, and the grand total counted those children twice.
+    final src = NfeAnalyticsSource(
+      registrations: [
+        serverRegistration(1, birthYear: '2015', summary: const [
+          {'id': 1, 'education_program': 'YFS Level 1'},
+        ]),
+        serverRegistration(2, birthYear: '2015', summary: const [
+          {'id': 2, 'education_program': 'YFS Level 1 - RS'},
+        ]),
+      ],
+      educationServices: const [],
+      teachers: const [],
+      centers: source().centers,
+      partners: source().partners,
+      nationalities: source().nationalities,
+      // Both raw values render as the same words in this language.
+      programmeLabels: const {'YFS Level 1': 'يافعون ١', 'YFS Level 1 - RS': 'يافعون ١'},
+      language: 'ar',
+      today: today,
+    );
+    final ct = computeNfeAnalytics(src, AnalyticsFilters.none).programmeByAgeGroup;
+    expect(ct.rows, ['يافعون ١']);
+    expect(ct.at('يافعون ١', '5-11'), 2);
+    expect(ct.total, 2);
+    // The programme COUNT still sees two distinct programmes, as the server's
+    // distinct-on-the-raw-value does.
+    expect(computeNfeAnalytics(src, AnalyticsFilters.none).summary.programmes, 2);
+  });
+
   group('model helpers', () {
-    test('foldTail keeps the head and sums the rest', () {
+    test('foldTail keeps the largest and sums the rest', () {
       final items = [for (var i = 0; i < 10; i++) ChartItem(key: 'k$i', label: 'L$i', count: 10 - i)];
       final folded = foldTail(items, keep: 7, otherLabel: 'Other');
       expect(folded, hasLength(8));
       expect(folded.last.label, 'Other');
       expect(folded.last.count, 3 + 2 + 1);
-      expect(foldTail(items.take(8).toList(), keep: 7, otherLabel: 'Other'), hasLength(8), reason: 'no fold for one extra');
+      // The boundary, asserted on the LABELS: eight items folded to seven
+      // plus "Other" is also eight items, so a length check alone cannot see
+      // an off-by-one in the guard.
+      final eight = foldTail(items.take(8).toList(), keep: 7, otherLabel: 'Other');
+      expect(eight.map((i) => i.label).toList(), ['L0', 'L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7']);
+      expect(eight.any((i) => i.key == '__other__'), isFalse, reason: 'one extra is not a tail');
+    });
+
+    test('foldTail selects the largest even when the list is ordered by value', () {
+      // The teacher groupings come out in value order, the way the server's
+      // `order_by(field)` orders them. Taking the head there folded the two
+      // biggest nationalities into "Other" and kept seven singletons.
+      final byValue = [
+        const ChartItem(key: 'a', label: 'Armenian', count: 1),
+        const ChartItem(key: 'b', label: 'Egyptian', count: 1),
+        const ChartItem(key: 'c', label: 'Ethiopian', count: 1),
+        const ChartItem(key: 'd', label: 'Filipino', count: 1),
+        const ChartItem(key: 'e', label: 'Iraqi', count: 1),
+        const ChartItem(key: 'f', label: 'Jordanian', count: 1),
+        const ChartItem(key: 'g', label: 'Lebanese', count: 1),
+        const ChartItem(key: 'h', label: 'Palestinian', count: 2),
+        const ChartItem(key: 'i', label: 'Syrian', count: 40),
+      ];
+      final folded = foldTail(byValue, keep: 7, otherLabel: 'Other');
+      expect(folded, hasLength(8));
+      expect(folded.map((i) => i.label), contains('Syrian'));
+      expect(folded.map((i) => i.label), contains('Palestinian'));
+      // Nine items, seven kept: exactly two fold, and they are singletons.
+      expect(folded.last.count, 2);
+      // The survivors keep the order they came in, and the tie between the
+      // one-teacher nationalities breaks on that same order rather than on
+      // whatever an unstable sort does.
+      expect(
+        folded.take(7).map((i) => i.label).toList(),
+        ['Armenian', 'Egyptian', 'Ethiopian', 'Filipino', 'Iraqi', 'Palestinian', 'Syrian'],
+      );
     });
 
     test('percentText prints one decimal only when needed', () {

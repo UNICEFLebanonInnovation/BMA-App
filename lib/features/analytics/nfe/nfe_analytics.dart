@@ -452,13 +452,24 @@ NfeAnalytics computeNfeAnalytics(
     });
   final presentGroups = {for (final c in counts.values) ...c.keys};
   final ageLabel = {for (final g in nfeAgeGroups) g: g == 'Unknown' ? labels.unknown : g};
+  // A Crosstab addresses its cells by LABEL, so two raw programme values that
+  // translate to the same words have to become one row: a map literal would
+  // otherwise keep the last of them while `rows` listed the label twice, and
+  // the grand total would count that programme's children twice over.
+  final rowLabels = <String>[];
+  final byLabel = <String, Map<String, int>>{};
+  for (final p in programmeOrder) {
+    final label = programmeLabelOf[p]!;
+    if (!byLabel.containsKey(label)) rowLabels.add(label);
+    final row = byLabel.putIfAbsent(label, () => {});
+    for (final e in counts[p]!.entries) {
+      row.update(ageLabel[e.key]!, (v) => v + e.value, ifAbsent: () => e.value);
+    }
+  }
   final crosstab = Crosstab(
-    rows: [for (final p in programmeOrder) programmeLabelOf[p]!],
+    rows: rowLabels,
     columns: [for (final g in nfeAgeGroups) if (presentGroups.contains(g)) ageLabel[g]!],
-    counts: {
-      for (final p in programmeOrder)
-        programmeLabelOf[p]!: {for (final e in counts[p]!.entries) ageLabel[e.key]!: e.value},
-    },
+    counts: byLabel,
   );
 
   return NfeAnalytics(
