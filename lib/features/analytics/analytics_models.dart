@@ -288,3 +288,35 @@ String percentText(num part, num whole) {
   final rounded = (value * 10).round() / 10;
   return rounded == rounded.roundToDouble() ? rounded.toInt().toString() : rounded.toStringAsFixed(1);
 }
+
+/// One-slot memo for a dashboard's computed figures.
+///
+/// The screens recompute inside a `FutureBuilder`'s builder, which runs on
+/// every frame the page rebuilds — a dropdown opening, a keyboard animating,
+/// a snackbar sliding. Reducing a few thousand registrations eleven ways is
+/// ~10 ms, enough to drop frames through an animation but nothing to fear
+/// once per filter change, so the answer is kept until its inputs differ.
+///
+/// Deliberately one slot: a dashboard shows one filter set at a time, and a
+/// growing cache of results the user has walked past is a memory leak with
+/// extra steps. [source] is compared by IDENTITY (it is the loaded record
+/// set, replaced wholesale when the data version moves) and [key] by value.
+class ComputeMemo<S, K, V> {
+  S? _source;
+  K? _key;
+  V? _value;
+
+  /// Explicit rather than inferred from `_value != null`: a computation whose
+  /// answer is legitimately null would otherwise re-run on every frame.
+  bool _filled = false;
+
+  V of(S source, K key, V Function() compute) {
+    if (_filled && identical(_source, source) && _key == key) return _value as V;
+    final value = compute();
+    _source = source;
+    _key = key;
+    _value = value;
+    _filled = true;
+    return value;
+  }
+}

@@ -369,6 +369,8 @@ void main() {
     });
   });
 
+  _memoTests();
+
   group('model helpers', () {
     test('foldTail keeps the head and sums the rest', () {
       final items = [for (var i = 0; i < 10; i++) ChartItem(key: 'k$i', label: 'L$i', count: 10 - i)];
@@ -394,6 +396,50 @@ void main() {
       expect(AnalyticsFilters.none.isEmpty, isTrue);
       expect(f.isEmpty, isFalse);
       expect(f, const AnalyticsFilters(partnerId: 1, centerId: 2));
+    });
+  });
+}
+
+// The memo the screens recompute through. Its whole job is to NOT recompute
+// on a rebuild that changed nothing, so the test is about identity.
+void _memoTests() {
+  group('ComputeMemo', () {
+    test('recomputes only when the source identity or the key changes', () {
+      final memo = ComputeMemo<List<int>, String, Object>();
+      final source = [1, 2, 3];
+      var calls = 0;
+      Object compute() {
+        calls++;
+        return Object();
+      }
+
+      final first = memo.of(source, 'a', compute);
+      expect(calls, 1);
+      expect(identical(memo.of(source, 'a', compute), first), isTrue, reason: 'same inputs, same answer');
+      expect(calls, 1);
+
+      final second = memo.of(source, 'b', compute);
+      expect(calls, 2);
+      expect(identical(second, first), isFalse);
+
+      // An equal but DIFFERENT list is a new load, and must recompute.
+      memo.of([1, 2, 3], 'b', compute);
+      expect(calls, 3);
+    });
+
+    test('a null answer is an answer, and is not recomputed either', () {
+      final memo = ComputeMemo<String, int, String?>();
+      var calls = 0;
+      String? compute() {
+        calls++;
+        return null;
+      }
+
+      expect(memo.of('s', 1, compute), isNull);
+      expect(memo.of('s', 1, compute), isNull);
+      expect(calls, 1, reason: 'the slot knows it is filled; it does not infer that from the value');
+      memo.of('s', 2, compute);
+      expect(calls, 2);
     });
   });
 }

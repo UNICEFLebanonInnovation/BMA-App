@@ -59,6 +59,7 @@ class _Loaded {
 
 class _NfeAdvancedAnalyticsScreenState extends ConsumerState<NfeAdvancedAnalyticsScreen> {
   AnalyticsFilters _filters = AnalyticsFilters.none;
+  final _memo = ComputeMemo<_Loaded, (AnalyticsFilters, String), NfeAnalytics>();
   bool _moreFilters = false;
   Future<_Loaded>? _future;
   String? _loadKey;
@@ -156,7 +157,11 @@ class _NfeAdvancedAnalyticsScreenState extends ConsumerState<NfeAdvancedAnalytic
                   female: l10n.female,
                   other: l10n.sectionOther,
                 );
-                final analytics = computeNfeAnalytics(loaded.source, _filters, labels: labels);
+                final analytics = _memo.of(
+                  loaded,
+                  (_filters, l10n.localeName),
+                  () => computeNfeAnalytics(loaded.source, _filters, labels: labels),
+                );
                 // gutter: false — the ListView's own 8 px IS the gutter, as on
                 // the offline dashboard, so six KPI tiles still fit at 1280.
                 return AdaptiveBody(

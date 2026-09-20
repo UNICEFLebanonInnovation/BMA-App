@@ -43,6 +43,7 @@ class _Loaded {
 
 class _AlpTeacherDashboardScreenState extends ConsumerState<AlpTeacherDashboardScreen> {
   AlpTeacherFilters _filters = AlpTeacherFilters.none;
+  final _memo = ComputeMemo<_Loaded, (AlpTeacherFilters, String), AlpTeacherInsights>();
   Future<_Loaded>? _future;
   String? _loadKey;
 
@@ -128,7 +129,11 @@ class _AlpTeacherDashboardScreenState extends ConsumerState<AlpTeacherDashboardS
                   alpHours: l10n.alpHours,
                   privateSchoolHours: l10n.privateSchoolHours,
                 );
-                final insights = computeAlpTeacherInsights(loaded.source, _filters, labels: labels);
+                final insights = _memo.of(
+                  loaded,
+                  (_filters, l10n.localeName),
+                  () => computeAlpTeacherInsights(loaded.source, _filters, labels: labels),
+                );
                 return AdaptiveBody(
                   gutter: false,
                   child: ListView(

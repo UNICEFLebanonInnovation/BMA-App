@@ -50,6 +50,7 @@ class _Loaded {
 
 class _AlpRegistrationInsightsScreenState extends ConsumerState<AlpRegistrationInsightsScreen> {
   AlpRegistrationFilters _filters = AlpRegistrationFilters.none;
+  final _memo = ComputeMemo<_Loaded, (AlpRegistrationFilters, String), AlpRegistrationInsights>();
   Future<_Loaded>? _future;
   String? _loadKey;
 
@@ -158,7 +159,11 @@ class _AlpRegistrationInsightsScreenState extends ConsumerState<AlpRegistrationI
                   movedFromEarlierRound: l10n.movedFromEarlierRound,
                   newInRound: l10n.newInRound,
                 );
-                final insights = computeAlpRegistrationInsights(loaded.source, _filters, labels: labels);
+                final insights = _memo.of(
+                  loaded,
+                  (_filters, l10n.localeName),
+                  () => computeAlpRegistrationInsights(loaded.source, _filters, labels: labels),
+                );
                 return AdaptiveBody(
                   gutter: false,
                   child: ListView(

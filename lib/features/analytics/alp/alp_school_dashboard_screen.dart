@@ -17,6 +17,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/common.dart';
 import '../../../core/widgets/ui.dart';
 import '../../../l10n/app_localizations.dart';
+import '../analytics_models.dart';
 import '../charts/chart_card.dart';
 import '../widgets/filter_bar.dart';
 import 'alp_registration_insights.dart' show AlpAnalyticsEntities;
@@ -45,6 +46,7 @@ class AlpSchoolDashboardScreen extends ConsumerStatefulWidget {
 class _AlpSchoolDashboardScreenState extends ConsumerState<AlpSchoolDashboardScreen> {
   final MapController _map = MapController();
   int? _schoolId;
+  final _memo = ComputeMemo<AlpSchoolSource, (int?, String), AlpSchoolDashboard>();
   Future<AlpSchoolSource>? _future;
   String? _loadKey;
 
@@ -131,10 +133,14 @@ class _AlpSchoolDashboardScreenState extends ConsumerState<AlpSchoolDashboardScr
                 }
                 if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
                 final source = snapshot.data!;
-                final dashboard = computeAlpSchoolDashboard(
+                final dashboard = _memo.of(
                   source,
-                  schoolId: _schoolId,
-                  labels: AlpSchoolLabels(unknown: l10n.unknown, notRecorded: l10n.notRecorded),
+                  (_schoolId, l10n.unknown),
+                  () => computeAlpSchoolDashboard(
+                    source,
+                    schoolId: _schoolId,
+                    labels: AlpSchoolLabels(unknown: l10n.unknown, notRecorded: l10n.notRecorded),
+                  ),
                 );
                 if (_refitPending) {
                   _refitPending = false;

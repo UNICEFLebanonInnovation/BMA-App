@@ -29,6 +29,7 @@ class AlpAttendanceDashboardScreen extends ConsumerStatefulWidget {
 class _AlpAttendanceDashboardScreenState extends ConsumerState<AlpAttendanceDashboardScreen> {
   /// Null means "the year the data suggests"; a pick pins it.
   int? _year;
+  final _memo = ComputeMemo<AlpAttendanceSource, (int?, String), AlpAttendanceInsights>();
   Future<AlpAttendanceSource>? _future;
   String? _loadKey;
 
@@ -74,7 +75,11 @@ class _AlpAttendanceDashboardScreenState extends ConsumerState<AlpAttendanceDash
                   return EmptyState(message: snapshot.error.toString(), icon: Icons.error_outline);
                 }
                 if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-                final insights = computeAlpAttendance(snapshot.data!, year: _year, unknownLabel: l10n.unknown);
+                final insights = _memo.of(
+                  snapshot.data!,
+                  (_year, l10n.unknown),
+                  () => computeAlpAttendance(snapshot.data!, year: _year, unknownLabel: l10n.unknown),
+                );
                 return AdaptiveBody(
                   gutter: false,
                   child: ListView(
