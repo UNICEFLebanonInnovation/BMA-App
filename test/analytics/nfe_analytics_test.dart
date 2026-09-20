@@ -369,6 +369,8 @@ void main() {
     });
   });
 
+  _programmeSourceTests();
+
   _reviewRegressions();
 
   _memoTests();
@@ -548,5 +550,79 @@ void _reviewRegressions() {
     expect(item == const ChartItem(key: 'a', label: 'Arabic', count: 68), isFalse);
     // A count chart leaves it null, and nothing downstream has to care.
     expect(const ChartItem(key: 'a', label: 'A', count: 3).exact, isNull);
+  });
+}
+
+void _programmeSourceTests() {
+  group('the latest programme comes from whichever store holds it', () {
+    test('the embedded summary wins by id', () {
+      final rows = nfeRegistrationRows(
+        source(registrations: [
+          serverRegistration(1, summary: const [
+            {'id': 9, 'education_program': 'BLN Level 3'},
+            {'id': 4, 'education_program': 'BLN Level 1'},
+          ]),
+        ]),
+        AnalyticsLabels.english,
+      );
+      expect(rows.single.programme, 'BLN Level 3');
+    });
+
+    test('a service typed offline beats the summary the pull embedded', () {
+      // The child was moved to a new programme in the field. Until the next
+      // push the only record of that is the local service, and reading the
+      // summary first left the child counted under the old programme.
+      final registration = serverRegistration(1, summary: const [
+        {'id': 4, 'education_program': 'BLN Level 1'},
+      ]);
+      final local = EntityRecord(
+        uuid: 's-local',
+        entity: Entities.msccEducationService,
+        module: 'mscc',
+        parentUuid: registration.uuid,
+        parentServerId: 1,
+        syncState: SyncState.pending,
+        createdAt: '2026-09-19T10:00:00',
+        data: const {'education_program': 'BLN Level 2'},
+      );
+      final rows = nfeRegistrationRows(
+        source(registrations: [registration], services: [local]),
+        AnalyticsLabels.english,
+      );
+      expect(rows.single.programme, 'BLN Level 2');
+      expect(rows.single.programmeLabel, 'BLN Level 2');
+    });
+
+    test('a PULLED service record still loses to a higher summary id', () {
+      final registration = serverRegistration(1, summary: const [
+        {'id': 9, 'education_program': 'BLN Level 3'},
+      ]);
+      final pulled = EntityRecord(
+        uuid: 's-2',
+        entity: Entities.msccEducationService,
+        module: 'mscc',
+        serverId: 2,
+        parentServerId: 1,
+        data: const {'id': 2, 'education_program': 'BLN Level 1'},
+      );
+      final rows = nfeRegistrationRows(
+        source(registrations: [registration], services: [pulled]),
+        AnalyticsLabels.english,
+      );
+      expect(rows.single.programme, 'BLN Level 3');
+    });
+
+    test('no service anywhere is Unknown, and a blank programme is not a programme', () {
+      final rows = nfeRegistrationRows(
+        source(registrations: [
+          serverRegistration(1, summary: const [
+            {'id': 4, 'education_program': ''},
+          ]),
+        ]),
+        AnalyticsLabels.english,
+      );
+      expect(rows.single.programme, 'Unknown');
+      expect(rows.single.programmeLabel, 'Unknown');
+    });
   });
 }

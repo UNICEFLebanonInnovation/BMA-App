@@ -296,6 +296,11 @@ class AlpRegistrationInsights {
   /// tiles answer the filters and agrees with how the ALP teacher dashboard
   /// already counts its own schools (`values('school_id').distinct()`).
   final int activeSchools;
+
+  /// 0 or 1 in practice: an ALP registration carries no partner of its own,
+  /// so the account's is the only one the device knows. Counted from the
+  /// filtered rows all the same, so a filter that matches nothing reads 0
+  /// rather than claiming a partner with no children behind it.
   final int partners;
 
   /// Rounds the platform knows — unfiltered, as `ALPRound.objects.all()`.
@@ -352,12 +357,20 @@ List<AlpRegistrationRow> alpRegistrationRows(AlpRegistrationSource src, AlpLabel
             : labels.notSpecified);
     final familyStatus = (person?['marital_status'] ?? view.flat['child_marital_status'] ?? '').toString().trim();
     final source = (data['source_of_identification'] ?? '').toString().trim();
-    final childId = _int(person?['id']);
+    // `child_id` is not decoration: `_mergeEdit` writes it onto an offline
+    // edit so the push updates the same child, and without it a corrected
+    // registration would count as a second, different child in the
+    // children-per-round figures.
+    final childId = _int(person?['id'] ?? view.flat['child_id']);
 
     rows.add(AlpRegistrationRow(
       uuid: record.uuid,
       childKey: childId == null ? 'uuid:${record.uuid}' : 'child:$childId',
       schoolId: _int(data['school']) ?? src.defaultSchoolId,
+      // AN ALP REGISTRATION HAS NO PARTNER. `ALPRegistration` declares no
+      // partner foreign key, so the only partner the device can name is the
+      // one on the account — which is why the tile reads 0 or 1 and not a
+      // count of the field. The read stays for the day the model gains one.
       partnerId: _int(data['partner']) ?? src.defaultPartnerId,
       roundId: roundId,
       roundLabel: round?.labelFor(src.language) ??

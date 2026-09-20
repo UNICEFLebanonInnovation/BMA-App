@@ -629,6 +629,8 @@ void main() {
     });
   });
 
+  _childIdentityTests();
+
   _reviewRegressions();
 
   group('ALP school map', () {
@@ -829,5 +831,41 @@ void _reviewRegressions() {
         isEmpty,
       );
     });
+  });
+}
+
+void _childIdentityTests() {
+  test('an offline EDIT keeps the child identity it was pulled with', () {
+    // `_mergeEdit` writes the child's server id flat onto an edited
+    // registration so the push updates the same child. Reading only the
+    // nested shape counted that child twice in "children per round".
+    final pulled = alpRegistration(1, round: 1, childId: 412);
+    final editedOffline = EntityRecord(
+      uuid: 'alp-2',
+      entity: Entities.alpRegistration,
+      module: 'alp',
+      serverId: 2,
+      syncState: SyncState.pending,
+      data: const {
+        'child_id': 412,
+        'child_first_name': 'C',
+        'child_gender': 'Male',
+        'child_nationality': 1,
+        'child_birthday_year': '2015',
+        'school': 7,
+        'round': 2,
+        'programme': 1,
+      },
+    );
+    final insights = computeAlpRegistrationInsights(
+      regSource(registrations: [pulled, editedOffline]),
+      AlpRegistrationFilters.none,
+    );
+    expect(insights.totalRegistrations, 2, reason: 'two enrolments');
+    expect({for (final i in insights.byRound) i.label: i.count}, {'2024-2025': 1, '2025-2026': 1});
+    // ONE child, in both rounds: the moved/new split must say so.
+    final moved = {for (final r in insights.movedBetweenRounds) r.label: r.values};
+    expect(moved['2024-2025'], [1, 0]);
+    expect(moved['2025-2026'], [1, 0]);
   });
 }

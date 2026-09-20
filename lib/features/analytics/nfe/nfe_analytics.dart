@@ -255,21 +255,34 @@ List<NfeRegistrationRow> nfeRegistrationRows(NfeAnalyticsSource src, AnalyticsLa
     final view = RegistrationView(record);
     final data = record.data;
 
-    String? programme;
-    final summary = view.educationSummary;
-    if (summary.isNotEmpty) {
-      var best = summary.first;
-      for (final s in summary) {
-        if ((_int(s['id']) ?? 0) > (_int(best['id']) ?? 0)) best = s;
-      }
-      programme = best['education_program']?.toString();
-    }
-    if (programme == null || programme.isEmpty) {
-      final local = latestByParentUuid[record.uuid] ??
-          (record.serverId == null ? null : latestByParentId[record.serverId!]);
-      programme = local?.data['education_program']?.toString();
-    }
-    if (programme == null || programme.isEmpty) programme = 'Unknown';
+    // THE LATEST EDUCATION SERVICE, wherever it is stored. The server takes
+    // the one with the highest id (`_latest_programme_subquery`); on the
+    // device that row can live in three places: the `education_summary` the
+    // pull embeds, a pulled `mscc.education_service` record, or one typed
+    // offline that has no id yet. A service typed offline is by construction
+    // newer than anything pulled before it, so it wins — reading the embedded
+    // summary first left a child who was moved to a new programme in the
+    // field counted under the old one until the next push.
+    final candidates = <({String value, int id, bool isLocal})>[
+      for (final entry in view.educationSummary)
+        if ((entry['education_program']?.toString() ?? '').isNotEmpty)
+          (value: entry['education_program'].toString(), id: _int(entry['id']) ?? -1, isLocal: false),
+      for (final service in [
+        ?latestByParentUuid[record.uuid],
+        if (record.serverId != null) ?latestByParentId[record.serverId!],
+      ])
+        if ((service.data['education_program']?.toString() ?? '').isNotEmpty)
+          (
+            value: service.data['education_program'].toString(),
+            id: _int(service.data['id']) ?? -1,
+            isLocal: service.serverId == null,
+          ),
+    ];
+    candidates.sort((a, b) {
+      if (a.isLocal != b.isLocal) return a.isLocal ? 1 : -1;
+      return a.id.compareTo(b.id);
+    });
+    final programme = candidates.isEmpty ? 'Unknown' : candidates.last.value;
 
     // THE ACCOUNT'S SCOPE IS A DEFAULT FOR LOCAL WORK ONLY. The server forces
     // its centre and partner onto anything typed offline, so a pending record
