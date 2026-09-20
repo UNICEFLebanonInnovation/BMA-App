@@ -299,6 +299,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get confirmMismatch => 'Values do not match.';
 
   @override
+  String get arabicOnlyHint => 'Arabic only';
+
+  @override
   String attendanceRowsNeedReason(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

@@ -79,6 +79,7 @@ class FieldSpec {
     this.choices = const [],
     this.choicesRef,
     this.ref,
+    this.script,
   });
 
   final String name;
@@ -122,6 +123,15 @@ class FieldSpec {
 
   /// Reference list key (e.g. `nationalities`, `rounds.mscc`, `parent`).
   final String? ref;
+
+  /// Writing system this field must be typed in — `'arabic'`, or null for any.
+  ///
+  /// The website requires a child's and a caregiver's name in Arabic and
+  /// enforces it in JavaScript (`checkArabicOnly`), not in a Django validator,
+  /// so the rule had no way of reaching the app until it was named here.
+  final String? script;
+
+  bool get isArabicOnly => script == 'arabic';
 
   /// [patterns] when the server sent them, else the legacy single [pattern].
   List<PatternRule> get effectivePatterns {
@@ -215,6 +225,7 @@ class FieldSpec {
             .toList(),
         choicesRef: json['choices_ref']?.toString(),
         ref: json['ref']?.toString(),
+        script: json['script']?.toString(),
       );
 
   Map<String, dynamic> toJson() => {
@@ -240,6 +251,7 @@ class FieldSpec {
         if (choices.isNotEmpty) 'choices': choices.map((c) => c.toJson()).toList(),
         if (choicesRef != null) 'choices_ref': choicesRef,
         if (ref != null) 'ref': ref,
+        if (script != null) 'script': script,
       };
 }
 

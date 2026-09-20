@@ -8,7 +8,8 @@
     <application
         android:label="BMA Mobile"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round">
         <!-- TABLET-FIRST. The app targets a 9-inch tablet in BOTH orientations
              (1280x800 landscape, 800x1280 portrait) and keeps the phone as a
              fallback, so there is deliberately NO android:screenOrientation,

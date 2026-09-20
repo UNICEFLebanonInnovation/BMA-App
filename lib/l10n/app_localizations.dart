@@ -638,6 +638,12 @@ abstract class AppLocalizations {
   /// **'Values do not match.'**
   String get confirmMismatch;
 
+  /// No description provided for @arabicOnlyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Arabic only'**
+  String get arabicOnlyHint;
+
   /// No description provided for @attendanceRowsNeedReason.
   ///
   /// In en, this message translates to:

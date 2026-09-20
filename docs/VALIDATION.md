@@ -40,11 +40,44 @@ hand; the teacher sheet implemented none.
 | `validators=[MinLengthValidator(3)]` etc. | `min_length` … | the same bound, whichever way it is declared |
 | `ChoiceField` / `ModelChoiceField` | `choices` / `ref` | the value is one of the options |
 | `EmailField` | `type: email` | looks like an address |
+| `checkArabicOnly` in JS | `script: "arabic"` | Arabic block or space (see below) |
 | (attendance only) | `max_date: today` | not in the future |
 
 `URLValidator` and `EmailValidator` patterns are deliberately **not** shipped:
 the app has a type for each, and their regexes are enormous and not portable to
 Dart's `RegExp`.
+
+## Arabic bio data
+
+The website requires a child's and a caregiver's name in **Arabic**. That rule
+is not a Django validator: it is `checkArabicOnly()` in
+`static/js/validator.js`, bound on blur to the `arabic_fields` lists in
+`mscc.js`, `alp.js`, `registrations.js`, `bridging.js` and `project.js`. It
+accepts `U+0600`–`U+06FF` or a space — the whole Arabic block, so Arabic-Indic
+digits and Arabic punctuation are in — and silently discards everything else.
+
+The schema names those fields with `script: "arabic"`. There are two tiers and
+a field is in one or the other, never both: Arabic-only implies letters-only,
+so the export drops the weaker `only_letters_validator` pattern from a field it
+marks Arabic, and the worker sees one complaint per character rather than two.
+
+**The app blocks rather than strips.** The website deletes the offending
+characters when the field loses focus, which empties the field completely if
+the whole name was typed in Latin. On the web that is a re-typed field; on an
+offline tablet it is lost data with no indication anything happened. So
+`ArabicOnlyFormatter` stops the keystroke instead — the end state is identical
+(only Arabic is ever stored) and nothing already on screen is rewritten
+underneath the worker. Because a blocked keystroke is silent, every field with
+the flag shows an "Arabic only" hint.
+
+**The rule applies to what the worker types, not to what the server holds.**
+Django accepts a Latin name, and the JavaScript only fires on a field the
+worker focused, so an untouched record saves unchanged on the website. Twelve
+of the twenty-eight name values in the captured fixture are Latin. Enforcing
+the rule on them would be *stricter than the website* and would stop someone
+correcting a birth date on a record whose name they never touched, so
+`SchemaFormController` skips a script rule on a value that is unchanged from
+the one the form opened with. Edit it and the rule applies from then on.
 
 ## Three deliberate refusals to reject
 
@@ -108,4 +141,5 @@ here too — `only_letters_validator` is currently one of them.
 | `student_registration/mobile_api/tests/test_schema_rules.py` (BMA-NFE) | what `field_spec` and `attendance_schema` promise |
 | `test/schema_validation_test.dart` | every rule the controller enforces |
 | `test/attendance_validation_test.dart` | the five attendance rules, both sheets |
+| `test/arabic_only_test.dart` | the Arabic rule, the formatter and the untouched-value case |
 | `test/registration_rules_test.dart` | the whole chain, through the real wizard |

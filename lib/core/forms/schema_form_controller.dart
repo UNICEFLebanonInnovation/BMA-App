@@ -22,6 +22,7 @@ class SchemaFormController extends ChangeNotifier {
     this.messages = const ValidationMessages(),
     DateTime Function()? clock,
   })  : values = Map<String, dynamic>.from(initial ?? const {}),
+        _initial = Map<String, dynamic>.from(initial ?? const {}),
         _clock = clock ?? DateTime.now,
         serverErrors = _normaliseErrors(serverErrors);
 
@@ -39,6 +40,13 @@ class SchemaFormController extends ChangeNotifier {
 
   final ValidationMessages messages;
   final DateTime Function() _clock;
+
+  /// The values this form opened with, so a rule that applies to what the
+  /// WORKER types can tell that apart from what the server already held.
+  final Map<String, dynamic> _initial;
+
+  bool _unchanged(String name) =>
+      _initial.containsKey(name) && '${_initial[name]}' == '${values[name]}';
 
   Map<String, List<String>> errors = {};
   Map<String, List<String>> serverErrors;
@@ -233,7 +241,21 @@ class SchemaFormController extends ChangeNotifier {
     if (field.minLength != null && text.length < field.minLength!) {
       result.add(messages.tooShort(field.minLength!));
     }
+    // A SCRIPT rule ("write this in Arabic") is a rule about typing, not about
+    // stored data. On the website it is JavaScript that fires when a field the
+    // worker focused loses focus; Django itself accepts a Latin name, so an
+    // untouched record saves unchanged there. Twelve of the twenty-eight names
+    // in a real pull are Latin, and rejecting them here would block a worker
+    // from correcting a birth date on a record whose name they never touched —
+    // stricter than the website, and disruptive in the field. The formatter
+    // still stops a new one being typed.
+    final skipScript = field.isArabicOnly && _unchanged(field.name);
     for (final rule in field.effectivePatterns) {
+      // Keyed on the FLAG, not on the pattern text: the same regex reaches
+      // the app as six characters from one server and as one code point
+      // from another, and an Arabic-only field carries exactly this one
+      // rule because the export drops the weaker letters-only twin.
+      if (skipScript) continue;
       final regex = _compile(rule.pattern);
       // A pattern Dart cannot compile is dropped rather than failed: the
       // server still enforces it, and rejecting every value would be worse

@@ -1081,12 +1081,13 @@
      "placeholder_ar": "مثال: محمد",
      "patterns": [
       {
-       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-       "message": "Only alphabetic characters are allowed."
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
       }
      ],
-     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-     "pattern_message": "Only alphabetic characters are allowed."
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic.",
+     "script": "arabic"
     },
     {
      "name": "child_father_name",
@@ -1099,12 +1100,13 @@
      "placeholder_ar": "مثال: أحمد",
      "patterns": [
       {
-       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-       "message": "Only alphabetic characters are allowed."
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
       }
      ],
-     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-     "pattern_message": "Only alphabetic characters are allowed."
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic.",
+     "script": "arabic"
     },
     {
      "name": "child_last_name",
@@ -1117,12 +1119,13 @@
      "placeholder_ar": "مثال: السيد",
      "patterns": [
       {
-       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-       "message": "Only alphabetic characters are allowed."
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
       }
      ],
-     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-     "pattern_message": "Only alphabetic characters are allowed."
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic.",
+     "script": "arabic"
     },
     {
      "name": "child_mother_fullname",
@@ -1135,12 +1138,13 @@
      "placeholder_ar": "مثال: الهام",
      "patterns": [
       {
-       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-       "message": "Only alphabetic characters are allowed."
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
       }
      ],
-     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-     "pattern_message": "Only alphabetic characters are allowed."
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic.",
+     "script": "arabic"
     },
     {
      "name": "child_gender",
@@ -2266,12 +2270,13 @@
      "placeholder_ar": "Caregiver's first name",
      "patterns": [
       {
-       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-       "message": "Only alphabetic characters are allowed."
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
       }
      ],
-     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-     "pattern_message": "Only alphabetic characters are allowed."
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic.",
+     "script": "arabic"
     },
     {
      "name": "caregiver_middle_name",
@@ -2284,12 +2289,13 @@
      "placeholder_ar": "Caregiver's father's name",
      "patterns": [
       {
-       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-       "message": "Only alphabetic characters are allowed."
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
       }
      ],
-     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-     "pattern_message": "Only alphabetic characters are allowed."
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic.",
+     "script": "arabic"
     },
     {
      "name": "caregiver_last_name",
@@ -2302,12 +2308,13 @@
      "placeholder_ar": "Caregiver's family name",
      "patterns": [
       {
-       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-       "message": "Only alphabetic characters are allowed."
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
       }
      ],
-     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-     "pattern_message": "Only alphabetic characters are allowed."
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic.",
+     "script": "arabic"
     },
     {
      "name": "caregiver_mother_name",
@@ -2320,12 +2327,13 @@
      "placeholder_ar": "Full name of the caregiver's mother",
      "patterns": [
       {
-       "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-       "message": "Only alphabetic characters are allowed."
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
       }
      ],
-     "pattern": "^[A-Za-zء-يٮ-ۓ\\s]+$",
-     "pattern_message": "Only alphabetic characters are allowed."
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic.",
+     "script": "arabic"
     },
     {
      "name": "have_labour",
@@ -10033,7 +10041,16 @@
      "placeholder": "e.g. Mohamad",
      "type": "text",
      "label_ar": "First name",
-     "placeholder_ar": "e.g. Mohamad"
+     "placeholder_ar": "e.g. Mohamad",
+     "script": "arabic",
+     "patterns": [
+      {
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
+      }
+     ],
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic."
     },
     {
      "name": "father_name",
@@ -10043,7 +10060,16 @@
      "placeholder": "e.g. Ahmad",
      "type": "text",
      "label_ar": "Father name",
-     "placeholder_ar": "e.g. Ahmad"
+     "placeholder_ar": "e.g. Ahmad",
+     "script": "arabic",
+     "patterns": [
+      {
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
+      }
+     ],
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic."
     },
     {
      "name": "last_name",
@@ -10053,7 +10079,16 @@
      "placeholder": "e.g. Al Sayed",
      "type": "text",
      "label_ar": "Last name",
-     "placeholder_ar": "e.g. Al Sayed"
+     "placeholder_ar": "e.g. Al Sayed",
+     "script": "arabic",
+     "patterns": [
+      {
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
+      }
+     ],
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic."
     },
     {
      "name": "mother_fullname",
@@ -10063,7 +10098,16 @@
      "placeholder": "e.g. Fatima Al Ali",
      "type": "text",
      "label_ar": "Mother full name",
-     "placeholder_ar": "e.g. Fatima Al Ali"
+     "placeholder_ar": "e.g. Fatima Al Ali",
+     "script": "arabic",
+     "patterns": [
+      {
+       "pattern": "^[\\u0600-\\u06FF ]+$",
+       "message": "Please write this in Arabic."
+      }
+     ],
+     "pattern": "^[\\u0600-\\u06FF ]+$",
+     "pattern_message": "Please write this in Arabic."
     },
     {
      "name": "sex",

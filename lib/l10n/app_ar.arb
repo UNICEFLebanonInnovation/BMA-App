@@ -90,6 +90,7 @@
   "invalidDate": "أدخل تاريخاً صحيحاً (YYYY-MM-DD).",
   "futureDate": "لا يمكن أن يكون التاريخ في المستقبل.",
   "confirmMismatch": "القيم غير متطابقة.",
+  "arabicOnlyHint": "بالعربية فقط",
   "attendanceRowsNeedReason": "{count, plural, =1{طفل واحد بحاجة إلى سبب غياب.} other{{count} أطفال بحاجة إلى سبب غياب.}}",
   "tooLong": "الحد الأقصى {max} حرفًا.",
   "tooShort": "{min} أحرف على الأقل.",
