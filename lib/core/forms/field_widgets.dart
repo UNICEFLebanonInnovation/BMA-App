@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../layout/app_layout.dart';
 import '../models/form_schema.dart';
 import 'reference_cache.dart';
+import 'script_input.dart';
 import 'reference_picker.dart';
 import 'schema_form_controller.dart';
 
@@ -60,12 +62,22 @@ class _SchemaFieldWidgetState extends ConsumerState<SchemaFieldWidget> {
     super.dispose();
   }
 
+  /// The field's own help text, prefixed with the script requirement when it
+  /// has one: the formatter drops a Latin keystroke without saying anything,
+  /// and a field that silently refuses to type reads as broken.
+  String? _helper() {
+    final help = field.helpFor(widget.languageCode);
+    if (!field.isArabicOnly) return help.isEmpty ? null : help;
+    final arabicOnly = AppLocalizations.of(context).arabicOnlyHint;
+    return help.isEmpty ? arabicOnly : '$arabicOnly · $help';
+  }
+
   InputDecoration _decoration({Widget? suffix}) {
     final errors = controller.errorsFor(field.name);
     final label = field.labelFor(widget.languageCode);
     return InputDecoration(
       labelText: field.required ? '$label *' : label,
-      helperText: field.helpFor(widget.languageCode).isEmpty ? null : field.helpFor(widget.languageCode),
+      helperText: _helper(),
       helperMaxLines: 3,
       hintText: field.placeholderFor(widget.languageCode).isEmpty ? null : field.placeholderFor(widget.languageCode),
       errorText: errors.isEmpty ? null : errors.join('\n'),
@@ -123,6 +135,11 @@ class _SchemaFieldWidgetState extends ConsumerState<SchemaFieldWidget> {
         maxLines: maxLines,
         maxLength: field.maxLength != null && field.maxLength! <= 500 ? field.maxLength : null,
         keyboardType: keyboardType,
+        // A blocked keystroke is silent, so the hint in _decoration() says the
+        // field is Arabic. Both come from the same flag and cannot disagree.
+        inputFormatters: field.isArabicOnly ? const [ArabicOnlyFormatter()] : null,
+        // Names are written right to left even when the interface is English.
+        textDirection: field.isArabicOnly ? TextDirection.rtl : null,
         decoration: _decoration(),
         onChanged: (v) => controller.setValue(field.name, v),
       ),

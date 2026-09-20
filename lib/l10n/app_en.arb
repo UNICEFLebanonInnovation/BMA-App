@@ -111,6 +111,7 @@
   "invalidDate": "Enter a valid date (YYYY-MM-DD).",
   "futureDate": "Date cannot be in the future.",
   "confirmMismatch": "Values do not match.",
+  "arabicOnlyHint": "Arabic only",
   "attendanceRowsNeedReason": "{count, plural, =1{1 child still needs a reason for absence.} other{{count} children still need a reason for absence.}}",
   "@attendanceRowsNeedReason": {
     "placeholders": {

@@ -10,6 +10,7 @@ import '../../core/network/api_exception.dart';
 import '../../core/sync/connectivity_service.dart';
 import '../../core/sync/sync_engine.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/bma_logo.dart';
 import '../../l10n/app_localizations.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -101,13 +102,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Icon(Icons.school, size: wide ? 72 : 56, color: AppColors.primary),
-                        const SizedBox(height: 8),
+                        // This card measures its own box with a LayoutBuilder rather
+                        // than installing a LayoutScope, so the size is passed in.
+                        BmaLogo(width: wide ? 260 : 200),
+                        const SizedBox(height: 12),
+                        // The lockup already reads "BMA / Beneficiary Monitoring
+                        // & Assessment", so the old brand line under it would
+                        // just say the same thing twice. This one says which
+                        // BMA this is: the offline app, not the website.
                         Text(l10n.appTitle,
-                            textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall),
-                        const SizedBox(height: 4),
-                        Text('BMA-NFE', textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppColors.muted)),
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.muted)),
                         const SizedBox(height: 24),
                         TextFormField(
                           controller: _server,

@@ -299,6 +299,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get confirmMismatch => 'القيم غير متطابقة.';
 
   @override
+  String get arabicOnlyHint => 'بالعربية فقط';
+
+  @override
   String attendanceRowsNeedReason(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

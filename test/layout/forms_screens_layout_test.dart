@@ -21,6 +21,7 @@ import 'package:bma_app/core/layout/breakpoints.dart';
 import 'package:bma_app/core/sync/connectivity_service.dart';
 import 'package:bma_app/core/sync/sync_engine.dart';
 import 'package:bma_app/core/theme/app_theme.dart';
+import 'package:bma_app/core/widgets/bma_logo.dart';
 import 'package:bma_app/features/auth/login_screen.dart';
 import 'package:bma_app/features/registrations/registration_wizard_screen.dart';
 import 'package:bma_app/features/services/service_form_screen.dart';
@@ -155,6 +156,11 @@ double cardCap(WidgetTester tester) {
       .toList();
   return caps.reduce((a, b) => a < b ? a : b);
 }
+
+/// The brand lockup's box. It is deliberately NOT text-scaled: it is what
+/// tells the worker they opened the right app.
+double logoWidth(WidgetTester tester) =>
+    tester.getSize(find.descendant(of: find.byType(BmaLogo), matching: find.byType(Image))).width;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -400,24 +406,24 @@ void main() {
 
   // ------------------------------------------------------- login + setup cards
   group('login card', () {
-    testWidgets('412x915 keeps 440 / 56', (tester) async {
+    testWidgets('412x915 keeps the 440 cap and the phone lockup', (tester) async {
       phone(tester);
       final fx = await fixture(tester);
       await pumpScreen(tester, fx, const LoginScreen());
 
       expect(cardCap(tester), 440);
-      expect(tester.widget<Icon>(find.byIcon(Icons.school)).size, 56);
+      expect(logoWidth(tester), 200, reason: 'the phone lockup');
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('800x1280 and 1280x800 raise the cap to 520 and the glyph to 72', (tester) async {
+    testWidgets('800x1280 and 1280x800 raise the cap to 520 and the lockup to 260', (tester) async {
       for (final size in [tabletPortrait, tabletLandscape]) {
         size(tester);
         final fx = await fixture(tester);
         await pumpScreen(tester, fx, const LoginScreen());
 
         expect(cardCap(tester), 520);
-        expect(tester.widget<Icon>(find.byIcon(Icons.school)).size, 72);
+        expect(logoWidth(tester), 260, reason: 'the tablet lockup');
         // The card stays centred, not stretched across the tablet.
         expect(tester.getSize(find.byType(Card)).width, 520);
         expect(tester.takeException(), isNull);
@@ -450,27 +456,29 @@ void main() {
   group('server setup card', () {
     const keys = ['setup-url', 'setup-test', 'setup-continue', 'setup-language'];
 
-    testWidgets('412x915 keeps 440 / 56 and every protected key', (tester) async {
+    testWidgets('412x915 keeps the 440 cap, the phone lockup and every protected key', (tester) async {
       phone(tester);
       final fx = await fixture(tester);
       await pumpScreen(tester, fx, const ServerSetupScreen());
 
       expect(cardCap(tester), 440);
-      expect(tester.widget<Icon>(find.byIcon(Icons.settings_ethernet)).size, 56);
+      expect(tester.widget<Icon>(find.byIcon(Icons.settings_ethernet)).size, 32);
+      expect(logoWidth(tester), 200);
       for (final k in keys) {
         expect(find.byKey(ValueKey(k)), findsOneWidget, reason: k);
       }
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('800x1280 and 1280x800: 520 / 72, still ONE centred card', (tester) async {
+    testWidgets('800x1280 and 1280x800: 520 cap, bigger lockup, still ONE centred card', (tester) async {
       for (final size in [tabletPortrait, tabletLandscape]) {
         size(tester);
         final fx = await fixture(tester);
         await pumpScreen(tester, fx, const ServerSetupScreen());
 
         expect(cardCap(tester), 520);
-        expect(tester.widget<Icon>(find.byIcon(Icons.settings_ethernet)).size, 72);
+        expect(tester.widget<Icon>(find.byIcon(Icons.settings_ethernet)).size, 40);
+        expect(logoWidth(tester), 260);
         expect(find.byType(Card), findsOneWidget);
         for (final k in keys) {
           expect(find.byKey(ValueKey(k)), findsOneWidget, reason: k);
@@ -487,7 +495,8 @@ void main() {
       await pumpScreen(tester, fx, const ServerSetupScreen(), lang: 'ar', scale: 1.3);
 
       expect(cardCap(tester), 440);
-      expect(tester.widget<Icon>(find.byIcon(Icons.settings_ethernet)).size, 56);
+      expect(tester.widget<Icon>(find.byIcon(Icons.settings_ethernet)).size, 32);
+      expect(logoWidth(tester), 200);
       expect(tester.takeException(), isNull);
     });
   });

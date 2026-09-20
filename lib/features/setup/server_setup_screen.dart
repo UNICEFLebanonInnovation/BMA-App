@@ -6,6 +6,7 @@ import '../../core/config/settings_controller.dart';
 import '../../core/layout/app_layout.dart';
 import '../../core/network/server_probe.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/bma_logo.dart';
 import '../../l10n/app_localizations.dart';
 import '../../router.dart';
 
@@ -99,7 +100,12 @@ class _ServerSetupScreenState extends ConsumerState<ServerSetupScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Icon(Icons.settings_ethernet, size: wide ? 72 : 56, color: AppColors.primary),
+                          // The FIRST screen of the app: the logo is what tells
+                          // the worker they opened the right one before they
+                          // have any content to recognise it by.
+                          BmaLogo(width: wide ? 260 : 200),
+                          const SizedBox(height: 16),
+                          Icon(Icons.settings_ethernet, size: wide ? 40 : 32, color: AppColors.primary),
                           const SizedBox(height: 8),
                           Text(
                             l10n.setupTitle,

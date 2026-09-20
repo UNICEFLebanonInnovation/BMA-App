@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The mark is drawn in the brand blue on white, exactly as the website
+         serves it, so the icon reads the same on both. -->
+    <color name="ic_launcher_background">#FFFFFF</color>
+</resources>
