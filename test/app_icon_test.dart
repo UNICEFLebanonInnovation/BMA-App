@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -67,6 +69,49 @@ void main() {
     }
     expect(File('pubspec.yaml').readAsStringSync(), contains('assets/images/'),
         reason: 'an undeclared asset throws at runtime, not at analyze time');
+  });
+
+  testWidgets('the adaptive foreground keeps the mark inside the safe zone', (tester) async {
+    // Android masks an adaptive icon to a circle, a squircle or a teardrop and
+    // parallaxes it, so only the central 72 of 108dp is guaranteed to survive.
+    // A mark drawn any wider is cropped on some launchers and not others --
+    // invisible here, and invisible on whichever device the tester happens to
+    // hold. This measures it instead.
+    final bytes = File('$res/mipmap-xxxhdpi/ic_launcher_foreground.png').readAsBytesSync();
+    final image = await tester.runAsync(() async {
+      final codec = await ui.instantiateImageCodec(bytes);
+      return (await codec.getNextFrame()).image;
+    });
+    final data = await tester.runAsync(() => image!.toByteData(format: ui.ImageByteFormat.rawRgba));
+    final w = image!.width, h = image.height;
+    expect([w, h], [432, 432]);
+
+    int alphaAt(int x, int y) => data!.getUint8((y * w + x) * 4 + 3);
+    expect(alphaAt(0, 0), 0, reason: 'an adaptive foreground must be transparent, not a white plate');
+
+    var minX = w, maxX = -1, minY = h, maxY = -1;
+    for (var y = 0; y < h; y++) {
+      for (var x = 0; x < w; x++) {
+        if (alphaAt(x, y) > 20) {
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+        }
+      }
+    }
+    expect(maxX, greaterThan(0), reason: 'the foreground is blank');
+
+    // Furthest corner of the mark from the centre, against the 72dp radius.
+    final halfW = (maxX - minX) / 2, halfH = (maxY - minY) / 2;
+    final reach = math.sqrt(halfW * halfW + halfH * halfH);
+    final safeRadius = w * 36 / 108;
+    expect(reach, lessThanOrEqualTo(safeRadius),
+        reason: 'the mark reaches ${reach.toStringAsFixed(1)}px, outside the '
+            '${safeRadius.toStringAsFixed(0)}px safe radius — a circular mask would clip it');
+
+    // And it is not so small it becomes a dot in the middle of the icon.
+    expect((maxX - minX) / w, greaterThan(0.5), reason: 'the mark should still fill the icon');
   });
 
   test('the icon is not the stock Flutter placeholder', () {
