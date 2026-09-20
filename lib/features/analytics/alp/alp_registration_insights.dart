@@ -283,8 +283,22 @@ class AlpRegistrationInsights {
   });
 
   final int totalRegistrations;
+
+  /// Schools that HAVE a registration in the current filter.
+  ///
+  /// Two deliberate departures from the web page, which renders these two
+  /// tiles from its template context rather than from the data:
+  /// `{{ schools.count }}` is every school in the account's scope (the same
+  /// number its school dashboard calls "Accessible schools") and never moves
+  /// when a filter changes, and `{{ partners.count }}` names a variable
+  /// `ALPRegistrationDashboardView` does not put in the context at all, so it
+  /// renders blank. Counting what the filtered rows actually hold makes both
+  /// tiles answer the filters and agrees with how the ALP teacher dashboard
+  /// already counts its own schools (`values('school_id').distinct()`).
   final int activeSchools;
   final int partners;
+
+  /// Rounds the platform knows — unfiltered, as `ALPRound.objects.all()`.
   final int programRounds;
   final LearningOutcomes learningOutcomes;
   final List<ChartItem> byGender;

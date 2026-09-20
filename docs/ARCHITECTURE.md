@@ -183,6 +183,14 @@ that the tests pin:
 * **Scope**: the server forces the account's centre, partner or school onto
   anything typed offline, so a pending record is counted where it will land.
 
+Two figures deliberately do **not** copy the website, because the website
+renders them from its template context instead of from the data: the ALP
+registration page's *Active schools* is `{{ schools.count }}` (every school in
+scope, unmoved by any filter) and its *Partners* is `{{ partners.count }}`, a
+variable `ALPRegistrationDashboardView` never puts in the context, so it
+renders blank. Both are counted from the filtered rows here, which is also how
+the ALP teacher dashboard already counts its own schools.
+
 ### Chart rules
 
 Charts follow one system, and it is not "whatever the widget library draws".

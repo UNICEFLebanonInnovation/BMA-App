@@ -230,10 +230,16 @@ class _AlpSchoolDashboardScreenState extends ConsumerState<AlpSchoolDashboardScr
     );
   }
 
-  /// A bottom sheet on the phone and a centred dialog from 600 px up, which
-  /// is what [AppLayout.dialogPickers] says every picker in this app does.
+  /// A bottom sheet on the phone and a centred dialog from 600 px up: the
+  /// same [AppLayout.dialogPickers] answer every picker in this app gives.
+  ///
+  /// Read the way `ReferencePickerSheet.show` reads it — through the
+  /// inherited widget WITHOUT registering a dependency, because this runs
+  /// from a tap callback rather than from a build, with the device question
+  /// as the fallback for a context that has no scope above it.
   Future<void> _openDetails(BuildContext context, MappedSchool school) {
-    final wide = widthClassOf(MediaQuery.sizeOf(context).width).atLeastMedium;
+    final scope = context.getInheritedWidgetOfExactType<LayoutScope>();
+    final wide = scope == null ? isTabletDevice(context) : scope.layout.dialogPickers;
     final details = _SchoolDetails(school: school);
     if (wide) {
       return showDialog<void>(
