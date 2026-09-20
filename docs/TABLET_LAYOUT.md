@@ -302,7 +302,14 @@ Destination keys are on the destination's **icon**, not its label, because the
 label is absent from the tree when the label type is `none`: `nav-rail`,
 `nav-dest-home`, `nav-dest-facility`, `nav-dest-beneficiaries`,
 `nav-dest-attendance`, `nav-dest-teacher-attendance`, `nav-dest-teachers`,
-`nav-dest-dashboard`, `nav-dest-sync`, `nav-dest-settings`, `nav-module-switch`.
+`nav-dest-dashboard`, `nav-dest-analytics`, `nav-dest-sync`,
+`nav-dest-settings`, `nav-module-switch`.
+
+The Analytics destination exists for the two programmes that have dashboards
+(NFE and ALP — CLM has none on the website either) and covers the hub and all
+five dashboards, which share the `/analytics/<module>` prefix; the
+longest-prefix match in `destinationIndexFor` keeps it highlighted inside any
+of them.
 
 ---
 
@@ -321,6 +328,10 @@ widget kind, in every width class.
 | `settings-show-tips` | `lib/features/settings/settings_screen.dart` |
 | `setup-language`, `setup-url`, `setup-test`, `setup-continue`, `setup-result` | `lib/features/setup/server_setup_screen.dart` |
 | `profile-status`, `profile-edit` | `lib/features/profiles/facility_profile_screen.dart` |
+| `analytics-hub-list`, `analytics-entry-<key>` | `lib/features/analytics/analytics_hub_screen.dart` |
+| `nfe-analytics-list`, `nfe-kpis`, `nfe-filters`, `chart-*` | `lib/features/analytics/nfe/` |
+| `alp-reg-list`, `alp-teacher-list`, `alp-attendance-list`, `alp-school-list` and their `*-kpis` / `*-filters` / `chart-*` | `lib/features/analytics/alp/` |
+| `trend-detail`, `heatmap-detail` | `lib/features/analytics/charts/` — the tap captions the touch layer depends on |
 
 ---
 

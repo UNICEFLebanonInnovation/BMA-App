@@ -760,6 +760,12 @@ void main() {
     await _go(tester, container, Routes.dashboard(BmaModule.mscc));
     await _shootFor(tester, '10_dashboard', _phone);
 
+    await _go(tester, container, Routes.analytics(BmaModule.mscc));
+    await _shootFor(tester, '57_analytics_hub', _phone);
+
+    await _go(tester, container, Routes.nfeAdvancedAnalytics);
+    await _shootFor(tester, '58_advanced_analytics', _phone);
+
     await _go(tester, container, Routes.sync);
     await _shootFor(tester, '11_sync_center', _phone);
 
@@ -927,6 +933,14 @@ void main() {
 
     await _go(tester, container, Routes.dashboard(BmaModule.mscc));
     await _shootFor(tester, '43_dashboard_tablet_landscape', _tabletLandscape);
+
+    await _go(tester, container, Routes.analytics(BmaModule.mscc));
+    await _shootFor(tester, '59_analytics_hub_tablet_landscape', _tabletLandscape);
+
+    // The one page whose panels only fit at this width: five KPIs in a band,
+    // the trend across the page and the cross-tab under three charts abreast.
+    await _go(tester, container, Routes.nfeAdvancedAnalytics);
+    await _shootFor(tester, '60_advanced_analytics_tablet_landscape', _tabletLandscape);
 
     await _go(tester, container, Routes.sync);
     await _shootFor(tester, '44_sync_center_two_pane_tablet_landscape', _tabletLandscape);
