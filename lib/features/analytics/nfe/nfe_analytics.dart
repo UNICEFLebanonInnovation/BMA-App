@@ -225,28 +225,17 @@ DateTime? _createdOf(EntityRecord record) {
 /// Reduces the source records to rows. Public so the reduction (the part
 /// that reads two record shapes) can be tested on its own.
 List<NfeRegistrationRow> nfeRegistrationRows(NfeAnalyticsSource src, AnalyticsLabels labels) {
-  // Latest education service typed offline, per parent (uuid or server id).
-  // The server's `_latest_programme_subquery` orders by id descending; local
-  // services have no id yet, so their creation time stands in for it.
-  final latestByParentUuid = <String, EntityRecord>{};
-  final latestByParentId = <int, EntityRecord>{};
-  int order(EntityRecord r) => _int(r.data['id']) ?? 0;
-  String stamp(EntityRecord r) => r.createdAt ?? r.clientModified ?? '';
-  bool later(EntityRecord a, EntityRecord b) {
-    final byId = order(a).compareTo(order(b));
-    return byId != 0 ? byId > 0 : stamp(a).compareTo(stamp(b)) > 0;
-  }
-
+  // EVERY education service, grouped by parent — not one "latest" per parent.
+  // Collapsing them here with a rule of its own would decide the answer
+  // before the candidate sort below can: a pulled service carries a server id
+  // and a locally typed one does not, so "highest id wins" would drop the
+  // local row that is in fact the newest thing on the device.
+  final servicesByParentUuid = <String, List<EntityRecord>>{};
+  final servicesByParentId = <int, List<EntityRecord>>{};
   for (final s in src.educationServices) {
-    if (s.deleted) continue;
-    if (s.parentUuid != null) {
-      final current = latestByParentUuid[s.parentUuid!];
-      if (current == null || later(s, current)) latestByParentUuid[s.parentUuid!] = s;
-    }
-    if (s.parentServerId != null) {
-      final current = latestByParentId[s.parentServerId!];
-      if (current == null || later(s, current)) latestByParentId[s.parentServerId!] = s;
-    }
+    if (s.deleted || s.syncState == SyncState.discarded) continue;
+    if (s.parentUuid != null) servicesByParentUuid.putIfAbsent(s.parentUuid!, () => []).add(s);
+    if (s.parentServerId != null) servicesByParentId.putIfAbsent(s.parentServerId!, () => []).add(s);
   }
 
   final rows = <NfeRegistrationRow>[];
@@ -267,10 +256,10 @@ List<NfeRegistrationRow> nfeRegistrationRows(NfeAnalyticsSource src, AnalyticsLa
       for (final entry in view.educationSummary)
         if ((entry['education_program']?.toString() ?? '').isNotEmpty)
           (value: entry['education_program'].toString(), id: _int(entry['id']) ?? -1, isLocal: false),
-      for (final service in [
-        ?latestByParentUuid[record.uuid],
-        if (record.serverId != null) ?latestByParentId[record.serverId!],
-      ])
+      for (final service in {
+        ...?servicesByParentUuid[record.uuid],
+        if (record.serverId != null) ...?servicesByParentId[record.serverId!],
+      })
         if ((service.data['education_program']?.toString() ?? '').isNotEmpty)
           (
             value: service.data['education_program'].toString(),

@@ -593,6 +593,45 @@ void _programmeSourceTests() {
       expect(rows.single.programmeLabel, 'BLN Level 2');
     });
 
+    test('a local service beats a pulled one under the SAME parent', () {
+      // The per-parent grouping must not pick a winner of its own: a pulled
+      // service carries a server id and a local one does not, so any
+      // "highest id" rule applied before the candidate sort would drop the
+      // newest row on the device.
+      final registration = serverRegistration(1, summary: const []);
+      final pulled = EntityRecord(
+        uuid: 's-pulled',
+        entity: Entities.msccEducationService,
+        module: 'mscc',
+        serverId: 4,
+        parentUuid: registration.uuid,
+        parentServerId: 1,
+        data: const {'id': 4, 'education_program': 'BLN Level 1'},
+      );
+      final local = EntityRecord(
+        uuid: 's-local',
+        entity: Entities.msccEducationService,
+        module: 'mscc',
+        parentUuid: registration.uuid,
+        parentServerId: 1,
+        syncState: SyncState.pending,
+        createdAt: '2026-09-19T10:00:00',
+        data: const {'education_program': 'BLN Level 4'},
+      );
+      final rows = nfeRegistrationRows(
+        source(registrations: [registration], services: [pulled, local]),
+        AnalyticsLabels.english,
+      );
+      expect(rows.single.programme, 'BLN Level 4');
+
+      // A deleted local service is not the newest anything.
+      final rows2 = nfeRegistrationRows(
+        source(registrations: [registration], services: [pulled, local.copyWith(deleted: true)]),
+        AnalyticsLabels.english,
+      );
+      expect(rows2.single.programme, 'BLN Level 1');
+    });
+
     test('a PULLED service record still loses to a higher summary id', () {
       final registration = serverRegistration(1, summary: const [
         {'id': 9, 'education_program': 'BLN Level 3'},
