@@ -84,8 +84,18 @@ class _AttendanceHeatmapState extends State<AttendanceHeatmap> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // THE GRID IS LEFT-TO-RIGHT IN BOTH LANGUAGES: the month labels
+            // sit in a gutter at x = 0 and the days run 1..31 rightwards, the
+            // way a calendar is read. A horizontal scroll view takes its axis
+            // from the ambient Directionality, so under RTL offset 0 is the
+            // FAR END — the Arabic phone opened on the last days of the month
+            // with the whole month-label column scrolled out of sight. The
+            // labels are still painted with the page's own text direction.
             if (gridWidth > constraints.maxWidth)
-              SingleChildScrollView(scrollDirection: Axis.horizontal, child: grid)
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: SingleChildScrollView(scrollDirection: Axis.horizontal, child: grid),
+              )
             else
               grid,
             const SizedBox(height: 8),

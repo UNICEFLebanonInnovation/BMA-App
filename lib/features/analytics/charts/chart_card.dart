@@ -99,24 +99,41 @@ class ChartLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 14,
-      runSpacing: 6,
-      children: [
-        for (final (label, color) in entries)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
+    // A Wrap hands each child ITS OWN max width, and a `mainAxisSize.min`
+    // Row cannot shrink below its children: a long series name at a 1.3 text
+    // scale ("Moved from an earlier round") overflowed the card rather than
+    // ellipsizing. The ConstrainedBox gives the entry a ceiling and the
+    // Flexible lets the label give way inside it.
+    return LayoutBuilder(
+      builder: (context, constraints) => Wrap(
+        spacing: 14,
+        runSpacing: 6,
+        children: [
+          for (final (label, color) in entries)
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3)),
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 12, color: AppColors.muted),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 6),
-              Text(label, style: const TextStyle(fontSize: 12, color: AppColors.muted)),
-            ],
-          ),
-      ],
+            ),
+        ],
+      ),
     );
   }
 }
@@ -187,6 +204,11 @@ class KpiGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridView(
+      // EdgeInsets.zero, not null: a null padding makes BoxScrollView adopt
+      // the ambient MediaQuery vertical padding, and this grid is nested
+      // inside a ListView that has not stripped it — so on a phone with
+      // gesture navigation the KPI band grew a 48 px band of empty space.
+      padding: EdgeInsets.zero,
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 220,
         childAspectRatio: 1.6,

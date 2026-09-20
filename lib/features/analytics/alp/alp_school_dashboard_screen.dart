@@ -240,16 +240,20 @@ class _AlpSchoolDashboardScreenState extends ConsumerState<AlpSchoolDashboardScr
     );
   }
 
-  /// A bottom sheet on the phone and a centred dialog from 600 px up: the
-  /// same [AppLayout.dialogPickers] answer every picker in this app gives.
+  /// A bottom sheet on the phone and a centred dialog on a tablet, which is
+  /// the modality every picker in this app uses.
   ///
-  /// Read the way `ReferencePickerSheet.show` reads it — through the
-  /// inherited widget WITHOUT registering a dependency, because this runs
-  /// from a tap callback rather than from a build, with the device question
-  /// as the fallback for a context that has no scope above it.
+  /// THE DEVICE QUESTION, not the box question, and deliberately not a
+  /// `LayoutScope` read: these callbacks are created inside the
+  /// `FutureBuilder`'s builder, and the `AdaptiveBody` that installs the
+  /// scope is what that builder RETURNS — the scope is a descendant of this
+  /// context, not an ancestor, so the lookup would always miss and the branch
+  /// would be dead code. `ReferencePickerSheet.show` states the same reason
+  /// for preferring the device: a full-width sheet on a 1280 px desk puts its
+  /// close button a hand's width from the row that opened it, and a phone in
+  /// landscape is 412 px tall whatever its width class says.
   Future<void> _openDetails(BuildContext context, MappedSchool school) {
-    final scope = context.getInheritedWidgetOfExactType<LayoutScope>();
-    final wide = scope == null ? isTabletDevice(context) : scope.layout.dialogPickers;
+    final wide = isTabletDevice(context);
     final details = _SchoolDetails(school: school);
     if (wide) {
       return showDialog<void>(

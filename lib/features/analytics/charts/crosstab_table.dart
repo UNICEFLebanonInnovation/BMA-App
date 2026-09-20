@@ -28,13 +28,18 @@ class CrosstabTable extends StatelessWidget {
   static const double _cellWidth = 64;
   static const double _rowHeight = 34;
 
+  /// Every cell carries a 1 px margin on each side, so a cell occupies
+  /// [_cellWidth] + 2. Leaving it out of the fits-in-the-box test made the
+  /// table skip its scroll view at a handful of widths and overflow instead.
+  static const double _cellOuterWidth = _cellWidth + 2;
+
   @override
   Widget build(BuildContext context) {
     final ct = crosstab;
     if (ct.isEmpty) return const SizedBox.shrink();
     final max = ct.maxCount;
     final headerStyle = const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.muted);
-    final natural = _labelWidth + (ct.columns.length + 1) * _cellWidth;
+    final natural = _labelWidth + (ct.columns.length + 1) * _cellOuterWidth;
 
     Widget cell(Widget child, {Color? color, double width = _cellWidth}) => Container(
           width: width,

@@ -103,12 +103,15 @@ class _TrendLineChartState extends State<TrendLineChart> {
           const SizedBox(height: 4),
           Padding(
             padding: const EdgeInsetsDirectional.only(start: 42),
+            // Flexible, not bare Text: `overflow: ellipsis` only bites once
+            // the Text has a bounded width, and three localised dates at a
+            // 1.3 text scale are wider than a phone's plot.
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _axisText(date(points.first.day)),
-                if (points.length > 2) _axisText(date(points[points.length ~/ 2].day)),
-                if (points.length > 1) _axisText(date(points.last.day)),
+                Flexible(child: _axisText(date(points.first.day))),
+                if (points.length > 2) Flexible(child: _axisText(date(points[points.length ~/ 2].day))),
+                if (points.length > 1) Flexible(child: _axisText(date(points.last.day))),
               ],
             ),
           ),
