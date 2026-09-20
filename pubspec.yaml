@@ -2,7 +2,7 @@ name: bma_app
 description: "BMA-NFE mobile companion: offline-first registration, services and attendance for the NFE sector, synchronised with the BMA-NFE platform."
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.0.0+2
 
 environment:
   sdk: ^3.13.3

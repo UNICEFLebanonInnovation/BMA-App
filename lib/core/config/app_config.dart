@@ -17,7 +17,7 @@ class AppConfig {
   static const int pullPageSize = 500;
 
   /// App version reported to the server on login and push.
-  static const String appVersion = '1.0.0+1';
+  static const String appVersion = '1.0.0+2';
 
   /// Version of the getting-started tips. Bump it only when the wizard content
   /// changes enough that every account should see the tour once more.

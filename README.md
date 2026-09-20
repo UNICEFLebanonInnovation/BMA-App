@@ -196,15 +196,27 @@ The default server URL and app version live in `lib/core/config/app_config.dart`
 
 `.github/workflows/release.yml` publishes the APK as a GitHub release asset,
 which anyone can download without a GitHub account. It analyses, tests and
-builds the release APK, then attaches `bma-app-<version>.apk` and its `.sha256`
-to the release.
+builds the release APK, then attaches `bma-app.apk` and its `.sha256` to the
+release.
 
-Every push to the field-test branch refreshes the rolling **field-test**
-pre-release, so partners keep one permanent link:
+Every push to `main` refreshes the rolling **field-test** pre-release. The
+asset is called `bma-app.apk` in every build, so this URL always downloads the
+newest one and never changes — it is the link to give partners:
+
+```
+https://github.com/UNICEFLebanonInnovation/BMA-App/releases/download/field-test/bma-app.apk
+```
+
+The release page beside it lists the commit each build came from:
 
 ```
 https://github.com/UNICEFLebanonInnovation/BMA-App/releases/tag/field-test
 ```
+
+The rolling release is deleted and recreated on each run, so the link 404s for
+the couple of minutes a build takes. To refresh it without pushing, run the
+workflow by hand (**Actions → Release → Run workflow**) and leave the tag
+empty.
 
 For a real version, tag the commit; the tag name becomes the release:
 
