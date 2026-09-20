@@ -271,9 +271,16 @@ List<NfeRegistrationRow> nfeRegistrationRows(NfeAnalyticsSource src, AnalyticsLa
     }
     if (programme == null || programme.isEmpty) programme = 'Unknown';
 
-    final centerId = _int(data['center']) ?? src.defaultCenterId;
+    // THE ACCOUNT'S SCOPE IS A DEFAULT FOR LOCAL WORK ONLY. The server forces
+    // its centre and partner onto anything typed offline, so a pending record
+    // is counted where it will land. A record that HAS reached the server and
+    // still carries no centre genuinely has none, and inventing one here would
+    // move rows into a centre the website's own count leaves out.
+    final local = record.serverId == null;
+    final centerId = _int(data['center']) ?? (local ? src.defaultCenterId : null);
     final center = centerId == null ? null : src.centers[centerId];
-    final partnerId = _int(data['partner']) ?? _int(center?.extra['partner_id']) ?? src.defaultPartnerId;
+    final partnerId =
+        _int(data['partner']) ?? _int(center?.extra['partner_id']) ?? (local ? src.defaultPartnerId : null);
     final partner = partnerId == null ? null : src.partners[partnerId];
     final nationalityId = _int(view.nationalityId);
     final nationality = nationalityId == null ? null : src.nationalities[nationalityId];
@@ -302,9 +309,13 @@ List<NfeTeacherRow> nfeTeacherRows(NfeAnalyticsSource src, AnalyticsLabels label
   for (final record in src.teachers) {
     if (record.deleted || record.syncState == SyncState.discarded) continue;
     final data = record.data;
-    final centerId = _int(data['center']) ?? src.defaultCenterId;
+    // Same rule as the registrations above. The partner comes only from the
+    // centre, exactly as `center__partner_id` does: a teacher whose centre is
+    // not on this device matches no partner rather than the account's.
+    final local = record.serverId == null;
+    final centerId = _int(data['center']) ?? (local ? src.defaultCenterId : null);
     final center = centerId == null ? null : src.centers[centerId];
-    final partnerId = _int(center?.extra['partner_id']) ?? src.defaultPartnerId;
+    final partnerId = _int(center?.extra['partner_id']) ?? (local ? src.defaultPartnerId : null);
     final nationalityId = _int(data['nationality']);
     final nationality = nationalityId == null ? null : src.nationalities[nationalityId];
     final label = data['nationality_label']?.toString();
@@ -374,7 +385,10 @@ NfeAnalytics computeNfeAnalytics(
   // --- trend: last N days unless a date range was given; the series runs
   // from the first to the last day that has a count, or the window when none.
   final windowed = !filters.hasDateRange;
-  final windowStart = src.today.subtract(Duration(days: trendDays - 1));
+  // Calendar arithmetic, not a Duration: subtracting 29x24h from a local
+  // midnight lands on 01:00 of the intended day across an autumn fall-back,
+  // and the `isBefore` below would then drop that whole day from the trend.
+  final windowStart = DateTime(src.today.year, src.today.month, src.today.day - (trendDays - 1));
   final byDay = <DateTime, int>{};
   for (final r in rows) {
     final day = r.created;

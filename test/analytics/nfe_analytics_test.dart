@@ -369,6 +369,8 @@ void main() {
     });
   });
 
+  _reviewRegressions();
+
   _memoTests();
 
   group('model helpers', () {
@@ -441,5 +443,110 @@ void _memoTests() {
       memo.of('s', 2, compute);
       expect(calls, 2);
     });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Regressions found by review. Each of these was wrong once.
+// ---------------------------------------------------------------------------
+void _reviewRegressions() {
+  group('the account scope is a default for LOCAL work only', () {
+    test('a pulled registration with no centre keeps none, and is not moved into the account\'s', () {
+      // Inventing a centre here put rows into a centre the website's own
+      // "Registrations by centre" leaves out, and made them match a centre
+      // filter they should miss.
+      final orphan = EntityRecord(
+        uuid: 'srv-9',
+        entity: Entities.msccRegistration,
+        module: 'mscc',
+        serverId: 9,
+        data: const {
+          'id': 9,
+          'created': '2026-09-12T10:00:00',
+          'child': {'id': 9, 'first_name': 'X', 'gender': 'Male', 'birthday_year': '2015'},
+        },
+      );
+      final rows = nfeRegistrationRows(source(registrations: [orphan]), AnalyticsLabels.english);
+      expect(rows.single.centerId, isNull);
+      expect(rows.single.partnerId, isNull);
+
+      final src = source(registrations: [orphan, serverRegistration(1, center: 1, partner: 10)]);
+      // Both the website and this count a null as its own distinct value.
+      expect(computeNfeAnalytics(src, AnalyticsFilters.none).summary.centers, 2);
+      // ...and a filter on the account's centre does not sweep the orphan in.
+      expect(computeNfeAnalytics(src, const AnalyticsFilters(centerId: 1)).summary.totalRegistrations, 1);
+
+      // A record typed offline still counts where the server will put it.
+      final local = localRegistration('p1');
+      expect(nfeRegistrationRows(source(registrations: [local]), AnalyticsLabels.english).single.centerId, 1);
+    });
+
+    test('a teacher takes their partner from their centre alone', () {
+      // `center__partner_id` is a join: a teacher whose centre is not on this
+      // device matches no partner, rather than falling back to the account's.
+      final offCentre = teacher(5, center: 77);
+      final rows = nfeTeacherRows(source(teachers: [offCentre]), AnalyticsLabels.english);
+      expect(rows.single.centerId, 77);
+      expect(rows.single.partnerId, isNull);
+      expect(
+        computeNfeAnalytics(source(teachers: [offCentre]), const AnalyticsFilters(partnerId: 10)).summary.totalTeachers,
+        0,
+      );
+      // A teacher typed offline has no centre of their own yet.
+      final local = EntityRecord(
+        uuid: 't-local',
+        entity: Entities.msccTeacher,
+        module: 'mscc',
+        syncState: SyncState.pending,
+        data: const {'first_name': 'N', 'sex': 'Female'},
+      );
+      final localRow = nfeTeacherRows(source(teachers: [local]), AnalyticsLabels.english).single;
+      expect(localRow.centerId, 1);
+      expect(localRow.partnerId, 10);
+    });
+  });
+
+  test('the trend window is 30 CALENDAR days, whatever the clock does', () {
+    // Subtracting 29x24h from a local midnight lands on 01:00 of the intended
+    // day across an autumn fall-back, and the day filter then drops that whole
+    // day — the FIRST day of the window, which is exactly the one seeded here.
+    final src = source(registrations: [
+      serverRegistration(1, created: '2026-10-12T09:00:00'),
+      serverRegistration(2, created: '2026-11-10T09:00:00'),
+      serverRegistration(3, created: '2026-10-11T09:00:00'), // one day outside
+    ]);
+    final autumn = NfeAnalyticsSource(
+      registrations: src.registrations,
+      educationServices: const [],
+      teachers: const [],
+      centers: src.centers,
+      partners: src.partners,
+      nationalities: src.nationalities,
+      programmeLabels: src.programmeLabels,
+      language: 'en',
+      today: DateTime(2026, 11, 10),
+      defaultCenterId: 1,
+      defaultPartnerId: 10,
+    );
+    final a = computeNfeAnalytics(autumn, AnalyticsFilters.none);
+    expect(a.trend, hasLength(30));
+    expect(a.trend.first, TrendPoint(DateTime(2026, 10, 12), 1), reason: 'the window keeps its first day');
+    expect(a.trend.last, TrendPoint(DateTime(2026, 11, 10), 1));
+    expect(a.trend.fold(0, (sum, p) => sum + p.count), 2, reason: 'the day before the window is not counted');
+    expect(a.summary.totalRegistrations, 3, reason: 'the window trims the trend, never the totals');
+    // Every point is a calendar day apart, with no hour drifting in.
+    for (final p in a.trend) {
+      expect(p.day.hour, 0);
+    }
+  });
+
+  test('a measure keeps its decimal while its bar keeps its integer', () {
+    const item = ChartItem(key: 'a', label: 'Arabic', count: 68, exact: 67.5);
+    expect(item.exact, 67.5);
+    expect(item.count, 68);
+    expect(item, const ChartItem(key: 'a', label: 'Arabic', count: 68, exact: 67.5));
+    expect(item == const ChartItem(key: 'a', label: 'Arabic', count: 68), isFalse);
+    // A count chart leaves it null, and nothing downstream has to care.
+    expect(const ChartItem(key: 'a', label: 'A', count: 3).exact, isNull);
   });
 }

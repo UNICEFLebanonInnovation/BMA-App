@@ -80,8 +80,12 @@ class _AlpSchoolDashboardScreenState extends ConsumerState<AlpSchoolDashboardScr
     final schools = await cache.ensure('schools');
     final locations = await cache.ensure('locations');
     return AlpSchoolSource(
-      schools: schools.values.toList()
-        ..sort((a, b) => a.labelFor(language).toLowerCase().compareTo(b.labelFor(language).toLowerCase())),
+      schools: alpSchoolsInScope(
+        schools: schools.values,
+        registrations: registrations,
+        teachers: teachers,
+        accountSchoolId: profile?.school?.id,
+      )..sort((a, b) => a.labelFor(language).toLowerCase().compareTo(b.labelFor(language).toLowerCase())),
       registrations: registrations,
       teachers: teachers,
       schoolProfiles: profiles,

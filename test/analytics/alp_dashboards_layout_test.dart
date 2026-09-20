@@ -214,6 +214,9 @@ Future<Fixture> fixture(WidgetTester tester) async {
         data: _registration(3, gender: 'Female', birthYear: '2019', school: 8, programme: 2)));
     await dao.applyPullChange(PullChange(
         entity: Entities.alpRegistration, serverId: 4, data: _registration(4, gender: 'Female')));
+    // At the school with no coordinates: in the ALP scope, off the map.
+    await dao.applyPullChange(PullChange(
+        entity: Entities.alpRegistration, serverId: 5, data: _registration(5, school: 9)));
     // One typed offline: no school, so it counts at the account's.
     await dao.createLocal(entity: Entities.alpRegistration, data: const {
       'child_first_name': 'Hasan',
@@ -407,8 +410,8 @@ void main() {
       final fx = await fixture(tester);
       await open(tester, fx, const AlpRegistrationInsightsScreen());
 
-      expect(kpiValue(tester, 'Registrations'), '5');
-      expect(kpiValue(tester, 'Active schools'), '2');
+      expect(kpiValue(tester, 'Registrations'), '6');
+      expect(kpiValue(tester, 'Active schools'), '3');
       expect(kpiValue(tester, 'Partners'), '1');
       expect(kpiValue(tester, 'Programme rounds'), '2');
       for (final key in panels) {
@@ -480,7 +483,7 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey('alp-reg-filters-reset')));
       await tester.pumpAndSettle();
-      expect(kpiValue(tester, 'Registrations'), '5');
+      expect(kpiValue(tester, 'Registrations'), '6');
       expectClean(tester);
     });
   });

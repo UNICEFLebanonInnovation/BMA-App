@@ -102,6 +102,32 @@ class AlpSchoolDashboard {
   final int unmappedCount;
 }
 
+/// The schools an ALP account may report on.
+///
+/// NOT every school in the bootstrap: `reference_data` sends the account's own
+/// school PLUS every `is_bma` school when the account also has MSCC, and the
+/// web's `ALPSchoolDashboardView` scopes to `user.school_id` alone (its geo
+/// view returns an empty list outright for an account with no school). Taking
+/// the raw list would put dozens of MSCC centres' schools on an ALP map and
+/// inflate "Accessible schools" to match.
+///
+/// A school also qualifies when an ALP record on the device names it, so a
+/// device that legitimately holds more than one school still maps them all.
+List<ReferenceItem> alpSchoolsInScope({
+  required Iterable<ReferenceItem> schools,
+  required Iterable<EntityRecord> registrations,
+  required Iterable<EntityRecord> teachers,
+  int? accountSchoolId,
+}) {
+  final wanted = <int>{?accountSchoolId};
+  for (final record in [...registrations, ...teachers]) {
+    if (record.deleted) continue;
+    final id = _int(record.data['school']);
+    if (id != null) wanted.add(id);
+  }
+  return [for (final school in schools) if (wanted.contains(school.id)) school];
+}
+
 class AlpSchoolSource {
   const AlpSchoolSource({
     required this.schools,

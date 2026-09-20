@@ -378,7 +378,7 @@ class _LearningOutcomesCard extends StatelessWidget {
                             // against 100 rather than against each other: a
                             // "best subject" at 40% must not look full.
                             maxValue: 100,
-                            valueText: (item) => '${item.count}%',
+                            valueText: (item) => '${percentText(item.exact ?? item.count, 100)}%',
                             initialLimit: 6,
                             showAllLabel: l10n.showAll,
                             showLessLabel: l10n.showLess,

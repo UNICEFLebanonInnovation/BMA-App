@@ -13,27 +13,35 @@ import 'package:flutter/foundation.dart' show immutable;
 /// One bar, slice or legend entry of a breakdown.
 @immutable
 class ChartItem {
-  const ChartItem({required this.key, required this.label, required this.count});
+  const ChartItem({required this.key, required this.label, required this.count, this.exact});
 
   /// Stable identity of the category, independent of the interface language.
   final String key;
 
   /// What the reader sees.
   final String label;
+
+  /// What the bar is drawn from, and what a count chart prints.
   final int count;
 
+  /// The unrounded figure, for the charts whose value is a MEASURE rather
+  /// than a count — an average percentage per subject, where the website
+  /// prints one decimal and rounding to a whole number moves the number the
+  /// reader compares. Null on every count chart, where [count] is exact.
+  final double? exact;
+
   ChartItem copyWith({String? label, int? count}) =>
-      ChartItem(key: key, label: label ?? this.label, count: count ?? this.count);
+      ChartItem(key: key, label: label ?? this.label, count: count ?? this.count, exact: exact);
 
   @override
   bool operator ==(Object other) =>
-      other is ChartItem && other.key == key && other.label == label && other.count == count;
+      other is ChartItem && other.key == key && other.label == label && other.count == count && other.exact == exact;
 
   @override
-  int get hashCode => Object.hash(key, label, count);
+  int get hashCode => Object.hash(key, label, count, exact);
 
   @override
-  String toString() => 'ChartItem($key=$count)';
+  String toString() => 'ChartItem($key=${exact ?? count})';
 }
 
 /// One day of a daily series.

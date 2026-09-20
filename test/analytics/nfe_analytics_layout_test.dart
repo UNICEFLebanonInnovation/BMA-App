@@ -204,6 +204,12 @@ String kpiValue(WidgetTester tester, String label) {
   return texts.first.data ?? '';
 }
 
+/// What the age box actually displays.
+String _ageText(WidgetTester tester, String key) =>
+    tester.widget<TextField>(find.descendant(of: find.byKey(ValueKey(key)), matching: find.byType(TextField)))
+        .controller!
+        .text;
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -306,6 +312,30 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('nfe-filters-reset')));
       await tester.pumpAndSettle();
       expect(kpiValue(tester, 'Registrations'), '4');
+      expectClean(tester);
+    });
+
+    testWidgets('Reset clears the age boxes, not just the figures behind them', (tester) async {
+      // A TextFormField reads `initialValue` once, so Reset used to recompute
+      // every figure over all registrations while the box still showed the age
+      // the worker had typed: a page claiming a filter it was not applying.
+      tabletLandscape(tester);
+      final fx = await fixture(tester);
+      await open(tester, fx, const NfeAdvancedAnalyticsScreen());
+
+      await tester.tap(find.byKey(moreFilters));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const ValueKey('nfe-filter-age-min')), '9');
+      await tester.pumpAndSettle();
+      // Two children are 11 (born 2015) and one is 18 (born 2008); the 10- and
+      // 7-year-olds drop out.
+      expect(kpiValue(tester, 'Registrations'), '3');
+      expect(_ageText(tester, 'nfe-filter-age-min'), '9');
+
+      await tester.tap(find.byKey(const ValueKey('nfe-filters-reset')));
+      await tester.pumpAndSettle();
+      expect(kpiValue(tester, 'Registrations'), '4');
+      expect(_ageText(tester, 'nfe-filter-age-min'), isEmpty, reason: 'the control must agree with the figures');
       expectClean(tester);
     });
 

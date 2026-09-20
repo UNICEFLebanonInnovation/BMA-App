@@ -629,6 +629,8 @@ void main() {
     });
   });
 
+  _reviewRegressions();
+
   group('ALP school map', () {
     AlpSchoolSource src({int? filterAwareDefault = 7, List<EntityRecord> profiles = const []}) => AlpSchoolSource(
           schools: schools.values.toList(),
@@ -717,6 +719,115 @@ void main() {
       expect(school.adminStaff, '4');
       // A school with no profile keeps them null rather than blank.
       expect(computeAlpSchoolDashboard(src(profiles: [profile])).mappedSchools.last.directorName, isNull);
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Regressions found by review. Each of these was wrong once.
+// ---------------------------------------------------------------------------
+void _reviewRegressions() {
+  group('gradings typed on the device', () {
+    test('a form-shape grading is read, not only the pulled grading_data', () {
+      // ALPGradingDynamicForm has no grading_data field: it builds one integer
+      // field per definition, named grade_<id>, and folds them together on
+      // save. A grading typed offline therefore looks nothing like a pulled one.
+      expect(gradesOf(const {'registration': 1, 'grade_1': 18, 'grade_2': 9}), {'1': 18, '2': 9});
+      expect(gradesOf(const {'grading_data': {'1': 10}}), {'1': 10});
+      // The server shape wins when both are somehow present, and a null grade
+      // is "not assessed" rather than a zero.
+      expect(gradesOf(const {'grading_data': {'1': 10}, 'grade_2': 4}), {'1': 10});
+      expect(gradesOf(const {'grade_1': null, 'grade_2': 5}), {'2': 5});
+      expect(gradesOf(const {'grade_x': 5, 'registration': 2}), isEmpty);
+      expect(gradesOf(const {}), isEmpty);
+    });
+
+    test('an offline assessment reaches the learning outcomes', () {
+      final local = EntityRecord(
+        uuid: 'local-1',
+        entity: Entities.alpGrading,
+        module: 'alp',
+        parentUuid: 'alp-1',
+        syncState: SyncState.pending,
+        data: const {'registration': 1, 'grade_1': 18, 'grade_2': 9},
+      );
+      final o = computeAlpRegistrationInsights(
+        regSource(registrations: [alpRegistration(1)], gradings: [local]),
+        AlpRegistrationFilters.none,
+      ).learningOutcomes;
+      expect(o.assessedChildren, 1);
+      expect(o.averageAchievement, 90.0);
+    });
+
+    test('one registration is one child, however its gradings are linked', () {
+      // A pulled grading linked by server id and a locally typed one linked by
+      // uuid used to land in two buckets, reporting the child twice.
+      final pulled = alpGrading('g-server', parentId: 1, grades: {'1': 8}, created: '2026-01-01T00:00:00');
+      final local = EntityRecord(
+        uuid: 'g-local',
+        entity: Entities.alpGrading,
+        module: 'alp',
+        parentUuid: 'alp-1',
+        syncState: SyncState.pending,
+        data: const {'registration': 1, 'grade_1': 16, 'created': '2026-06-01T00:00:00'},
+      );
+      final o = computeAlpRegistrationInsights(
+        regSource(registrations: [alpRegistration(1)], gradings: [pulled, local]),
+        AlpRegistrationFilters.none,
+      ).learningOutcomes;
+      expect(o.assessedChildren, 1, reason: 'one child, not two');
+      expect(o.averageAchievement, 80.0, reason: 'the later assessment is the latest');
+      expect(o.childrenWithFollowUp, 1);
+      expect(o.improvedChildren, 1);
+    });
+
+    test('a subject average keeps the decimal the website prints', () {
+      // 13/20 and 14/20 average to 67.5%, which must not read as 68%.
+      final o = computeAlpRegistrationInsights(
+        regSource(registrations: [alpRegistration(1), alpRegistration(2)], gradings: [
+          alpGrading('g1', parentId: 1, grades: {'1': 13}, created: '2026-01-01T00:00:00'),
+          alpGrading('g2', parentId: 2, grades: {'1': 14}, created: '2026-01-01T00:00:00'),
+        ]),
+        AlpRegistrationFilters.none,
+      ).learningOutcomes;
+      expect(o.subjects.single.exact, 67.5);
+      expect(o.subjects.single.count, 68, reason: 'the bar still draws from the rounded figure');
+    });
+  });
+
+  group('the ALP school scope', () {
+    test('is the account school plus the schools ALP records name', () {
+      // The bootstrap sends every is_bma school to an account that also has
+      // NFE; an ALP map that showed them all would be a map of another sector.
+      final all = schools.values.toList();
+      expect(all, hasLength(3));
+
+      final justMine = alpSchoolsInScope(
+        schools: all,
+        registrations: const [],
+        teachers: const [],
+        accountSchoolId: 7,
+      );
+      expect(justMine.map((s) => s.id).toList(), [7]);
+
+      final withRecords = alpSchoolsInScope(
+        schools: all,
+        registrations: [alpRegistration(1, school: 8)],
+        teachers: [alpTeacher(1, school: 9)],
+        accountSchoolId: 7,
+      );
+      expect(withRecords.map((s) => s.id).toList(), [7, 8, 9]);
+
+      // A deleted record does not drag its school into scope, and an account
+      // with no school and no records sees nothing rather than everything.
+      expect(
+        alpSchoolsInScope(
+          schools: all,
+          registrations: [alpRegistration(1, school: 8).copyWith(deleted: true)],
+          teachers: const [],
+        ),
+        isEmpty,
+      );
     });
   });
 }

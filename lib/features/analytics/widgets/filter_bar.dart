@@ -176,8 +176,15 @@ class _DateField extends StatelessWidget {
   }
 }
 
-/// Simple numeric field for the age bounds.
-class NumberFilterField extends StatelessWidget {
+/// Numeric field for the age bounds.
+///
+/// It owns a [TextEditingController] rather than passing `initialValue`:
+/// `TextFormField` builds its controller in `initState` and its
+/// `didUpdateWidget` only reacts to a new *controller*, never to a new
+/// `initialValue`. With the plain field, **Reset** cleared the filter and
+/// recomputed every figure while the box still showed the age the worker had
+/// typed — a page saying it is filtered while showing everything.
+class NumberFilterField extends StatefulWidget {
   const NumberFilterField({super.key, required this.label, required this.value, required this.onChanged});
 
   final String label;
@@ -185,12 +192,36 @@ class NumberFilterField extends StatelessWidget {
   final ValueChanged<int?> onChanged;
 
   @override
+  State<NumberFilterField> createState() => _NumberFilterFieldState();
+}
+
+class _NumberFilterFieldState extends State<NumberFilterField> {
+  late final TextEditingController _controller = TextEditingController(text: widget.value?.toString() ?? '');
+
+  @override
+  void didUpdateWidget(NumberFilterField old) {
+    super.didUpdateWidget(old);
+    // Only when the incoming value is not what the box already says: writing
+    // the text back on every keystroke would fight the cursor, and "7" typed
+    // as "07" must not be rewritten under the worker's fingers.
+    if (widget.value != int.tryParse(_controller.text.trim())) {
+      _controller.text = widget.value?.toString() ?? '';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      initialValue: value?.toString() ?? '',
+    return TextField(
+      controller: _controller,
       keyboardType: TextInputType.number,
-      decoration: InputDecoration(labelText: label),
-      onChanged: (text) => onChanged(int.tryParse(text.trim())),
+      decoration: InputDecoration(labelText: widget.label),
+      onChanged: (text) => widget.onChanged(int.tryParse(text.trim())),
     );
   }
 }

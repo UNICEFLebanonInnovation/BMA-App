@@ -388,6 +388,28 @@ bool _matches(AlpRegistrationRow row, AlpRegistrationFilters f) {
   return true;
 }
 
+/// The grades of one assessment, whichever shape it is stored in.
+///
+/// A pulled grading carries the model's `grading_data` JSON verbatim
+/// (`{"<definition id>": <grade>}`). One typed on the device carries the
+/// FORM's fields instead, and `ALPGradingDynamicForm` builds one integer
+/// field per definition named `grade_<id>` — its `save()` is what folds them
+/// back into `grading_data`. Reading only the first shape made every
+/// assessment recorded offline invisible to the learning-outcome block, which
+/// is precisely the work this dashboard exists to show.
+Map<String, dynamic> gradesOf(Map<String, dynamic> data) {
+  final raw = data['grading_data'];
+  if (raw is Map && raw.isNotEmpty) return Map<String, dynamic>.from(raw);
+  final grades = <String, dynamic>{};
+  for (final entry in data.entries) {
+    if (!entry.key.startsWith('grade_') || entry.value == null) continue;
+    final id = entry.key.substring('grade_'.length);
+    if (int.tryParse(id) == null) continue;
+    grades[id] = entry.value;
+  }
+  return grades;
+}
+
 /// `_normalise_grade`: a grade as a percentage of its definition's range,
 /// clamped to 0..100. Null when the value is not a number or the range is
 /// empty.
@@ -405,22 +427,25 @@ LearningOutcomes buildLearningOutcomes({
   required List<EntityRecord> gradings,
   required Map<int, GradingDefinition> definitions,
   required Set<String> registrationUuids,
-  required Set<int> registrationServerIds,
+  required Map<int, String> registrationUuidByServerId,
   required AlpLabels labels,
 }) {
   // Assessments per registration, each `(created, mean score, raw grades)`.
   final assessments = <String, List<(DateTime, double, Map<String, dynamic>)>>{};
   for (final grading in gradings) {
     if (grading.deleted || grading.syncState == SyncState.discarded) continue;
+    // ALWAYS the registration's uuid. Keying on whichever link a grading
+    // happens to carry would split one child's assessments into two buckets
+    // — a pulled grading linked by server id and a locally typed one linked
+    // by uuid — and report the child twice, each with its own "latest".
     final parentUuid = grading.parentUuid;
     final parentId = grading.parentServerId ?? _int(grading.data['registration']);
     final key = parentUuid != null && registrationUuids.contains(parentUuid)
-        ? 'uuid:$parentUuid'
-        : (parentId != null && registrationServerIds.contains(parentId) ? 'id:$parentId' : null);
+        ? parentUuid
+        : (parentId == null ? null : registrationUuidByServerId[parentId]);
     if (key == null) continue;
 
-    final raw = grading.data['grading_data'];
-    final grades = raw is Map ? Map<String, dynamic>.from(raw) : const <String, dynamic>{};
+    final grades = gradesOf(grading.data);
     final scores = <double>[];
     for (final entry in grades.entries) {
       final definition = definitions[int.tryParse(entry.key) ?? -1];
@@ -479,7 +504,15 @@ LearningOutcomes buildLearningOutcomes({
   for (final entry in subjectTotals.entries) {
     final definition = definitions[entry.key]!;
     final mean = entry.value.reduce((a, b) => a + b) / entry.value.length;
-    subjects.add(ChartItem(key: '${definition.id}', label: definition.material, count: _round1(mean).round()));
+    // `exact` is what the reader sees: the website prints one decimal, and a
+    // 67.5% subject average that reads "68%" is a different number.
+    final rounded = _round1(mean);
+    subjects.add(ChartItem(
+      key: '${definition.id}',
+      label: definition.material,
+      count: rounded.round(),
+      exact: rounded,
+    ));
   }
   subjects.sort((a, b) => a.label.toLowerCase().compareTo(b.label.toLowerCase()));
 
@@ -603,7 +636,7 @@ AlpRegistrationInsights computeAlpRegistrationInsights(
   }
 
   final uuids = {for (final r in rows) r.uuid};
-  final serverIds = {for (final r in rows) if (r.serverId != null) r.serverId!};
+  final uuidByServerId = {for (final r in rows) if (r.serverId != null) r.serverId!: r.uuid};
 
   return AlpRegistrationInsights(
     totalRegistrations: rows.length,
@@ -614,7 +647,7 @@ AlpRegistrationInsights computeAlpRegistrationInsights(
       gradings: src.gradings,
       definitions: src.gradingDefinitions,
       registrationUuids: uuids,
-      registrationServerIds: serverIds,
+      registrationUuidByServerId: uuidByServerId,
       labels: labels,
     ),
     byGender: breakdown((r) => genderKey(r.gender), (r) => labels.base.gender(r.gender)),
