@@ -13,9 +13,9 @@ import 'package:flutter/services.dart';
 /// 1536 and 1791 are 0x0600 and 0x06FF, so the range is the whole Arabic
 /// block — Arabic-Indic digits ٠-٩ and Arabic punctuation included, which is
 /// why this is expressed as a range rather than as a list of letters.
-const String arabicOnlyPattern = r'^[؀-ۿ ]+$';
+const String arabicOnlyPattern = r'^[\u0600-\u06FF ]+$';
 
-final RegExp _notArabic = RegExp(r'[^؀-ۿ ]');
+final RegExp _notArabic = RegExp(r'[^\u0600-\u06FF ]');
 
 bool isArabicOnly(String text) => RegExp(arabicOnlyPattern).hasMatch(text);
 
