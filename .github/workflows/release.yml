@@ -92,6 +92,35 @@ jobs:
       - run: flutter analyze --no-pub
       - run: flutter test
 
+      # A tester installs the new APK over the old one only when both carry the
+      # same signature. The Android debug key cannot do that here: the Gradle
+      # plugin generates it the first time it is missing, and every runner is a
+      # fresh machine, so each build would be signed by a different key and the
+      # install would fail with INSTALL_FAILED_UPDATE_INCOMPATIBLE. The four
+      # secrets below hold the project's own key; README.md, "Signing the
+      # field-test APK", has the one-time setup.
+      - name: Set up the signing key
+        id: signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [[ -z "$KEYSTORE_BASE64" ]]; then
+            echo "::warning::No ANDROID_KEYSTORE_BASE64 secret is set, so this APK is signed with a throwaway debug key. Testers must uninstall the previous build before installing it."
+            echo "signed=debug" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > android/app/upload-keystore.jks
+          {
+            echo "storeFile=upload-keystore.jks"
+            echo "storePassword=$KEYSTORE_PASSWORD"
+            echo "keyAlias=${KEY_ALIAS:-upload}"
+            echo "keyPassword=${KEY_PASSWORD:-$KEYSTORE_PASSWORD}"
+          } > android/key.properties
+          echo "signed=release" >> "$GITHUB_OUTPUT"
+
       - name: Build the release APK
         run: |
           flutter build apk --release
@@ -99,7 +128,14 @@ jobs:
           cp build/app/outputs/flutter-apk/app-release.apk "dist/${{ steps.meta.outputs.apk }}"
           cd dist && sha256sum "${{ steps.meta.outputs.apk }}" > "${{ steps.meta.outputs.apk }}.sha256"
 
+      # The key has done its job; nothing after this step needs it on disk.
+      - name: Remove the signing key
+        if: always()
+        run: rm -f android/app/upload-keystore.jks android/key.properties
+
       - name: Write the release notes
+        env:
+          SIGNED: ${{ steps.signing.outputs.signed }}
         run: |
           cat > dist/notes.md <<'NOTES'
           Android build of the BMA-NFE offline mobile app.
@@ -116,11 +152,24 @@ jobs:
 
           ## Notes
 
-          - This APK is signed with the Android debug key so it installs on any
-            device for field testing. It is not a Play Store build, and it
-            cannot be installed over a copy signed with a different key.
-          - Verify the download against the `.sha256` file published beside it.
           NOTES
+          # What the device does when this build meets an earlier one depends on
+          # which key signed it, so the notes have to say which that was.
+          if [[ "$SIGNED" == "release" ]]; then
+            {
+              echo "- This APK is signed with the project's field-test key, so it installs"
+              echo "  straight over an earlier build from this link and keeps the data"
+              echo "  already on the device. It is not a Play Store build."
+            } >> dist/notes.md
+          else
+            {
+              echo "- **This APK is signed with a throwaway debug key.** Android refuses to"
+              echo "  install it over an earlier build, and uninstalling that one erases any"
+              echo "  registrations it has not yet synchronised. Setting the repository's"
+              echo "  signing secrets fixes this for every build after it."
+            } >> dist/notes.md
+          fi
+          echo "- Verify the download against the \`.sha256\` file published beside it." >> dist/notes.md
           if [[ "${{ steps.meta.outputs.rolling }}" == "true" ]]; then
             {
               echo ""

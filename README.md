@@ -227,15 +227,53 @@ git push origin v0.1.0
 
 Tags with a suffix (`v0.1.0-beta.1`) are published as pre-releases.
 
+#### Signing the field-test APK
+
+A phone installs a new build over the old one only when the same key signed
+both. Without a key of its own the build falls back to the Android debug key,
+which the Gradle plugin generates the first time it is missing — and every CI
+runner is a fresh machine, so each build would carry a different key and the
+next install would fail with `INSTALL_FAILED_UPDATE_INCOMPATIBLE`. The tester's
+only way out is to uninstall, which erases registrations the device has not yet
+synchronised. The release notes say which key signed the build.
+
+Give the project one key once, and every build after it installs cleanly:
+
+```bash
+keytool -genkey -v -keystore upload-keystore.jks -storetype JKS \
+  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+
+gh secret set ANDROID_KEYSTORE_BASE64 < <(base64 -w0 upload-keystore.jks)
+gh secret set ANDROID_KEYSTORE_PASSWORD   # the store password you just chose
+gh secret set ANDROID_KEY_ALIAS           # upload
+gh secret set ANDROID_KEY_PASSWORD        # the key password, if it differs
+```
+
+Keep `upload-keystore.jks` somewhere safe and out of the repository. Losing it
+means no later build can update an installed one. To sign locally, put the
+keystore in `android/app/` and write `android/key.properties`:
+
+```properties
+storeFile=upload-keystore.jks
+storePassword=…
+keyAlias=upload
+keyPassword=…
+```
+
+`android/.gitignore` already excludes both files. `android/app/build.gradle.kts`
+uses them when they are there and the debug key when they are not, so
+`flutter run --release` still works on a machine with no key.
+
 #### APK from GitHub Actions
 
 Every push runs `.github/workflows/build.yml`, which analyses and tests the
 code and then builds a release APK. Open the run under **Actions → Build** and
 download the `bma-app-apk` artifact (kept for 90 days). The workflow can also
 be started by hand (**Run workflow**) with `build_type` = `release` or `debug`.
-The release APK is signed with the debug key so it installs on any device for
-field testing; configure a proper upload key in `android/app/build.gradle.kts`
-before publishing to a store.
+This workflow signs with the debug key, so its artifact is for a developer
+checking a change rather than for a tester who already has the app installed.
+Anything handed to the field should come from the release link above, which
+uses the project's own key — see **Signing the field-test APK**.
 
 ## Testing
 
